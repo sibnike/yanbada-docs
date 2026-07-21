@@ -5,7 +5,7 @@
 
 ## Текущая фаза
 
-**Live E2E цепочка — код готов**, нужен deploy + локальный/prod sync. Следующий крупный блок: **AI Content Builder UI**.
+**Live E2E — hub + vitrina на prod**, TourHub PR #2 (полный Next.js). Следующий блок: **AI Content Builder UI**.
 
 ---
 
@@ -27,8 +27,8 @@
 
 | Приоритет | Задача | Проект | Док |
 |-----------|--------|--------|-----|
-| **P0** | TourHub `live-mapper` + seller profile из `company_cache` | tourhub + mega-hub | ✅ код; deploy pending |
-| **P1** | Registration: tourism + `marketplace_themes` | vitrina | ✅ код; deploy pending |
+| **P0** | TourHub `live-mapper` + seller profile из `company_cache` | tourhub + mega-hub | PR [tourhub #2](https://github.com/sibnike/tourhub/pull/2) |
+| **P1** | Registration: tourism + `marketplace_themes` | vitrina | ✅ merged PR #3 |
 | **P0** | AI Content Builder — admin UI | vitrina | `TZ-AI-Content-Builder-Tourism.md` |
 | **P1** | Publish flow: профиль → template → page → listing sync | vitrina | `04-vitrina-work-backlog.md` |
 | **P1** | Catalog live из hub (не demo-data) | tourhub | `tourhub/docs/ARCHITECTURE.md` |
@@ -42,7 +42,8 @@
 - [x] `hub.company_cache` — legal, tourism, media (кроме bank)
 - [x] Seed script sync company + listing webhooks (`seed-tourhub-demo.mjs`)
 - [x] Локально: 3 listing в hub + TourHub live API (`count: 3`)
-- [ ] Prod deploy vitrina + mega-hub + tourhub
+- [x] Prod deploy vitrina + mega-hub (PR #3, hub #2 merged)
+- [ ] Prod deploy tourhub (PR #2) + Vercel env
 
 Seed: `cd vitrina && node scripts/seed-tourhub-demo.mjs`
 
