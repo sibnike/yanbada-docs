@@ -4,6 +4,24 @@
 
 ---
 
+## 2026-07-21 (live E2E)
+
+**tourhub** | Live market: mapper, seller profile, listings bridge
+- `live-mapper.ts` — price, city, themes, `hubCompanyToMarketSeller`
+- `/market/seller/[slug]` — live mode из `GET hub/api/marketplace/company/{slug}`
+- Seller UI: about, cover, gallery url
+
+**mega-hub** | Public company API + richer listing search
+- `GET /api/marketplace/company/[tenantSlug]`
+- `search-listing-cache` — price_from, marketplace_themes, company city
+
+**vitrina** | Registration tourism + seed listing sync
+- Register: `is_tourism_business`, обязательный `marketplace_themes` picker
+- `seed-tourhub-demo.mjs` — extended hub sync + listing webhook
+- **Дальше:** deploy vitrina + hub; seed с поднятым mega-hub; TourHub `TOURHUB_DATA_MODE=live`
+
+---
+
 ## 2026-07-21 (docs repo)
 
 **meta** | Git-репозиторий `sibnike/yanbada-docs`

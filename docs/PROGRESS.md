@@ -5,7 +5,7 @@
 
 ## Текущая фаза
 
-**Профиль компании в Vitrina — на prod.** Следующий фокус: **AI Content Builder UI** → **TourHub live** (mapper + catalog из hub).
+**Live E2E цепочка — код готов**, нужен deploy + локальный/prod sync. Следующий крупный блок: **AI Content Builder UI**.
 
 ---
 
@@ -27,9 +27,9 @@
 
 | Приоритет | Задача | Проект | Док |
 |-----------|--------|--------|-----|
-| **P0** | AI Content Builder — admin UI (диалог, PATCH blocks) | vitrina | `vitrina/docs/TZ-AI-Content-Builder-Tourism.md` |
-| **P0** | TourHub `live-mapper` — новые поля `company_cache` (cover, gallery, license…) | tourhub | `03-tourhub-current-state.md` |
-| **P1** | Категории при регистрации: `tourism` + обязательный `marketplace_themes` | vitrina | `04-vitrina-work-backlog.md` |
+| **P0** | TourHub `live-mapper` + seller profile из `company_cache` | tourhub + mega-hub | ✅ код; deploy pending |
+| **P1** | Registration: tourism + `marketplace_themes` | vitrina | ✅ код; deploy pending |
+| **P0** | AI Content Builder — admin UI | vitrina | `TZ-AI-Content-Builder-Tourism.md` |
 | **P1** | Publish flow: профиль → template → page → listing sync | vitrina | `04-vitrina-work-backlog.md` |
 | **P1** | Catalog live из hub (не demo-data) | tourhub | `tourhub/docs/ARCHITECTURE.md` |
 | **P2** | Публичный GET JSON страницы для TourHub detail | vitrina | backlog §P1 |
@@ -40,10 +40,9 @@
 
 - [x] Профиль сохраняется в admin vitrina
 - [x] `hub.company_cache` — legal, tourism, media (кроме bank)
-- [ ] `marketplace_themes` заполнены у тестового тенанта
-- [ ] Опубликована страница с `catalog_items`
-- [ ] `hub.listing_cache` содержит listing
-- [ ] `curl localhost:3002/api/market/listings` (live mode) показывает карточку
+- [x] Seed script sync company + listing webhooks (`seed-tourhub-demo.mjs`)
+- [x] Локально: 3 listing в hub + TourHub live API (`count: 3`)
+- [ ] Prod deploy vitrina + mega-hub + tourhub
 
 Seed: `cd vitrina && node scripts/seed-tourhub-demo.mjs`
 

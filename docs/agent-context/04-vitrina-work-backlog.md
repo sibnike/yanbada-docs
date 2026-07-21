@@ -17,8 +17,10 @@
 **Файлы:** `20260721100000_company_profile_legal_extended.sql`, `company-profile-client.tsx`, `sync-to-hub.ts`
 
 ### 2. Категории при регистрации
-- `categories: ['tourism']` по умолчанию для тур-бизнеса
-- Обязательный picker `marketplace_themes` (минимум 1 из 5)
+~~`categories: ['tourism']` по умолчанию для тур-бизнеса~~
+~~Обязательный picker `marketplace_themes` (минимум 1 из 5)~~
+
+**✅ 2026-07-21:** `/register` — чекбокс «туристический бизнес» + picker themes; API валидирует slugs.
 
 ### 3. Расширить syncToHub
 ~~Проброс tourism-полей в `hub.company_cache`~~ **✅ 2026-07-21** — legal, tourism, media в sync; `bank_details` только vitrina.
