@@ -5,7 +5,7 @@
 
 ## Текущая фаза
 
-**Live E2E — hub + vitrina на prod**, TourHub PR #2 (полный Next.js). Следующий блок: **AI Content Builder UI**.
+**Live E2E на prod** (hub + vitrina + tourhub merged). Следующий блок: **Vercel env tourhub** → **AI Content Builder UI**.
 
 ---
 
