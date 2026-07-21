@@ -27,7 +27,7 @@
 
 | Приоритет | Задача | Проект | Док |
 |-----------|--------|--------|-----|
-| **P0** | TourHub `live-mapper` + seller profile из `company_cache` | tourhub + mega-hub | PR [tourhub #2](https://github.com/sibnike/tourhub/pull/2) |
+| **P0** | TourHub `live-mapper` + seller profile из `company_cache` | tourhub + mega-hub | ✅ merged PR #2 |
 | **P1** | Registration: tourism + `marketplace_themes` | vitrina | ✅ merged PR #3 |
 | **P0** | AI Content Builder — admin UI | vitrina | `TZ-AI-Content-Builder-Tourism.md` |
 | **P1** | Publish flow: профиль → template → page → listing sync | vitrina | `04-vitrina-work-backlog.md` |
@@ -43,7 +43,8 @@
 - [x] Seed script sync company + listing webhooks (`seed-tourhub-demo.mjs`)
 - [x] Локально: 3 listing в hub + TourHub live API (`count: 3`)
 - [x] Prod deploy vitrina + mega-hub (PR #3, hub #2 merged)
-- [ ] Prod deploy tourhub (PR #2) + Vercel env
+- [x] Prod deploy tourhub (PR #2 merged — Next.js only, Netlify demo removed)
+- [ ] Vercel env tourhub + prod seed
 
 Seed: `cd vitrina && node scripts/seed-tourhub-demo.mjs`
 
