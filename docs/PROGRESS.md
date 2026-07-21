@@ -5,7 +5,7 @@
 
 ## Текущая фаза
 
-**Live E2E на prod** (hub + vitrina + tourhub merged). Следующий блок: **Vercel env tourhub** → **AI Content Builder UI**.
+**Live E2E на prod** (hub + vitrina + tourhub на tourhub.yanbada.com). Следующий блок: **prod seed demo tenants** → **AI Content Builder UI**.
 
 ---
 
@@ -44,7 +44,8 @@
 - [x] Локально: 3 listing в hub + TourHub live API (`count: 3`)
 - [x] Prod deploy vitrina + mega-hub (PR #3, hub #2 merged)
 - [x] Prod deploy tourhub (PR #2 merged — Next.js only, Netlify demo removed)
-- [ ] Vercel env tourhub + prod seed
+- [x] Vercel env tourhub + prod deploy (tourhub.yanbada.com)
+- [ ] Prod seed demo tenants (nomad-trails, steppe-journeys, aquatour-burabay)
 
 Seed: `cd vitrina && node scripts/seed-tourhub-demo.mjs`
 
@@ -68,7 +69,7 @@ Yanbada-superApp/           ← git: sibnike/yanbada-docs (docs + cursor rules)
 ├── .cursor/rules/
 ├── vitrina/                ← git: sibnike/vitrina
 ├── mega-hub/               ← git: sibnike/hub
-└── tourhub/                ← локально
+└── tourhub/                ← git: sibnike/tourhub → tourhub.yanbada.com
 ```
 
 **Clone docs:** `git clone https://github.com/sibnike/yanbada-docs.git ~/Projects/Yanbada-superApp`
