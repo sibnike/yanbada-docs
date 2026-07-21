@@ -5,7 +5,7 @@
 
 ## Текущая фаза
 
-**Live E2E на prod** (hub + vitrina + tourhub на tourhub.yanbada.com). Следующий блок: **prod seed demo tenants** → **AI Content Builder UI**.
+**Live E2E + demo tenants на prod** ✅. **AI Content Builder UI** — MVP admin-экран в vitrina (чат + preview), backend был готов ранее.
 
 ---
 
@@ -29,7 +29,7 @@
 |-----------|--------|--------|-----|
 | **P0** | TourHub `live-mapper` + seller profile из `company_cache` | tourhub + mega-hub | ✅ merged PR #2 |
 | **P1** | Registration: tourism + `marketplace_themes` | vitrina | ✅ merged PR #3 |
-| **P0** | AI Content Builder — admin UI | vitrina | `TZ-AI-Content-Builder-Tourism.md` |
+| **P0** | AI Content Builder — admin UI | vitrina | ✅ MVP UI (`content-builder-client.tsx`, routes `/content-builder`, `/pages/[id]/content-builder`) |
 | **P1** | Publish flow: профиль → template → page → listing sync | vitrina | `04-vitrina-work-backlog.md` |
 | **P1** | Catalog live из hub (не demo-data) | tourhub | `tourhub/docs/ARCHITECTURE.md` |
 | **P2** | Публичный GET JSON страницы для TourHub detail | vitrina | backlog §P1 |

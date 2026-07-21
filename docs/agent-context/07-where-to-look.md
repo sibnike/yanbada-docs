@@ -17,7 +17,7 @@
 | Деплой prod | `vitrina/docs/DEPLOY-PHASE1.md` | Vercel + `CONFIRM_PROD_DB_PUSH=1 npm run db:push:prod` |
 | Booking | `vitrina/docs/BOOKING-MODEL.md` | `vitrina/app/api/booking/`, admin booking routes |
 | Pages / blocks builder | `vitrina/docs/ARCHITECTURE.md`, `TZ-Pages-Builder-Phase1.md` | `vitrina/lib/blocks/` |
-| AI Content Builder | `vitrina/docs/TZ-AI-Content-Builder-Tourism.md` | feature flag, templates в `lib/ai/` |
+| AI Content Builder | `vitrina/docs/TZ-AI-Content-Builder-Tourism.md` | `components/admin/content-builder-client.tsx`, `app/api/admin/t/[tenantSlug]/ai/cb/`, `lib/page-templates/categories/` |
 | Заявки TourHub → inbox | [02-ecosystem-data-flow.md](./02-ecosystem-data-flow.md) | `tourhub/app/api/marketplace-request/`, `mega-hub/app/api/marketplace/request/` |
 | Hub events / карта / QR | `mega-hub/ARCHITECTURE.md` | `mega-hub/app/e/`, `app/organizer/` |
 | Стиль и git | [06-conventions-for-agents.md](./06-conventions-for-agents.md) | — |

@@ -4,6 +4,18 @@
 
 ---
 
+## 2026-07-21 (AI Content Builder UI)
+
+**vitrina** | MVP admin UI для диалогового AI Content Builder
+- `components/admin/content-builder-client.tsx` — split-screen: чат слева, iframe preview справа, % готовности + chips недостающих блоков
+- Routes: `/admin/t/[slug]/content-builder` (create), `/pages/[id]/content-builder` (continue/edit)
+- `PageTemplatePicker` — при `feature_ai_content_builder_dialog` → «Собрать с AI», иначе старый questionnaire flow
+- Entry: кнопки в page editor + иконка ✨ на published page в списке
+- Phase 1 (templates + `content_keys`/`required_block_keys`) уже была в коде — без изменений
+- **Дальше:** E2E на nomad-trails с включённым флагом, `tsc --noEmit` на локальной (не iCloud) копии
+
+---
+
 ## 2026-07-21 (prod demo seed)
 
 **vitrina + hub** | Demo tenants на prod
