@@ -45,7 +45,7 @@
 - [x] Prod deploy vitrina + mega-hub (PR #3, hub #2 merged)
 - [x] Prod deploy tourhub (PR #2 merged — Next.js only, Netlify demo removed)
 - [x] Vercel env tourhub + prod deploy (tourhub.yanbada.com)
-- [ ] Prod seed demo tenants (nomad-trails, steppe-journeys, aquatour-burabay)
+- [x] Prod seed demo tenants (nomad-trails, steppe-journeys, aquatour-burabay)
 
 Seed: `cd vitrina && node scripts/seed-tourhub-demo.mjs`
 

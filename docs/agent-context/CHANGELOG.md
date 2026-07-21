@@ -4,6 +4,16 @@
 
 ---
 
+## 2026-07-21 (prod demo seed)
+
+**vitrina + hub** | Demo tenants на prod
+- `seed-tourhub-demo.mjs --prod` — SQL через linked Supabase CLI + hub webhooks
+- 3 тенанта: nomad-trails, steppe-journeys, aquatour-burabay
+- Fix: `VITRINA_WEBHOOK_SECRET` добавлен на Vercel prod (mega-hub + vitrina), hub redeploy
+- TourHub live: 21 listing, demo sellers видны
+
+---
+
 ## 2026-07-21 (merge + tourhub fix)
 
 **mega-hub + vitrina** | Live E2E merged to prod
