@@ -1,0 +1,37 @@
+---
+description: Git и структура docs/ в репозитории sibnike/yanbada-docs
+globs: docs/**,README.md,.cursor/rules/yanbada*.mdc
+alwaysApply: false
+---
+
+# Yanbada Docs — репозиторий и обновления
+
+## Git
+
+- **Remote:** https://github.com/sibnike/yanbada-docs
+- **Локально:** `~/Projects/Yanbada-superApp/` — корень этого repo (не vitrina/mega-hub/tourhub)
+- **Коммитить:** `README.md`, `docs/**`, `.cursor/rules/yanbada*.mdc`
+- **Не коммитить:** `vitrina/`, `mega-hub/`, `tourhub/` (отдельные репозитории)
+
+## Слои (не дублировать)
+
+| Слой | Где | Содержание |
+|------|-----|------------|
+| Экосистема | `docs/PROGRESS.md`, `docs/YANBADA_ARCHITECTURE.md` | статус, связи проектов |
+| Агенты | `docs/agent-context/` | START-HERE, 07-where-to-look, CHANGELOG |
+| Проект | `{repo}/docs/` или `ARCHITECTURE.md` | booking, hub events, tourhub live |
+
+Ecosystem-доки **только** в `docs/`. В vitrina/mega-hub/tourhub — ссылки на `../../docs/`.
+
+## После правок в docs/
+
+1. Обнови [CHANGELOG.md](../../docs/agent-context/CHANGELOG.md) при значимой сессии
+2. Обнови [PROGRESS.md](../../docs/PROGRESS.md) при смене prod-статуса или приоритетов
+3. Коммит **только по просьбе пользователя**, сообщение: `docs: …`
+
+## Клон на новой машине
+
+```bash
+git clone https://github.com/sibnike/yanbada-docs.git ~/Projects/Yanbada-superApp
+# рядом клонировать vitrina, mega-hub, tourhub в эту же папку
+```

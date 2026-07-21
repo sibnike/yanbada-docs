@@ -1,0 +1,11 @@
+# Соседние репозитории — свой git, не включать
+/vitrina/
+/mega-hub/
+/tourhub/
+/tourhub-restore/
+
+# OS / IDE
+.DS_Store
+*.swp
+.idea/
+.vscode/
