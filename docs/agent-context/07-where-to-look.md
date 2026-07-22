@@ -14,7 +14,7 @@
 | TourHub market/catalog | [03-tourhub-current-state.md](./03-tourhub-current-state.md) | `tourhub/lib/market/`, `lib/demo-data/` |
 | Категории / themes маркета | [05-categories-mapping.md](./05-categories-mapping.md) | `hub.marketplace_themes`, picker в vitrina admin |
 | Миграции БД | см. ниже §Миграции | `*/supabase/migrations/` |
-| Деплой prod | `vitrina/docs/DEPLOY-PHASE1.md` | Vercel + `CONFIRM_PROD_DB_PUSH=1 npm run db:push:prod` |
+| Деплой prod / домены Microp | `vitrina/docs/DOMAINS-MICROP-PROD.md`, `DEPLOY-PHASE1.md` | Vercel + Cloudflare + Supabase Auth |
 | Booking | `vitrina/docs/BOOKING-MODEL.md` | `vitrina/app/api/booking/`, admin booking routes |
 | Pages / blocks builder | `vitrina/docs/ARCHITECTURE.md`, `TZ-Pages-Builder-Phase1.md` | `vitrina/lib/blocks/` |
 | AI Content Builder | `vitrina/docs/TZ-AI-Content-Builder-Tourism.md` | `components/admin/content-builder-client.tsx`, `app/api/admin/t/[tenantSlug]/ai/cb/`, `lib/page-templates/categories/` |
@@ -36,8 +36,9 @@
 | Тест-репорты | `vitrina/docs/reports/V-*.md` | prod E2E фикстура `qa-sandbox` |
 | Handoff | `vitrina/docs/HANDOFF.md` | — |
 
-**Admin URL:** `https://admin.yanbada.com/admin/t/{tenantSlug}/…`  
-**Публичные страницы:** `https://vitrina.yanbada.com/p/{slug}`
+**Admin URL:** `https://admin.microp.app/admin/t/{tenantSlug}/…`  
+**Публичные страницы:** `https://vitrina.microp.app/p/{slug}`  
+**Hub тенанта:** `https://{hub_subdomain}.microp.app`
 
 ### mega-hub
 
@@ -47,7 +48,7 @@
 | Marketplace / AI match | `mega-hub/tasks/prompt_81_marketplace_request.md` | `app/api/marketplace/` |
 | Company card | `mega-hub/tasks/prompt_39_hub_company_card_redesign.md` | `app/e/[slug]/company/` |
 
-**Prod:** `https://hub.yanbada.com`
+**Prod:** `https://hub.microp.app`
 
 ### tourhub
 

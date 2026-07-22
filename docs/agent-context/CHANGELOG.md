@@ -4,7 +4,14 @@
 
 ---
 
-## 2026-07-21 (AI Content Builder UI)
+## 2026-07-22
+
+**vitrina + mega-hub + docs** | Prod-домены Microp (миграция с yanbada.com)
+- Fallbacks и email defaults → `microp.app`; hub cookie/auth для `.microp.app`
+- `vitrina/docs/DOMAINS-MICROP-PROD.md`, `docs/DOMAINS-MICROP.md`, обновлены ARCHITECTURE / DEPLOY / 07-where-to-look
+- **Дальше:** push vitrina + hub, env на Vercel, DNS Cloudflare, Supabase Auth URLs, Resend domain
+
+---
 
 **vitrina** | MVP admin UI для диалогового AI Content Builder
 - `components/admin/content-builder-client.tsx` — split-screen: чат слева, iframe preview справа, % готовности + chips недостающих блоков

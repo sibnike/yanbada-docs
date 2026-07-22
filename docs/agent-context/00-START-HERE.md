@@ -8,7 +8,8 @@
 
 ```
 Vitrina (write)  →  mega-hub cache  →  TourHub (read, B2C)
- admin.yanbada.com     hub.*_cache       tourhub (dev :3002)
+ admin.microp.app     hub.*_cache       tourhub (dev :3002)
+ microp.app — маркетинг (Vitrina/Microp/, отдельный Vercel)
 ```
 
 | Проект | Роль | Порт dev | Git |
