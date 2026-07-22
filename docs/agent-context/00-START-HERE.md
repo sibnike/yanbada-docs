@@ -9,7 +9,7 @@
 ```
 Vitrina (write)  →  mega-hub cache  →  TourHub (read, B2C)
  admin.microp.app     hub.*_cache       tourhub (dev :3002)
- microp.app — маркетинг (Vitrina/Microp/, отдельный Vercel)
+ microp.app — apex на vitrina (→ login; лендинг Microp/ позже)
 ```
 
 | Проект | Роль | Порт dev | Git |
