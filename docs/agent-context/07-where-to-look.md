@@ -15,6 +15,7 @@
 | Категории / themes маркета | [05-categories-mapping.md](./05-categories-mapping.md) | `hub.marketplace_themes`, picker в vitrina admin |
 | Миграции БД | см. ниже §Миграции | `*/supabase/migrations/` |
 | Деплой prod / домены Microp | `vitrina/docs/DOMAINS-MICROP-PROD.md`, `DEPLOY-PHASE1.md` | Vercel + Cloudflare + Supabase Auth |
+| Auth cookie / субдомены / middleware latency | `vitrina/docs/DOMAINS-MICROP-PROD.md` §Security backlog, `ARCHITECTURE.md` §16a | `vitrina/middleware.ts`, `lib/supabase/auth-cookie.ts` |
 | Booking | `vitrina/docs/BOOKING-MODEL.md` | `vitrina/app/api/booking/`, admin booking routes |
 | Pages / blocks builder | `vitrina/docs/ARCHITECTURE.md`, `TZ-Pages-Builder-Phase1.md` | `vitrina/lib/blocks/` |
 | AI Content Builder | `vitrina/docs/TZ-AI-Content-Builder-Tourism.md` | `components/admin/content-builder-client.tsx`, `app/api/admin/t/[tenantSlug]/ai/cb/`, `lib/page-templates/categories/` |
