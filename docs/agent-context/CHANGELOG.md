@@ -6,6 +6,14 @@
 
 ## 2026-07-26
 
+**vitrina + hub** | Publish flow: multi-market + TourHub gated access
+- Модель: themes ≠ profile↔market ≠ page↔market; `access_policy` open|gated
+- Schema: `hub.marketplace_sellers`, `pages/listing_cache.marketplace_slugs`, tourhub=gated
+- Wizard `/admin/t/{slug}/publish`; platform approve `/admin/platform/marketplace-sellers`
+- TourHub live filter `marketplace=tourhub` + approved sellers
+- Docs: `05-categories-mapping.md`, `02-ecosystem-data-flow.md`
+- **Дальше:** `CONFIRM_PROD_DB_PUSH` миграции `20260726180000` + seed demo sellers; E2E live listings
+
 **vitrina + hub DB** | RLS perf indexes P0+P1 (`20260726170000`)
 - P0: `hub.event_maps` / `event_polls` (`event_id`)
 - P1: photo_bank partials; `page_blocks` / `catalog_items` active list; marketplace token InitPlan

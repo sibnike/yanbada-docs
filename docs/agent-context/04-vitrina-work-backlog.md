@@ -26,10 +26,17 @@
 ~~Проброс tourism-полей в `hub.company_cache`~~ **✅ 2026-07-21** — legal, tourism, media в sync; `bank_details` только vitrina.
 
 ### 4. Publish flow
-Wizard: профиль → тип бизнеса (page template) → published page с `catalog_items` → auto listing sync.
+~~Wizard: профиль → тип бизнеса → published → listing~~
+
+**2026-07-26:** `/admin/t/{slug}/publish` + multi-market model:
+- themes ≠ channel; TourHub **gated** (`hub.marketplace_sellers`)
+- `pages.marketplace_slugs` + listing filter `marketplace=tourhub`
+- Platform: `/admin/platform/marketplace-sellers` approve/reject
+- См. `05-categories-mapping.md`, миграция `20260726180000_marketplace_sellers_channels.sql`
 
 ### 5. Проверить entitlements
-`feature_hub: false` у free — может блокировать sync. Убедиться, что demo/production tenants sync'ятся.
+`feature_hub: false` у free — **не** блокирует listing sync.  
+Tourism register включает `feature_page_templates` для wizard/picker.
 
 ## P1 — улучшает маркет
 
@@ -52,11 +59,11 @@ TourHub добавит таблицу маппинга theme → UI category.
 ## E2E checklist (перед возвратом в TourHub)
 
 - [x] Создан/обновлён профиль в admin vitrina (prod UI)
-- [ ] `marketplace_themes` заполнены
-- [ ] Опубликована страница с catalog_items
+- [x] `marketplace_themes` заполнены (register + profile)
+- [x] Publish wizard + seller access (TourHub gated)
 - [x] `hub.company_cache` содержит новые поля (после sync)
-- [ ] `hub.listing_cache` содержит listing
-- [ ] `curl localhost:3002/api/market/listings` показывает карточку в live mode
+- [ ] `hub.listing_cache` с `marketplace_slugs=['tourhub']` + seller approved (после migrate + seed)
+- [ ] `curl …/api/market/listings` live показывает только tourhub-канальные listings
 
 Полный статус: [../PROGRESS.md](../PROGRESS.md)
 
