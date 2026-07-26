@@ -13,7 +13,7 @@
 | Профиль компании | [04-vitrina-work-backlog.md](./04-vitrina-work-backlog.md) | `vitrina/components/admin/company-profile-client.tsx`, `app/api/admin/t/[tenantSlug]/company-profile/` |
 | TourHub market/catalog | [03-tourhub-current-state.md](./03-tourhub-current-state.md) | `tourhub/lib/market/`, `lib/demo-data/` |
 | Категории / themes маркета | [05-categories-mapping.md](./05-categories-mapping.md) | `marketplace_themes` + channels (`marketplace_slugs`, sellers) |
-| Publish → TourHub (gated) | [05-categories-mapping.md](./05-categories-mapping.md), [02-ecosystem-data-flow.md](./02-ecosystem-data-flow.md) | `vitrina/.../publish`, `hub.marketplace_sellers`, search `marketplace=tourhub` |
+| Маркеты / publish channels | [05-categories-mapping.md](./05-categories-mapping.md), [02-ecosystem-data-flow.md](./02-ecosystem-data-flow.md) | Sidebar «Маркеты» → `/publish`; каталог `PUBLISH_CHANNELS`; TourHub = первый gated |
 | Миграции БД | см. ниже §Миграции | `*/supabase/migrations/` |
 | Деплой prod / домены Microp | `vitrina/docs/DOMAINS-MICROP-PROD.md`, `DEPLOY-PHASE1.md` | Vercel + Cloudflare + Supabase Auth |
 | Auth cookie / субдомены / middleware latency | `vitrina/docs/DOMAINS-MICROP-PROD.md` §Security backlog, `ARCHITECTURE.md` §16a | `vitrina/middleware.ts`, `lib/supabase/auth-cookie.ts` |

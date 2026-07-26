@@ -6,6 +6,12 @@
 
 ## 2026-07-26
 
+**vitrina** | UI «Маркеты» — мульти-канал с первого экрана
+- Sidebar: «Маркеты» (было «В TourHub»)
+- Wizard: выбор канала из `PUBLISH_CHANNELS`; TourHub — первый enabled
+- API status/request-access принимают `marketplace`
+- **Дальше:** добавлять каналы в `market-channels.ts` + строку в `hub.marketplaces`
+
 **prod E2E** | Publish flow + TourHub live listings
 - Hub prod build fixed (`marketplace` on search filter) — hub #6/#7
 - Seed → `hub.microp.app`; listing_cache.marketplace_slugs=`tourhub` для 3 demo
