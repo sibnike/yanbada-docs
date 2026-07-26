@@ -57,7 +57,7 @@ TourHub POST /api/marketplace-request
 | founding_year, employee_count, coverage_cities | ✅ | — | |
 | **bank_details** | ❌ | — | **только** `company_profiles` в vitrina |
 | price_from | — | ✅ | |
-| seats, wholesale price, slots | — | ❌ | placeholder в live-mapper |
+| seats / next date / available_slots | — | ✅ | snapshot при listing sync (`market_booking_mode`, `next_departure_date`, `seats_*`, `available_slots`) |
 
 TourHub `live-mapper.ts` может ещё не отображать все sync'd поля — см. [PROGRESS.md](../PROGRESS.md).
 
@@ -66,10 +66,14 @@ TourHub `live-mapper.ts` может ещё не отображать все sync
 ```bash
 cd vitrina
 node scripts/seed-tourhub-demo.mjs
+# календари + места для маркета (после demo tenants)
+node scripts/seed-market-booking.mjs
 ```
 
 Создаёт demo-операторов + вызывает `POST {mega-hub}/api/sync/company` для каждого.
 Без этого `hub.company_cache` пуст → матчинг заявок не находит тенантов.
+
+`seed-market-booking.mjs` — `feature_booking`, `booking_schedules` / `booking_configs` на catalog items + listing sync со snapshot доступности.
 
 ## Критический контур (Definition of Done для Vitrina)
 

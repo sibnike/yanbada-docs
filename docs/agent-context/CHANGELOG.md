@@ -6,6 +6,13 @@
 
 ## 2026-07-26
 
+**vitrina + hub + tourhub** | Market: даты и места из booking
+- Snapshot в `listing_cache`: `market_booking_mode`, `next_departure_date`, `seats_*`, `available_slots`
+- Sync при publish listing + re-sync после создания брони
+- TourHub: nearest date на карточке; календарь фильтрует программы на выбранный день
+- Seed: `scripts/seed-market-booking.mjs` (3 demo + smoke re-sync)
+- **Дальше:** `CONFIRM_PROD_DB_PUSH` миграция + prod seed + redeploy hub/tourhub
+
 **tourhub** | Richer live mapper (catalog + market seller)
 - Partners list/detail: company_cache + services из listings; cover/logo/gallery/website
 - Скрыты fake metrics в live; shared `hub-company-parse`
