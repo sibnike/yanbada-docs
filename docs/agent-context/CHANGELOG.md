@@ -6,6 +6,12 @@
 
 ## 2026-07-26
 
+**vitrina** | Auth middleware latency + security backlog зафиксирован
+- Middleware: `/api/*` на admin host без Edge `getUser()` — auth только в handlers (`401` JSON)
+- Docs: `ARCHITECTURE.md` §16a, `DOMAINS-MICROP-PROD.md` §Security backlog, `ROADMAP-next.md`
+- **Оставлено на потом (P2):** cookie scope split (host-only admin + soft-SSO hub); `/p` tenant из Host на vanity
+- **Дальше:** не трогать `.microp.app` cookie без отдельного эпика
+
 **docs** | План миграции Tailwind 3 → 4
 - `docs/TAILWIND-4-MIGRATION.md` — фазы 0–4: vitrina → mega-hub → tourhub, Microp как эталон v4, будущий `packages/ui`
 - Обновлены `07-where-to-look.md`, `06-conventions-for-agents.md`, `agent-context/README.md`

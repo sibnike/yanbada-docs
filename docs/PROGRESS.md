@@ -1,6 +1,6 @@
 # Progress — Yanbada SuperApp
 
-> **Обновлено:** 2026-07-21  
+> **Обновлено:** 2026-07-26  
 > Журнал сессий (детальнее): [agent-context/CHANGELOG.md](./agent-context/CHANGELOG.md)
 
 ## Текущая фаза
@@ -33,6 +33,8 @@
 | **P1** | Publish flow: профиль → template → page → listing sync | vitrina | `04-vitrina-work-backlog.md` |
 | **P1** | Catalog live из hub (не demo-data) | tourhub | `tourhub/docs/ARCHITECTURE.md` |
 | **P2** | Публичный GET JSON страницы для TourHub detail | vitrina | backlog §P1 |
+| **P2** | Cookie scope split: admin host-only + hub soft-SSO | vitrina + mega-hub | `DOMAINS-MICROP-PROD.md` §Security backlog |
+| **P2** | `/p/*` на vanity: tenant из Host, не только `?tenant=` | vitrina | middleware + `get-page-for-render` |
 
 ---
 
