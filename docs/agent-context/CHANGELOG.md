@@ -6,6 +6,13 @@
 
 ## 2026-07-26
 
+**vitrina + hub + tourhub** | Market: 3 уровня скидки (%)
+- Page/listing: `market_discount_tiers {public,silver,gold}` — на витрине минимальная (public)
+- Silver: platform `/admin/platform/marketplace-buyers`
+- Gold: тенант `/admin/t/{slug}/market-partners` → `marketplace_partner_links`
+- Hub: `POST /api/marketplace/resolve-partner-tier`
+- **Дальше:** prod migration + seed скидок; checkout с buyer session
+
 **vitrina + hub + tourhub** | Market: даты и места из booking
 - Snapshot в `listing_cache`: `market_booking_mode`, `next_departure_date`, `seats_*`, `available_slots`
 - Sync при publish listing + re-sync после создания брони

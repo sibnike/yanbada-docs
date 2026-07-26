@@ -58,6 +58,7 @@ TourHub POST /api/marketplace-request
 | **bank_details** | ❌ | — | **только** `company_profiles` в vitrina |
 | price_from | — | ✅ | |
 | seats / next date / available_slots | — | ✅ | snapshot при listing sync (`market_booking_mode`, `next_departure_date`, `seats_*`, `available_slots`) |
+| discount tiers % | — | ✅ | `market_discount_tiers` public/silver/gold; витрина = public |
 
 TourHub `live-mapper.ts` может ещё не отображать все sync'd поля — см. [PROGRESS.md](../PROGRESS.md).
 
