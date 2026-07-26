@@ -6,6 +6,11 @@
 
 ## 2026-07-26
 
+**tourhub** | Catalog partners live из hub
+- `GET /api/catalog/partners` → search-listings `marketplace=tourhub`, unique tenants
+- `/catalog/partner/[slug]` → company_cache; sights остаются demo
+- **Дальше:** sights live / richer partner services из vitrina page JSON
+
 **vitrina** | Publish = выставление готовых pages на канал
 - Wizard не создаёт новые услуги: выбор page из «Страниц» → marketplace_slugs + publish
 - Бронирование/контент остаются в Microp; маркет только канал видимости

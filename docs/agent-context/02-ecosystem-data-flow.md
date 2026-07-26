@@ -30,7 +30,7 @@ TourHub GET /api/market/listings
 
 Свой `/p/*` не требует marketplace_slugs.
 
-**Catalog `/catalog`** — пока **demo-data** (`lib/demo-data/scenarios.ts`, `objects.ts`), не hub.
+**Catalog `/catalog` partners** — live: hub listings/company (`marketplace=tourhub`); **sights** — пока demo (`objects.ts`).
 
 ## Заявки (TourHub → Vitrina inbox)
 

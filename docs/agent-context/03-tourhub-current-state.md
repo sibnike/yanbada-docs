@@ -25,9 +25,9 @@ UI/UX как у `TourHub-recovered` (vanilla demo).
 
 ### Catalog (F11 + F11.2)
 - `/catalog` — partners / sights, фильтры, сортировка
-- `/catalog/partner/[id]` — профиль партнёра (demo offers из scenarios)
+- **Partners live:** `GET /api/catalog/partners` → hub `search-listings` (`marketplace=tourhub`), dedupe по tenant; detail `/catalog/partner/[slug]` → `company` API
+- Sights / objects — пока demo (`lib/demo-data/objects.ts`)
 - `/catalog/object/[id]` — профиль объекта + секция «Опубликовано в Маркете»
-- Клик seller object в market sheet → object profile
 
 ### Заявки
 - `/request` — реальная форма → `POST /api/marketplace-request` → mega-hub (не demo)
@@ -48,8 +48,8 @@ UI/UX как у `TourHub-recovered` (vanilla demo).
 
 ```
 lib/market/           — types, reservation, booking, sellers, live-mapper
-lib/catalog/          — partners, objects, filters
-lib/marketplace/      — hub-bridge, listings-bridge
+lib/catalog/          — partners, objects, filters, live-mapper
+lib/marketplace/      — hub-bridge, listings-bridge, company-bridge
 components/screens/   — market-screen, catalog-screen, *-profile-screen
 components/market/    — cards, calendar, listing sheet, checkout
 ```
@@ -58,7 +58,8 @@ components/market/    — cards, calendar, listing sheet, checkout
 
 | Задача | Приоритет |
 |--------|-----------|
-| Live `/catalog` из hub.company_cache | После Vitrina profile sync |
+| Catalog sights live (не demo objects) | P2 |
+| Partner services/reviews из vitrina page JSON | P2 |
 | Enrichment live listings (цены, слоты из Vitrina JSON API) | P0 после profiles |
 | SLA / ticket после escrow | Средний |
 | Cabinets, trip planner, category flow, content builder UI | Низкий (cabinet/CB в vitrina) |
