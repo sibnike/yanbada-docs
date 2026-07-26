@@ -33,10 +33,19 @@
 | **P1** | Publish flow: профиль → template → page → listing sync | vitrina | `04-vitrina-work-backlog.md` |
 | **P1** | Catalog live из hub (не demo-data) | tourhub | `tourhub/docs/ARCHITECTURE.md` |
 | **P2** | Публичный GET JSON страницы для TourHub detail | vitrina | backlog §P1 |
-| **P2** | Cookie scope split: admin host-only + hub soft-SSO | vitrina + mega-hub | `DOMAINS-MICROP-PROD.md` §Security backlog |
-| **P2** | `/p/*` на vanity: tenant из Host, не только `?tenant=` | vitrina | middleware + `get-page-for-render` |
-| **P2** | Job queue для marketplace AI dispatch (QStash/Inngest) | mega-hub | `HUB_ARCHITECTURE.md` §Serverless limits |
+| **P2** | Cookie scope split: admin host-only + hub soft-SSO | vitrina + mega-hub | `DOMAINS-MICROP-PROD.md` §Security backlog · comment in `lib/supabase/auth-cookie.ts` |
+| **P2** | `/p/*` на vanity: tenant из Host, не только `?tenant=` | vitrina | comment in `middleware.ts` tryHubHostRewrite |
+| **P2** | Job queue для marketplace AI dispatch (QStash/Inngest) | mega-hub | `lib/vercel/heavy-api-duration.ts` + HUB_ARCHITECTURE |
 | **P2** | Availability concurrency + participants async email | mega-hub | `HUB_ROADMAP-next.md` tech debt |
+
+### Инварианты (не трогать без решения)
+
+| Тема | Статус |
+|------|--------|
+| Serverless → Supabase только HTTP (`supabase-js`), не `pg`/`:5432` | ✅ зафиксировано; Supavisor `:6543` — только при будущем прямом SQL |
+| Cookie `.microp.app` для SSO | ✅ intentional; split — P2 выше |
+| Middleware без Edge `getUser` на `/api/*` | ✅ 2026-07-26 |
+| Heavy hub API `maxDuration=60` | ✅ 2026-07-26 (нужен Vercel Pro) |
 
 ---
 

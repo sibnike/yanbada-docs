@@ -6,6 +6,13 @@
 
 ## 2026-07-26
 
+**session close** | Инфра-заметки + backlog с комментариями в коде
+- Сделано на prod: photo bank, builder perf, middleware API skip, hub `maxDuration=60`
+- P2 в коде (JSDoc/comments): `auth-cookie.ts`, `middleware.ts` vanity `/p`, `heavy-api-duration.ts`, supabase `admin.ts`
+- Инварианты в `PROGRESS.md`: HTTP-only Supabase, cookie SSO, no Edge getUser на `/api/*`
+- **Не деплоим лишнее:** content-builder WIP / Microp lock / docx — вне этой сессии
+- **Дальше:** продуктовые P0/P1; P2 infra — только по сигналу (timeout logs / XSS / scale)
+
 **docs** | Инвариант: Serverless → Supabase только через HTTP
 - Подтверждено: vitrina/mega-hub/tourhub не держат TCP к Postgres на Vercel
 - Зафиксировано в `YANBADA_ARCHITECTURE.md`, `06-conventions-for-agents.md`, ARCHITECTURE hub/vitrina
