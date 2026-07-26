@@ -6,13 +6,20 @@
 
 ## 2026-07-26
 
+**prod E2E** | Publish flow + TourHub live listings
+- Hub prod build fixed (`marketplace` on search filter) — hub #6/#7
+- Seed → `hub.microp.app`; listing_cache.marketplace_slugs=`tourhub` для 3 demo
+- TourHub `MEGA_HUB_API_URL=https://hub.microp.app` + redeploy
+- Live: `GET tourhub.yanbada.com/api/market/listings` → **count: 3**
+- **Дальше:** ручной smoke wizard (pending/reject/approve); multi-market picker — out of scope
+
 **vitrina + hub** | Publish flow: multi-market + TourHub gated access
 - Модель: themes ≠ profile↔market ≠ page↔market; `access_policy` open|gated
 - Schema: `hub.marketplace_sellers`, `pages/listing_cache.marketplace_slugs`, tourhub=gated
 - Wizard `/admin/t/{slug}/publish`; platform approve `/admin/platform/marketplace-sellers`
 - TourHub live filter `marketplace=tourhub` + approved sellers
 - Docs: `05-categories-mapping.md`, `02-ecosystem-data-flow.md`
-- **Дальше:** `CONFIRM_PROD_DB_PUSH` миграции `20260726180000` + seed demo sellers; E2E live listings
+- **Дальше:** ✅ prod seed + live listings (см. блок выше)
 
 **vitrina + hub DB** | RLS perf indexes P0+P1 (`20260726170000`)
 - P0: `hub.event_maps` / `event_polls` (`event_id`)

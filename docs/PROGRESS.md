@@ -18,8 +18,9 @@
 | Миграция `20260721100000_company_profile_legal_extended` | vitrina + mega-hub | Local = Remote на prod Supabase |
 | Booking, inbox, marketplace ingest, Touchin embed | vitrina | см. `vitrina/docs/reports/` |
 | Market F21 + catalog F11 (demo) | tourhub | `TOURHUB_DATA_MODE=demo` по умолчанию |
-| Live market listings API | tourhub + mega-hub | частично; mapper не все поля cache |
-| Exhibitor Hub (events, map, catalog) | mega-hub | hub.yanbada.com |
+| Live market listings API | tourhub + mega-hub | ✅ prod count=3; mapper не все поля cache |
+| Publish flow gated TourHub | vitrina + hub + tourhub | ✅ PR vitrina#5 hub#5/#7 tourhub#4; sellers approved |
+| Exhibitor Hub (events, map, catalog) | mega-hub | hub.microp.app |
 
 ---
 
@@ -68,8 +69,10 @@
 - [x] Prod deploy tourhub (PR #2 merged — Next.js only, Netlify demo removed)
 - [x] Vercel env tourhub + prod deploy (tourhub.yanbada.com)
 - [x] Prod seed demo tenants (nomad-trails, steppe-journeys, aquatour-burabay)
+- [x] Prod hub channel filter + listing sync (`marketplace_slugs` + approved sellers)
+- [x] Prod TourHub live `count: 3` (`MEGA_HUB_API_URL=https://hub.microp.app`)
 
-Seed: `cd vitrina && node scripts/seed-tourhub-demo.mjs`
+Seed: `cd vitrina && CONFIRM_PROD_SEED=1 node scripts/seed-tourhub-demo.mjs --prod`
 
 ---
 
