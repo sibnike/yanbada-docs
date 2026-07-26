@@ -6,10 +6,15 @@
 
 ## 2026-07-26
 
+**tourhub** | Richer live mapper (catalog + market seller)
+- Partners list/detail: company_cache + services из listings; cover/logo/gallery/website
+- Скрыты fake metrics в live; shared `hub-company-parse`
+- **Дальше:** sights live; page JSON для reviews/roomTypes (P2)
+
 **tourhub** | Catalog partners live из hub
 - `GET /api/catalog/partners` → search-listings `marketplace=tourhub`, unique tenants
 - `/catalog/partner/[slug]` → company_cache; sights остаются demo
-- **Дальше:** sights live / richer partner services из vitrina page JSON
+- **Дальше:** ✅ richer mapper (см. выше)
 
 **vitrina** | Publish = выставление готовых pages на канал
 - Wizard не создаёт новые услуги: выбор page из «Страниц» → marketplace_slugs + publish
