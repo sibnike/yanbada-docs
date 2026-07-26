@@ -56,8 +56,8 @@ TourHub POST /api/marketplace-request
 | about, languages, license, tourism_business_role | ✅ | — | sync в hub |
 | founding_year, employee_count, coverage_cities | ✅ | — | |
 | **bank_details** | ❌ | — | **только** `company_profiles` в vitrina |
-| price_from | — | ✅ | |
-| seats / next date / available_slots | — | ✅ | snapshot при listing sync (`market_booking_mode`, `next_departure_date`, `seats_*`, `available_slots`) |
+| price_from | — | ✅ | приоритет: form/calculator (`page_blocks`) → иначе catalog_items |
+| seats / next date / available_slots | — | ✅ | snapshot из booking (`calculator`/`form`/`catalog_item` → `getAvailableDates`) |
 | discount tiers % | — | ✅ | `market_discount_tiers` public/silver/gold; витрина = public |
 
 TourHub `live-mapper.ts` может ещё не отображать все sync'd поля — см. [PROGRESS.md](../PROGRESS.md).

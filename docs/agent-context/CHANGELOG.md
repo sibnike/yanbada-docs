@@ -6,6 +6,12 @@
 
 ## 2026-07-26
 
+**vitrina** | Market listing: цена и даты как на публичной странице
+- `price_from`: form (`pricing`) + calculator (`page_blocks`) приоритетнее catalog stub
+- availability snapshot: booking на `calculator` + `form` blocks (не только form/catalog)
+- Пример SoT: `/p/tour-1?tenant=kendala-travel` (цена калькулятора + дата из booking, напр. 10 авг.)
+- **Дальше:** deploy + re-sync published listings (kendala tour-1 и demo)
+
 **vitrina + hub + tourhub** | Market: 3 уровня скидки (%)
 - Page/listing: `market_discount_tiers {public,silver,gold}` — на витрине минимальная (public)
 - Silver: platform `/admin/platform/marketplace-buyers`

@@ -25,7 +25,8 @@ B2B `hub.marketplace_members` (buyer `/m/*`) — **другой** контур, 
 | **Silver** | platform admin → `marketplace_members.partner_tier=silver` | средняя |
 | **Gold** | продавец добавляет партнёра → `hub.marketplace_partner_links` | максимальная |
 
-Цена юнита: `price_from * (1 - pct/100)`. Resolve: gold link > silver member > public.
+`price_from` на listing = цена «от» с публичной страницы: form (`pricing.base` / cheapest variant) или calculator (per person при `min_people`); иначе fallback `catalog_items`.  
+Цена со скидкой: `price_from * (1 - pct/100)`. Resolve: gold link > silver member > public.
 
 ## Таксономия
 
