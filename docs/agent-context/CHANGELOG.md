@@ -10,8 +10,9 @@
 - Snapshot в `listing_cache`: `market_booking_mode`, `next_departure_date`, `seats_*`, `available_slots`
 - Sync при publish listing + re-sync после создания брони
 - TourHub: nearest date на карточке; календарь фильтрует программы на выбранный день
-- Seed: `scripts/seed-market-booking.mjs` (3 demo + smoke re-sync)
-- **Дальше:** `CONFIRM_PROD_DB_PUSH` миграция + prod seed + redeploy hub/tourhub
+- Seed: `scripts/seed-market-booking.mjs` (3 demo)
+- Prod: migration + seed + live API с датами/местами (borovoe/kok-tobe/boat)
+- **Дальше:** booking на smoke-almaty-day; seats обновляются после реальной брони
 
 **tourhub** | Richer live mapper (catalog + market seller)
 - Partners list/detail: company_cache + services из listings; cover/logo/gallery/website

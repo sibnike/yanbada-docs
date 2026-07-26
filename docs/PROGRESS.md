@@ -72,8 +72,8 @@
 - [x] Prod seed demo tenants (nomad-trails, steppe-journeys, aquatour-burabay)
 - [x] Prod hub channel filter + listing sync (`marketplace_slugs` + approved sellers)
 - [x] Prod TourHub live `count: 3` (`MEGA_HUB_API_URL=https://hub.microp.app`)
-- [ ] Listing booking snapshot на prod (`next_departure_date` / `available_slots` не null)
-- [ ] TourHub calendar: ближайшая дата + фильтр по выбранному дню (live)
+- [x] Listing booking snapshot на prod (`next_departure_date` / `available_slots` для 3 demo)
+- [x] TourHub calendar: ближайшая дата + фильтр по выбранному дню (live API 2026-07-26)
 
 Seed:
 ```bash
