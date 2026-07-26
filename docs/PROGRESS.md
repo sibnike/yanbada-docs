@@ -18,7 +18,7 @@
 | Миграция `20260721100000_company_profile_legal_extended` | vitrina + mega-hub | Local = Remote на prod Supabase |
 | Booking, inbox, marketplace ingest, Touchin embed | vitrina | см. `vitrina/docs/reports/` |
 | Market F21 + catalog F11 (demo) | tourhub | `TOURHUB_DATA_MODE=demo` по умолчанию |
-| Live market listings API | tourhub + mega-hub | ✅ prod count=3; mapper не все поля cache |
+| Live market listings API | tourhub + mega-hub | ✅ prod count≥3; seats/dates snapshot в работе (PR) |
 | Publish flow gated TourHub | vitrina + hub + tourhub | ✅ PR vitrina#5 hub#5/#7 tourhub#4; sellers approved |
 | Exhibitor Hub (events, map, catalog) | mega-hub | hub.microp.app |
 
@@ -33,6 +33,7 @@
 | **P0** | AI Content Builder — admin UI | vitrina | ✅ MVP UI (`content-builder-client.tsx`, routes `/content-builder`, `/pages/[id]/content-builder`) |
 | **P1** | Publish flow: TourHub gated + wizard | vitrina | ✅ 2026-07-26 (`/publish`, sellers, `marketplace_slugs`) |
 | **P1** | Catalog live из hub (не demo-data) | tourhub | ✅ partners live 2026-07-26; sights ещё demo |
+| **P0** | Market dates/seats из booking → listing_cache | vitrina + hub + tourhub | snapshot + calendar filter (2026-07-26) |
 | **P2** | Публичный GET JSON страницы для TourHub detail | vitrina | backlog §P1 |
 | **P2** | Cookie scope split: admin host-only + hub soft-SSO | vitrina + mega-hub | `DOMAINS-MICROP-PROD.md` §Security backlog · comment in `lib/supabase/auth-cookie.ts` |
 | **P2** | `/p/*` на vanity: tenant из Host, не только `?tenant=` | vitrina | comment in `middleware.ts` tryHubHostRewrite |
@@ -71,8 +72,14 @@
 - [x] Prod seed demo tenants (nomad-trails, steppe-journeys, aquatour-burabay)
 - [x] Prod hub channel filter + listing sync (`marketplace_slugs` + approved sellers)
 - [x] Prod TourHub live `count: 3` (`MEGA_HUB_API_URL=https://hub.microp.app`)
+- [ ] Listing booking snapshot на prod (`next_departure_date` / `available_slots` не null)
+- [ ] TourHub calendar: ближайшая дата + фильтр по выбранному дню (live)
 
-Seed: `cd vitrina && CONFIRM_PROD_SEED=1 node scripts/seed-tourhub-demo.mjs --prod`
+Seed:
+```bash
+cd vitrina && CONFIRM_PROD_SEED=1 node scripts/seed-tourhub-demo.mjs --prod
+cd vitrina && CONFIRM_PROD_SEED=1 node scripts/seed-market-booking.mjs --prod
+```
 
 ---
 

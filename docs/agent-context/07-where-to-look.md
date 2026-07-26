@@ -96,7 +96,8 @@
 2. Supabase: `hub.company_cache`, `hub.listing_cache` по `tenant_id`
 3. `tourhub/lib/market/live-mapper.ts` — поле замаплено?
 4. Env tourhub: `TOURHUB_DATA_MODE=live`, `MEGA_HUB_API_URL`
-5. Seed: `vitrina/scripts/seed-tourhub-demo.mjs`
+5. Seed: `vitrina/scripts/seed-tourhub-demo.mjs` (+ `seed-market-booking.mjs` для дат/мест)
+6. Listing snapshot: `vitrina/lib/company-profile/listing-availability-snapshot.ts` → `hub.listing_cache.next_departure_date` / `available_slots`
 
 ### «Vercel build упал»
 
