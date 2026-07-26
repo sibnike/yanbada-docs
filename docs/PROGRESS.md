@@ -30,7 +30,7 @@
 | **P0** | TourHub `live-mapper` + seller profile из `company_cache` | tourhub + mega-hub | ✅ merged PR #2 |
 | **P1** | Registration: tourism + `marketplace_themes` | vitrina | ✅ merged PR #3 |
 | **P0** | AI Content Builder — admin UI | vitrina | ✅ MVP UI (`content-builder-client.tsx`, routes `/content-builder`, `/pages/[id]/content-builder`) |
-| **P1** | Publish flow: профиль → template → page → listing sync | vitrina | `04-vitrina-work-backlog.md` |
+| **P1** | Publish flow: TourHub gated + wizard | vitrina | ✅ 2026-07-26 (`/publish`, sellers, `marketplace_slugs`) |
 | **P1** | Catalog live из hub (не demo-data) | tourhub | `tourhub/docs/ARCHITECTURE.md` |
 | **P2** | Публичный GET JSON страницы для TourHub detail | vitrina | backlog §P1 |
 | **P2** | Cookie scope split: admin host-only + hub soft-SSO | vitrina + mega-hub | `DOMAINS-MICROP-PROD.md` §Security backlog · comment in `lib/supabase/auth-cookie.ts` |
@@ -46,6 +46,15 @@
 | Cookie `.microp.app` для SSO | ✅ intentional; split — P2 выше |
 | Middleware без Edge `getUser` на `/api/*` | ✅ 2026-07-26 |
 | Heavy hub API `maxDuration=60` | ✅ 2026-07-26 (нужен Vercel Pro) |
+
+### Perf / Lighthouse (Insights) — что делаем
+
+| Алерт | Решение |
+|-------|---------|
+| Speed Index ~3.6s | ✅ `next/font` + `display:'swap'` (root Inter + hub fonts); non-default hub fonts `preload:false` |
+| Render-blocking ~140ms | принято для admin CSS; не дробить Tailwind ради 140ms |
+| Bfcache blocked | **оставить** — нормально для admin + auth cookies / no-store |
+| Unused JS ~20 KiB | **игнорировать** |
 
 ---
 

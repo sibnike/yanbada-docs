@@ -6,6 +6,31 @@
 
 ## 2026-07-26
 
+**vitrina + hub** | Publish flow: multi-market + TourHub gated access
+- Модель: themes ≠ profile↔market ≠ page↔market; `access_policy` open|gated
+- Schema: `hub.marketplace_sellers`, `pages/listing_cache.marketplace_slugs`, tourhub=gated
+- Wizard `/admin/t/{slug}/publish`; platform approve `/admin/platform/marketplace-sellers`
+- TourHub live filter `marketplace=tourhub` + approved sellers
+- Docs: `05-categories-mapping.md`, `02-ecosystem-data-flow.md`
+- **Дальше:** `CONFIRM_PROD_DB_PUSH` миграции `20260726180000` + seed demo sellers; E2E live listings
+
+**vitrina + hub DB** | RLS perf indexes P0+P1 (`20260726170000`)
+- P0: `hub.event_maps` / `event_polls` (`event_id`)
+- P1: photo_bank partials; `page_blocks` / `catalog_items` active list; marketplace token InitPlan
+- Prod: `CONFIRM_PROD_DB_PUSH=1 npm run db:push:prod`
+- **Дальше:** смотреть Advisor unused_index / slow queries после роста трафика
+
+**vitrina** | Page builder INP: title isolation + stable row callbacks
+- `PageTitleSection` — локальный state заголовка; родитель читает через ref только на save
+- `SortableBlockRow`: `onSelect/onDelete(id)` + `useCallback` — React.memo снова работает
+- **Дальше:** при необходимости так же изолировать themes picker
+
+**vitrina** | Lighthouse Insights (Speed Index / fonts)
+- Root: Inter через `next/font` + `display:'swap'` (`lib/ui/app-font.ts`)
+- Hub: один активный шрифт через dynamic import (`lib/hub/fonts/*`); admin preview без next/font
+- Accepted: bfcache blocked (admin auth), unused JS ~20KiB, render-blocking ~140ms
+- **Дальше:** перепрогнать Lighthouse на admin/hub после деплоя
+
 **session close** | Инфра-заметки + backlog с комментариями в коде
 - Сделано на prod: photo bank, builder perf, middleware API skip, hub `maxDuration=60`
 - P2 в коде (JSDoc/comments): `auth-cookie.ts`, `middleware.ts` vanity `/p`, `heavy-api-duration.ts`, supabase `admin.ts`

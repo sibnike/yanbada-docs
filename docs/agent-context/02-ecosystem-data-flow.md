@@ -4,25 +4,31 @@
 
 ```
 Tenant admin
-  → company_profiles (categories, marketplace_themes, city, contacts, …)
-  → pages + page_blocks (catalog, info, form)
-  → catalog_items (цена, timeline, options)
+  → company_profiles (categories, marketplace_themes, …)
+  → заявка seller на gated-канал (TourHub) → hub.marketplace_sellers
+  → pages + page_blocks + catalog_items
+  → pages.marketplace_slugs (только если seller approved на gated)
   → publish page
        ↓
   syncToHub() / sync-listing-to-hub
        ↓ HMAC webhook
   mega-hub POST /api/sync/company  → hub.company_cache
-  mega-hub POST /api/sync/listing  → hub.listing_cache
+  mega-hub POST /api/sync/listing  → hub.listing_cache (+ marketplace_slugs)
 ```
+
+Wizard: `/admin/t/{slug}/publish` — доступ → профиль → услуга → контент → publish на TourHub.
 
 ## Read path (TourHub live)
 
 ```
 TourHub GET /api/market/listings
-  → POST mega-hub /api/marketplace/search-listings
-  → hub.listing_cache (+ join company)
+  → POST mega-hub /api/marketplace/search-listings  { marketplace: "tourhub", … }
+  → listing_cache WHERE tourhub = ANY(marketplace_slugs)
+    AND tenant IN marketplace_sellers(tourhub, approved)
   → lib/market/live-mapper.ts → MarketListing UI
 ```
+
+Свой `/p/*` не требует marketplace_slugs.
 
 **Catalog `/catalog`** — пока **demo-data** (`lib/demo-data/scenarios.ts`, `objects.ts`), не hub.
 
