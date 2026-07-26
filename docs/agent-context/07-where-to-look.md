@@ -11,7 +11,7 @@
 | Запустить локально | [01-paths-and-ports.md](./01-paths-and-ports.md) | `vitrina`: Docker + `db:reset:local`, порты 3000/3001/3002 |
 | Sync vitrina → hub | [02-ecosystem-data-flow.md](./02-ecosystem-data-flow.md) | `vitrina/lib/company-profile/sync-to-hub.ts`, `mega-hub/app/api/sync/company/route.ts` |
 | Профиль компании | [04-vitrina-work-backlog.md](./04-vitrina-work-backlog.md) | `vitrina/components/admin/company-profile-client.tsx`, `app/api/admin/t/[tenantSlug]/company-profile/` |
-| TourHub market/catalog | [03-tourhub-current-state.md](./03-tourhub-current-state.md) | `tourhub/lib/market/`, `lib/demo-data/` |
+| TourHub market/catalog | [03-tourhub-current-state.md](./03-tourhub-current-state.md) | `lib/market/`, `lib/catalog/live-mapper.ts`, `api/catalog/partners` |
 | Категории / themes маркета | [05-categories-mapping.md](./05-categories-mapping.md) | `marketplace_themes` + channels (`marketplace_slugs`, sellers) |
 | Маркеты / publish channels | [05-categories-mapping.md](./05-categories-mapping.md), [02-ecosystem-data-flow.md](./02-ecosystem-data-flow.md) | Sidebar «Маркеты» → `/publish`; каталог `PUBLISH_CHANNELS`; TourHub = первый gated |
 | Миграции БД | см. ниже §Миграции | `*/supabase/migrations/` |
