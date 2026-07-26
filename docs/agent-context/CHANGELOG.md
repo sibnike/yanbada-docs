@@ -4,6 +4,15 @@
 
 ---
 
+## 2026-07-26
+
+**docs** | План миграции Tailwind 3 → 4
+- `docs/TAILWIND-4-MIGRATION.md` — фазы 0–4: vitrina → mega-hub → tourhub, Microp как эталон v4, будущий `packages/ui`
+- Обновлены `07-where-to-look.md`, `06-conventions-for-agents.md`, `agent-context/README.md`
+- **Дальше:** фаза 0 (design tokens) + ветка `feat/tailwind-4-vitrina`
+
+---
+
 ## 2026-07-22
 
 **vitrina + mega-hub + docs** | Prod-домены Microp (миграция с yanbada.com)

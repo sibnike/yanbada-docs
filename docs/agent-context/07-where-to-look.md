@@ -21,6 +21,7 @@
 | Заявки TourHub → inbox | [02-ecosystem-data-flow.md](./02-ecosystem-data-flow.md) | `tourhub/app/api/marketplace-request/`, `mega-hub/app/api/marketplace/request/` |
 | Hub events / карта / QR | `mega-hub/ARCHITECTURE.md` | `mega-hub/app/e/`, `app/organizer/` |
 | Стиль и git | [06-conventions-for-agents.md](./06-conventions-for-agents.md) | — |
+| **Tailwind 3→4, общий UI-kit** | [../TAILWIND-4-MIGRATION.md](../TAILWIND-4-MIGRATION.md) | vitrina → mega-hub → tourhub; Microp уже v4 |
 
 ---
 

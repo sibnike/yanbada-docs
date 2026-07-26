@@ -25,6 +25,7 @@
 | TourHub архитектура | [../../tourhub/docs/ARCHITECTURE.md](../../tourhub/docs/ARCHITECTURE.md) |
 | Vitrina архитектура | [../../vitrina/docs/ARCHITECTURE.md](../../vitrina/docs/ARCHITECTURE.md) |
 | mega-hub архитектура | [../../mega-hub/ARCHITECTURE.md](../../mega-hub/ARCHITECTURE.md) |
+| **Tailwind 4 migration** | [../TAILWIND-4-MIGRATION.md](../TAILWIND-4-MIGRATION.md) |
 | Demo UX-референс | `~/Projects/TourHub-recovered` (vanilla JS, Ф0–Ф23) |
 
 ## Как обновлять

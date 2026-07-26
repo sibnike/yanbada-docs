@@ -9,6 +9,8 @@
 TypeScript, React 18, Next.js 14 App Router, Tailwind (demo CSS classes), Radix-паттерны где уже есть.
 Firebase **не используется** в tourhub prod — Firestore только если явно в другом проекте.
 
+**Tailwind:** сейчас Next-apps на **v3.4**, Microp landing на **v4.1** — план выравнивания: [TAILWIND-4-MIGRATION.md](../TAILWIND-4-MIGRATION.md).
+
 ## Принципы кода
 
 1. **Минимальный diff** — не трогать несвязанный код
