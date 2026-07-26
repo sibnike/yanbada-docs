@@ -35,6 +35,8 @@
 | **P2** | Публичный GET JSON страницы для TourHub detail | vitrina | backlog §P1 |
 | **P2** | Cookie scope split: admin host-only + hub soft-SSO | vitrina + mega-hub | `DOMAINS-MICROP-PROD.md` §Security backlog |
 | **P2** | `/p/*` на vanity: tenant из Host, не только `?tenant=` | vitrina | middleware + `get-page-for-render` |
+| **P2** | Job queue для marketplace AI dispatch (QStash/Inngest) | mega-hub | `HUB_ARCHITECTURE.md` §Serverless limits |
+| **P2** | Availability concurrency + participants async email | mega-hub | `HUB_ROADMAP-next.md` tech debt |
 
 ---
 

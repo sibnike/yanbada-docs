@@ -6,6 +6,12 @@
 
 ## 2026-07-26
 
+**mega-hub** | Serverless limits для AI match / Events
+- `maxDuration = 60` на heavy marketplace + participants routes (`lib/vercel/heavy-api-duration.ts`)
+- Docs: `HUB_ARCHITECTURE.md` §Serverless limits, `HUB_ROADMAP-next.md` tech debt
+- **Оставлено на потом (P2):** job queue (QStash/Inngest) для dispatch; availability concurrency; async CSV invites
+- **Дальше:** смотреть Vercel FUNCTION_INVOCATION_TIMEOUT — при появлении вводить очередь
+
 **vitrina** | Auth middleware latency + security backlog зафиксирован
 - Middleware: `/api/*` на admin host без Edge `getUser()` — auth только в handlers (`401` JSON)
 - Docs: `ARCHITECTURE.md` §16a, `DOMAINS-MICROP-PROD.md` §Security backlog, `ROADMAP-next.md`
