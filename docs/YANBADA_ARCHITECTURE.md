@@ -92,6 +92,26 @@ Supabase project: bfcfwaakxcqplamcswaq
 `CONFIRM_PROD_DB_PUSH=1 npm run db:push:prod`. Hub-DDL через MCP `apply_migration` **запрещён**
 (auto-timestamp → orphan в `schema_migrations`).
 
+#### Доступ к БД из Vercel Serverless (инвариант)
+
+Все три приложения (**vitrina**, **mega-hub**, **tourhub**) на prod **не** открывают
+прямое TCP к Postgres (`:5432`). Runtime использует только:
+
+- `@supabase/supabase-js` / `@supabase/ssr` → **PostgREST + Auth HTTP** (`NEXT_PUBLIC_SUPABASE_URL`)
+- TourHub live → HTTP к mega-hub / vitrina API (своего Supabase-клиента в app-коде нет)
+
+Поэтому классический риск «каждый cold start = новый `pg` Pool → исчерпание соединений»
+**сейчас не применим**. Пулер Supavisor (`:6543`) нужен только если появится **прямой SQL**
+(drizzle / prisma / `pg` / `postgres.js`).
+
+| Делать | Не делать |
+|--------|-----------|
+| `createClient(SUPABASE_URL, KEY)` в serverless | `DATABASE_URL` → `:5432` из Vercel Functions |
+| При прямом SQL — только Supavisor **transaction** mode `:6543` | Persistent `pg.Pool` без pooler |
+| Локальные скрипты: Docker `psql` / CLI | Тащить `pg` в Next.js API «на всякий случай» |
+
+Зафиксировано: 2026-07-26. См. также `agent-context/06-conventions-for-agents.md`.
+
 ### Общая Auth
 
 ```

@@ -17,6 +17,17 @@ Firebase **не используется** в tourhub prod — Firestore тол�
 4. **Коммиты** — только по явной просьбе пользователя
 5. **Не push force** на main
 
+## Supabase из Serverless (обязательно)
+
+На Vercel **не** подключаться к Postgres напрямую (`DATABASE_URL` / `:5432` / `pg.Pool`).
+
+- Runtime: только `supabase-js` / `@supabase/ssr` → HTTP (PostgREST + Auth)
+- TourHub live: HTTP к mega-hub/vitrina, не свой DB-клиент
+- Если понадобится прямой SQL — **только** Supavisor transaction pooler (`:6543`), и это
+  отдельное осознанное решение с записью в `YANBADA_ARCHITECTURE.md`
+
+Подробнее: `docs/YANBADA_ARCHITECTURE.md` → «Доступ к БД из Vercel Serverless».
+
 ## Границы репозиториев
 
 | Делать в vitrina | Делать в tourhub |

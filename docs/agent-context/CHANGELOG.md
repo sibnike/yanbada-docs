@@ -6,6 +6,12 @@
 
 ## 2026-07-26
 
+**docs** | Инвариант: Serverless → Supabase только через HTTP
+- Подтверждено: vitrina/mega-hub/tourhub не держат TCP к Postgres на Vercel
+- Зафиксировано в `YANBADA_ARCHITECTURE.md`, `06-conventions-for-agents.md`, ARCHITECTURE hub/vitrina
+- Supavisor `:6543` — только при будущем прямом SQL; сейчас не нужен
+- **Дальше:** не добавлять `pg`/`DATABASE_URL` в Next API без явного решения
+
 **mega-hub** | Serverless limits для AI match / Events
 - `maxDuration = 60` на heavy marketplace + participants routes (`lib/vercel/heavy-api-duration.ts`)
 - Docs: `HUB_ARCHITECTURE.md` §Serverless limits, `HUB_ROADMAP-next.md` tech debt
