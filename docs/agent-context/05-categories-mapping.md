@@ -15,6 +15,18 @@
 
 B2B `hub.marketplace_members` (buyer `/m/*`) — **другой** контур, не seller TourHub.
 
+## Скидки маркета (TourHub)
+
+На page: `market_discount_tiers = { public, silver, gold }` — **проценты**, `public ≤ silver ≤ gold`.
+
+| Тир | Кто | Скидка |
+|-----|-----|--------|
+| **Public** | все на витрине | минимальная % (показывается сначала) |
+| **Silver** | platform admin → `marketplace_members.partner_tier=silver` | средняя |
+| **Gold** | продавец добавляет партнёра → `hub.marketplace_partner_links` | максимальная |
+
+Цена юнита: `price_from * (1 - pct/100)`. Resolve: gold link > silver member > public.
+
 ## Таксономия
 
 ### 1. Vitrina `industry_categories`
