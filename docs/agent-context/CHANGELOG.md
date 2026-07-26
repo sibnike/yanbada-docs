@@ -6,6 +6,11 @@
 
 ## 2026-07-26
 
+**vitrina** | Publish = выставление готовых pages на канал
+- Wizard не создаёт новые услуги: выбор page из «Страниц» → marketplace_slugs + publish
+- Бронирование/контент остаются в Microp; маркет только канал видимости
+- **Дальше:** smoke smoke-tourhub: page → attach TourHub → live count+1
+
 **vitrina** | UI «Маркеты» — мульти-канал с первого экрана
 - Sidebar: «Маркеты» (было «В TourHub»)
 - Wizard: выбор канала из `PUBLISH_CHANNELS`; TourHub — первый enabled
