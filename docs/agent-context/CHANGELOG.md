@@ -6,6 +6,17 @@
 
 ## 2026-07-26
 
+**vitrina** | Page builder INP: title isolation + stable row callbacks
+- `PageTitleSection` — локальный state заголовка; родитель читает через ref только на save
+- `SortableBlockRow`: `onSelect/onDelete(id)` + `useCallback` — React.memo снова работает
+- **Дальше:** при необходимости так же изолировать themes picker
+
+**vitrina** | Lighthouse Insights (Speed Index / fonts)
+- Root: Inter через `next/font` + `display:'swap'` (`lib/ui/app-font.ts`)
+- Hub: один активный шрифт через dynamic import (`lib/hub/fonts/*`); admin preview без next/font
+- Accepted: bfcache blocked (admin auth), unused JS ~20KiB, render-blocking ~140ms
+- **Дальше:** перепрогнать Lighthouse на admin/hub после деплоя
+
 **session close** | Инфра-заметки + backlog с комментариями в коде
 - Сделано на prod: photo bank, builder perf, middleware API skip, hub `maxDuration=60`
 - P2 в коде (JSDoc/comments): `auth-cookie.ts`, `middleware.ts` vanity `/p`, `heavy-api-duration.ts`, supabase `admin.ts`

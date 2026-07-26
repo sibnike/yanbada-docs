@@ -47,6 +47,15 @@
 | Middleware без Edge `getUser` на `/api/*` | ✅ 2026-07-26 |
 | Heavy hub API `maxDuration=60` | ✅ 2026-07-26 (нужен Vercel Pro) |
 
+### Perf / Lighthouse (Insights) — что делаем
+
+| Алерт | Решение |
+|-------|---------|
+| Speed Index ~3.6s | ✅ `next/font` + `display:'swap'` (root Inter + hub fonts); non-default hub fonts `preload:false` |
+| Render-blocking ~140ms | принято для admin CSS; не дробить Tailwind ради 140ms |
+| Bfcache blocked | **оставить** — нормально для admin + auth cookies / no-store |
+| Unused JS ~20 KiB | **игнорировать** |
+
 ---
 
 ## E2E checklist (TourHub live)
