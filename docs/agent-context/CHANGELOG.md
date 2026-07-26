@@ -6,6 +6,12 @@
 
 ## 2026-07-26
 
+**vitrina + hub DB** | RLS perf indexes P0+P1 (`20260726170000`)
+- P0: `hub.event_maps` / `event_polls` (`event_id`)
+- P1: photo_bank partials; `page_blocks` / `catalog_items` active list; marketplace token InitPlan
+- Prod: `CONFIRM_PROD_DB_PUSH=1 npm run db:push:prod`
+- **Дальше:** смотреть Advisor unused_index / slow queries после роста трафика
+
 **vitrina** | Page builder INP: title isolation + stable row callbacks
 - `PageTitleSection` — локальный state заголовка; родитель читает через ref только на save
 - `SortableBlockRow`: `onSelect/onDelete(id)` + `useCallback` — React.memo снова работает
