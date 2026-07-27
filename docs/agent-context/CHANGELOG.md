@@ -4,6 +4,13 @@
 
 ---
 
+## 2026-07-27
+
+**vitrina** | Admin: настройки бронирования «не сохранялись»
+- GET booking configs: `Cache-Control: no-store` (раньше max-age=30 откатывал UI после save)
+- Editor применяет config из POST/PUT; Save All сохраняет dirty booking
+- **Дальше:** проверить hard reload на kendala tour-2 form booking
+
 ## 2026-07-26
 
 **vitrina** | Market listing: цена и даты как на публичной странице
