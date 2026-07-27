@@ -56,7 +56,8 @@ TourHub POST /api/marketplace-request
 | about, languages, license, tourism_business_role | ✅ | — | sync в hub |
 | founding_year, employee_count, coverage_cities | ✅ | — | |
 | **bank_details** | ❌ | — | **только** `company_profiles` в vitrina |
-| price_from | — | ✅ | приоритет: form/calculator (`page_blocks`) → иначе catalog_items |
+| price_from | — | ✅ | приоритет: calculator → form → catalog; «от» = unit @ min_people |
+| calculator_pricing | — | ✅ | jsonb tiers/min/max для пересчёта total по qty на TourHub |
 | short_text | — | ✅ | только `info.body` (не sections / form / catalog) |
 | cover_image_url / images | — | ✅ | только `info.images` (Microp info-блок) |
 | seats / next date / available_slots | — | ✅ | snapshot из booking (`calculator`/`form`/`catalog_item` → `getAvailableDates`) |

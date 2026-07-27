@@ -6,6 +6,11 @@
 
 ## 2026-07-27
 
+**vitrina + hub + tourhub** | Market: цена калькулятора по числу людей
+- Sync `calculator_pricing` (tiers/min/max) в `listing_cache`
+- Sheet: qty от min_people, total по тирам (не unit×qty); карточка «от»
+- Form/catalog по-прежнему линейно
+
 **tourhub** | Fix crash на live slots без times
 - `market-listing-sheet`: `times?.length`; date-only slots без выбора времени
 - Заглушки `/cabinets`, `/gov-demo` (меню больше не 404)
