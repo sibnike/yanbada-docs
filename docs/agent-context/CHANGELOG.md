@@ -6,6 +6,29 @@
 
 ## 2026-07-27
 
+**vitrina + tourhub** | Admin/UI: отступ стрелки select + сворачиваемая география на pages
+- Vitrina: `components/ui/select.tsx`, global `select { padding-inline-end }`, блок «География услуги» сворачивается после save (**merged #26**)
+- TourHub: `.catalog-select` padding + custom chevron (PR #19 merged)
+- **Дальше:** smoke admin pages geography после deploy vitrina
+
+**tourhub + vitrina** | Pages: география услуги (страна/города) → listing_cache
+- Admin page builder: выбор страны, «вся страна» или несколько городов (справочник, не ввод)
+- Sync → hub.listing_cache.service_*; TourHub card/filter по page city, не company HQ
+- **Дальше:** `db:push:prod` + re-sync published pages (kendala tour-1)
+
+**tourhub** | Market P0: seats UX, checkout, no demo flash
+- Карточка: exclusive-day + calculator → «2–10 чел.» + «Дата доступна», без «1 из 1»
+- Checkout: cleanup таймеров, fallback «Продолжить», валюта в offer (USD/$)
+- Live load: старт с `[]`, demo только после `mode=demo` из API
+- Резерв: exclusive-day списывает 1 слот дня, не qty людей
+- **Дальше:** prod deploy + smoke kendala tour-1
+
+**tourhub + vitrina** | Market sheet: кнопка «Подробнее» → embed страницы Vitrina (info-only)
+- TourHub: `MarketListingDetailSheet` + iframe `embed=1&embedView=info&lang=…` (без формы/калькулятора)
+- Vitrina: query `embedView=info` — только info + social blocks в embed
+- Live listings: `vitrinaTenantSlug` + `vitrinaPageSlug` из listing_cache; env `NEXT_PUBLIC_VITRINA_URL`
+- **Дальше:** deploy vitrina + tourhub; smoke kendala tour-1 на prod
+
 **docs + tourhub** | План multi-market: отдельный Vercel-проект на маркет
 - Решение: tourhub.kz на том же репо tourhub (домен в Vercel ✅); multi-tenant middleware не делаем
 - Зафиксировано: [08-multi-market-domains.md](./08-multi-market-domains.md) — фазы 1–4
