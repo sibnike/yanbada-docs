@@ -6,6 +6,10 @@
 
 ## 2026-07-27
 
+**tourhub** | Fix crash на live slots без times
+- `market-listing-sheet`: `times?.length`; date-only slots без выбора времени
+- Заглушки `/cabinets`, `/gov-demo` (меню больше не 404)
+
 **vitrina + hub + tourhub** | Listing: описание и фото только из Info
 - `short_text` = `info.body` (не весь текст страницы)
 - `cover_image_url` / `images` из `info.images` → market card cover
