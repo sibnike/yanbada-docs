@@ -9,12 +9,13 @@
 **vitrina + tourhub** | Admin/UI: отступ стрелки select + сворачиваемая география на pages
 - Vitrina: `components/ui/select.tsx`, global `select { padding-inline-end }`, блок «География услуги» сворачивается после save (**merged #26**)
 - TourHub: `.catalog-select` padding + custom chevron (PR #19 merged)
-- **Дальше:** smoke admin pages geography после deploy vitrina
+- **Дальше:** smoke admin pages geography после deploy vitrina (см. PROGRESS E2E)
 
 **tourhub + vitrina** | Pages: география услуги (страна/города) → listing_cache
 - Admin page builder: выбор страны, «вся страна» или несколько городов (справочник, не ввод)
 - Sync → hub.listing_cache.service_*; TourHub card/filter по page city, не company HQ
-- **Дальше:** `db:push:prod` + re-sync published pages (kendala tour-1)
+- Migration prod ✅; hub #13, vitrina #24/#25/#26, tourhub #18 merged
+- **Дальше:** smoke kendala tour-2 фильтр «Астана» на prod market
 
 **tourhub** | Market P0: seats UX, checkout, no demo flash
 - Карточка: exclusive-day + calculator → «2–10 чел.» + «Дата доступна», без «1 из 1»

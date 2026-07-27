@@ -20,7 +20,10 @@
 | Market F21 + catalog F11 (demo) | tourhub | `TOURHUB_DATA_MODE=demo` по умолчанию |
 | Live market listings API | tourhub + mega-hub | ✅ prod count≥3; seats/dates snapshot в работе (PR) |
 | Publish flow gated TourHub | vitrina + hub + tourhub | ✅ PR vitrina#5 hub#5/#7 tourhub#4; sellers approved |
-| Exhibitor Hub (events, map, catalog) | mega-hub | hub.microp.app |
+| Pages: география услуги (страна/города) → listing_cache | vitrina + hub + tourhub | PR vitrina#24 hub#13 tourhub#18; migration prod ✅ |
+| Market P0: seats UX, checkout timers, no demo flash | tourhub | PR #17 merged |
+| Market sheet «Подробнее» → embed Vitrina (info-only) | tourhub + vitrina | iframe `embedView=info` |
+| Admin select chevron padding + collapsible page geography | vitrina + tourhub | PR vitrina#26 tourhub#19 merged |
 
 ---
 
@@ -33,8 +36,10 @@
 | **P0** | AI Content Builder — admin UI | vitrina | ✅ MVP UI (`content-builder-client.tsx`, routes `/content-builder`, `/pages/[id]/content-builder`) |
 | **P1** | Publish flow: TourHub gated + wizard | vitrina | ✅ 2026-07-26 (`/publish`, sellers, `marketplace_slugs`) |
 | **P1** | Catalog live из hub (не demo-data) | tourhub | ✅ partners live 2026-07-26; sights ещё demo |
-| **P0** | Market dates/seats из booking → listing_cache | vitrina + hub + tourhub | snapshot + calendar filter (2026-07-26) |
-| **P2** | Публичный GET JSON страницы для TourHub detail | vitrina | backlog §P1 |
+| **P0** | Market dates/seats из booking → listing_cache | vitrina + hub + tourhub | ✅ snapshot + calendar filter (2026-07-26) |
+| **P0** | Pages service geography → market filter/card | vitrina + hub + tourhub | ✅ merged 2026-07-27 |
+| **P0** | Market P0 UX (seats, checkout, live load) | tourhub | ✅ PR #17 merged |
+| **P2** | Публичный GET JSON страницы для TourHub detail | vitrina | backlog §P1 — embed iframe вместо JSON |
 | **P2** | Cookie scope split: admin host-only + hub soft-SSO | vitrina + mega-hub | `DOMAINS-MICROP-PROD.md` §Security backlog · comment in `lib/supabase/auth-cookie.ts` |
 | **P2** | `/p/*` на vanity: tenant из Host, не только `?tenant=` | vitrina | comment in `middleware.ts` tryHubHostRewrite |
 | **P2** | Job queue для marketplace AI dispatch (QStash/Inngest) | mega-hub | `lib/vercel/heavy-api-duration.ts` + HUB_ARCHITECTURE |
@@ -76,6 +81,10 @@
 - [x] Prod TourHub live `count: 3` (`MEGA_HUB_API_URL=https://hub.microp.app`)
 - [x] Listing booking snapshot на prod (`next_departure_date` / `available_slots` для 3 demo)
 - [x] TourHub calendar: ближайшая дата + фильтр по выбранному дню (live API 2026-07-26)
+- [x] Pages `service_locations` migration prod (`20260727160000`)
+- [x] TourHub city filter: код города + label (Astana → astana, PR #18)
+- [ ] Smoke: admin geography collapse + select padding (vitrina #26 deploy)
+- [ ] Smoke: kendala tour-2 «Астана» в фильтре market после deploy tourhub #18
 
 Seed:
 ```bash
