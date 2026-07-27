@@ -6,6 +6,22 @@
 
 ## 2026-07-27
 
+**docs + tourhub** | План multi-market: отдельный Vercel-проект на маркет
+- Решение: tourhub.kz на том же репо tourhub (домен в Vercel ✅); multi-tenant middleware не делаем
+- Зафиксировано: [08-multi-market-domains.md](./08-multi-market-domains.md) — фазы 1–4
+- Фаза 1: env live + smoke `/api/market/listings`; slug `tourhub` в коде OK
+- Фаза 2+: `TOURHUB_MARKET_SLUG`, новый hub.marketplaces + sellers, клон Vercel
+- Фаза 3: platform admin «Маркеты» в vitrina, PUBLISH_CHANNELS из БД
+- **Дальше:** smoke tourhub.kz; при 2-м маркете — фаза 2 из 08
+
+**tourhub + vitrina** | Market sheet: qty + валюта + group total «от»
+- Qty больше не зажимается `seatsLeft=1` (exclusive day) → можно 2…max_people
+- `formatMoney` по `priceCurrency` (USD → `$`, не всегда `₸`)
+- `price_from` для `group_price` = пакетный total на min_people (не per-person)
+- PR: tourhub #13, vitrina #20/#21; re-sync: tour-1 `price_from=1960 USD`
+- Prod проверено: qty 2…10, tier 4 → 2546 $, карточка «от 1862 $»
+- **Дальше:** если нужно «от 1750» — `min_people=1` в калькуляторе (сейчас min=2 → 1960)
+
 **vitrina + hub + tourhub** | Market: цена калькулятора по числу людей
 - Sync `calculator_pricing` (tiers/min/max) в `listing_cache`
 - Sheet: qty от min_people, total по тирам (не unit×qty); карточка «от»
