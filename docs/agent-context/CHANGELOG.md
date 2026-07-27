@@ -6,6 +6,11 @@
 
 ## 2026-07-27
 
+**vitrina + tourhub** | Admin/UI: отступ стрелки select + сворачиваемая география на pages
+- Vitrina: `components/ui/select.tsx`, global `select { padding-inline-end }`, блок «География услуги» сворачивается после save (**merged #26**)
+- TourHub: `.catalog-select` padding + custom chevron (PR #19 merged)
+- **Дальше:** smoke admin pages geography после deploy vitrina
+
 **tourhub + vitrina** | Pages: география услуги (страна/города) → listing_cache
 - Admin page builder: выбор страны, «вся страна» или несколько городов (справочник, не ввод)
 - Sync → hub.listing_cache.service_*; TourHub card/filter по page city, не company HQ
