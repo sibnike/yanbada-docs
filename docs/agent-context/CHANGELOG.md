@@ -6,6 +6,12 @@
 
 ## 2026-07-27
 
+**tourhub + vitrina** | Market sheet: кнопка «Подробнее» → embed страницы Vitrina (info-only)
+- TourHub: `MarketListingDetailSheet` + iframe `embed=1&embedView=info&lang=…` (без формы/калькулятора)
+- Vitrina: query `embedView=info` — только info + social blocks в embed
+- Live listings: `vitrinaTenantSlug` + `vitrinaPageSlug` из listing_cache; env `NEXT_PUBLIC_VITRINA_URL`
+- **Дальше:** deploy vitrina + tourhub; smoke kendala tour-1 на prod
+
 **docs + tourhub** | План multi-market: отдельный Vercel-проект на маркет
 - Решение: tourhub.kz на том же репо tourhub (домен в Vercel ✅); multi-tenant middleware не делаем
 - Зафиксировано: [08-multi-market-domains.md](./08-multi-market-domains.md) — фазы 1–4
