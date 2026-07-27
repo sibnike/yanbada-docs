@@ -57,6 +57,8 @@ TourHub POST /api/marketplace-request
 | founding_year, employee_count, coverage_cities | ✅ | — | |
 | **bank_details** | ❌ | — | **только** `company_profiles` в vitrina |
 | price_from | — | ✅ | приоритет: form/calculator (`page_blocks`) → иначе catalog_items |
+| short_text | — | ✅ | только `info.body` (не sections / form / catalog) |
+| cover_image_url / images | — | ✅ | только `info.images` (Microp info-блок) |
 | seats / next date / available_slots | — | ✅ | snapshot из booking (`calculator`/`form`/`catalog_item` → `getAvailableDates`) |
 | discount tiers % | — | ✅ | `market_discount_tiers` public/silver/gold; витрина = public |
 

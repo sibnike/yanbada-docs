@@ -6,6 +6,11 @@
 
 ## 2026-07-27
 
+**vitrina + hub + tourhub** | Listing: описание и фото только из Info
+- `short_text` = `info.body` (не весь текст страницы)
+- `cover_image_url` / `images` из `info.images` → market card cover
+- **Дальше:** prod migration + re-sync published listings
+
 **vitrina** | Admin: настройки бронирования «не сохранялись»
 - GET booking configs: `Cache-Control: no-store` (раньше max-age=30 откатывал UI после save)
 - Editor применяет config из POST/PUT; Save All сохраняет dirty booking
