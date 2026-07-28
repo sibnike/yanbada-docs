@@ -4,6 +4,13 @@
 
 ---
 
+## 2026-07-28
+
+**tourhub + docs** | Домен prod: tourhub.kz → www.ota.kz
+- UI footer/menu: `www.ota.kz`, `info@ota.kz`; `metadataBase` + redirects legacy доменов в `vercel.json`
+- Docs: PROGRESS, 08-multi-market-domains, README ecosystem
+- **Дальше:** deploy tourhub; smoke `curl www.ota.kz/api/market/listings`; проверить DNS/email (см. чеклист владельца)
+
 ## 2026-07-27
 
 **vitrina + tourhub** | Admin/UI: отступ стрелки select + сворачиваемая география на pages

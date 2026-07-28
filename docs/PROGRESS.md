@@ -44,7 +44,7 @@
 | **P2** | `/p/*` на vanity: tenant из Host, не только `?tenant=` | vitrina | comment in `middleware.ts` tryHubHostRewrite |
 | **P2** | Job queue для marketplace AI dispatch (QStash/Inngest) | mega-hub | `lib/vercel/heavy-api-duration.ts` + HUB_ARCHITECTURE |
 | **P2** | Availability concurrency + participants async email | mega-hub | `HUB_ROADMAP-next.md` tech debt |
-| **—** | Multi-market B2C: tourhub.kz (отдельный Vercel) | tourhub | ✅ домен в Vercel; см. [agent-context/08-multi-market-domains.md](./agent-context/08-multi-market-domains.md) |
+| **—** | Multi-market B2C: www.ota.kz (отдельный Vercel) | tourhub | ✅ домен в Vercel; см. [agent-context/08-multi-market-domains.md](./agent-context/08-multi-market-domains.md) |
 | **P3** | 2+ B2C-маркет: `TOURHUB_MARKET_SLUG` + platform admin «Маркеты» | tourhub + vitrina | фаза 2–3 в 08-multi-market-domains |
 
 ### Инварианты (не трогать без решения)
@@ -75,7 +75,7 @@
 - [x] Локально: 3 listing в hub + TourHub live API (`count: 3`)
 - [x] Prod deploy vitrina + mega-hub (PR #3, hub #2 merged)
 - [x] Prod deploy tourhub (PR #2 merged — Next.js only, Netlify demo removed)
-- [x] Vercel env tourhub + prod deploy (tourhub.yanbada.com)
+- [x] Vercel env tourhub + prod deploy (www.ota.kz)
 - [x] Prod seed demo tenants (nomad-trails, steppe-journeys, aquatour-burabay)
 - [x] Prod hub channel filter + listing sync (`marketplace_slugs` + approved sellers)
 - [x] Prod TourHub live `count: 3` (`MEGA_HUB_API_URL=https://hub.microp.app`)
@@ -112,7 +112,7 @@ Yanbada-superApp/           ← git: sibnike/yanbada-docs (docs + cursor rules)
 ├── .cursor/rules/
 ├── vitrina/                ← git: sibnike/vitrina
 ├── mega-hub/               ← git: sibnike/hub
-└── tourhub/                ← git: sibnike/tourhub → tourhub.yanbada.com
+└── tourhub/                ← git: sibnike/tourhub → www.ota.kz
 ```
 
 **Clone docs:** `git clone https://github.com/sibnike/yanbada-docs.git ~/Projects/Yanbada-superApp`

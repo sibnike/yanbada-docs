@@ -63,7 +63,7 @@ components/market/    — cards, calendar, listing sheet, checkout
 | Enrichment live listings (цены, слоты из Vitrina JSON API) | P0 после profiles |
 | SLA / ticket после escrow | Средний |
 | Cabinets, trip planner, category flow, content builder UI | Низкий (cabinet/CB в vitrina) |
-| Deploy tourhub.yanbada.com | Когда live стабилен |
+| Deploy www.ota.kz | ✅ prod |
 | Скрыть `/request` как internal или встроить в hero flow | По решению |
 
 ## Заглушки в UI

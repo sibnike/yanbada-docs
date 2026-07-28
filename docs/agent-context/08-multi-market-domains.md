@@ -1,7 +1,7 @@
 # 08 — Маркеты: отдельные проекты и кастомные домены
 
 > **Решение:** 2026-07-27  
-> **Статус:** фаза 1 (TourHub / tourhub.kz) — в prod; фазы 2–4 — когда появятся следующие маркеты.
+> **Статус:** фаза 1 (OTA / www.ota.kz) — в prod; фазы 2–4 — когда появятся следующие маркеты.
 
 ## Контекст
 
@@ -10,7 +10,7 @@
 
 | slug | UI | Prod (сейчас) |
 |------|-----|---------------|
-| `tourhub` | tourhub (Next.js) | tourhub.yanbada.com, **tourhub.kz** |
+| `tourhub` | tourhub (Next.js) | **www.ota.kz** (legacy: tourhub.kz, tourhub.yanbada.com → redirect) |
 | `tourism` | mega-hub `/m/tourism` | B2B guided-search (другой продукт) |
 
 **Не путать:** `tourism` (B2B в mega-hub) и `tourhub` (B2C в отдельном репо).
@@ -32,12 +32,12 @@ Multi-tenant middleware в одном TourHub **не делаем**, пока м
 
 ---
 
-## Фаза 1 — TourHub на tourhub.kz ✅ (сейчас)
+## Фаза 1 — OTA на www.ota.kz ✅ (сейчас)
 
 | Шаг | Статус | Детали |
 |-----|--------|--------|
 | Vercel-проект tourhub | ✅ | github.com/sibnike/tourhub |
-| Домен tourhub.kz в Vercel | ✅ | привязан владельцем |
+| Домен www.ota.kz в Vercel | ✅ | привязан владельцем; apex ota.kz → www |
 | Env Production | проверить | см. ниже |
 | Slug канала в коде | `tourhub` | захардкожен в `listings-bridge.ts` — **OK для одного маркета** |
 | Platform admin «Маркеты» | отложено | не блокирует prod |
@@ -52,7 +52,7 @@ MEGA_HUB_API_URL=https://hub.microp.app
 **Smoke после деплоя:**
 
 ```bash
-curl -s https://tourhub.kz/api/market/listings | jq '.count, .dataMode'
+curl -s https://www.ota.kz/api/market/listings | jq '.count, .dataMode'
 # ожидаем: count >= 3, dataMode: "live"
 ```
 
@@ -60,7 +60,7 @@ curl -s https://tourhub.kz/api/market/listings | jq '.count, .dataMode'
 
 ```sql
 UPDATE hub.marketplaces
-SET custom_domain = 'tourhub.kz'
+SET custom_domain = 'www.ota.kz'
 WHERE slug = 'tourhub';
 ```
 
@@ -140,7 +140,7 @@ WHERE slug = 'tourhub';
 | Идея | Почему отложено |
 |------|-----------------|
 | Один TourHub + middleware по Host | сложнее ops; отдельные проекты проще |
-| `tourhub.kz` → mega-hub rewrite | покажет B2B `/m/tourhub`, не `/market` |
+| `www.ota.kz` → mega-hub rewrite | покажет B2B `/m/tourhub`, не `/market` — B2C на отдельном Vercel tourhub |
 | Общий брендинг из `hub.marketplaces.settings` в TourHub | нужен только при many markets в одном репо |
 
 ---
@@ -164,7 +164,7 @@ WHERE slug = 'tourhub';
            ┌───────────────────────┼───────────────────────┐
            ▼                       ▼                       ▼
    tourhub Vercel #1        tourhub Vercel #2        mega-hub /m/*
-   tourhub.kz               (будущий домен)         tourism B2B
+   www.ota.kz               (будущий домен)         tourism B2B
    slug=tourhub              slug=visit-almaty
    env: MARKET_SLUG          env: MARKET_SLUG
    (пока hardcode)           (фаза 2)

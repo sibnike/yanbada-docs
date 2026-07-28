@@ -6,7 +6,7 @@
 |--------|--------|------|-----|
 | **vitrina** | `sibnike/vitrina` | admin.yanbada.com | :3000 |
 | **mega-hub** | `sibnike/hub` | hub.yanbada.com | :3001 |
-| **tourhub** | `sibnike/tourhub` | tourhub.yanbada.com | :3002 |
+| **tourhub** | `sibnike/tourhub` | www.ota.kz | :3002 |
 
 **Docs git:** [github.com/sibnike/yanbada-docs](https://github.com/sibnike/yanbada-docs) — корень этой папки (`docs/`, `.cursor/rules/`).
 

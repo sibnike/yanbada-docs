@@ -14,7 +14,7 @@
 | TourHub market/catalog | [03-tourhub-current-state.md](./03-tourhub-current-state.md) | `lib/market/`, `lib/catalog/live-mapper.ts`, `api/catalog/partners` |
 | Категории / themes маркета | [05-categories-mapping.md](./05-categories-mapping.md) | `marketplace_themes` + channels (`marketplace_slugs`, sellers) |
 | Маркеты / publish channels | [05-categories-mapping.md](./05-categories-mapping.md), [02-ecosystem-data-flow.md](./02-ecosystem-data-flow.md) | Sidebar «Маркеты» → `/publish`; каталог `PUBLISH_CHANNELS`; TourHub = первый gated |
-| Кастомные домены B2C-маркетов | [08-multi-market-domains.md](./08-multi-market-domains.md) | отдельный Vercel на маркет; tourhub.kz; фаза 2+ — `TOURHUB_MARKET_SLUG` |
+| Кастомные домены B2C-маркетов | [08-multi-market-domains.md](./08-multi-market-domains.md) | отдельный Vercel на маркет; www.ota.kz; фаза 2+ — `TOURHUB_MARKET_SLUG` |
 | Миграции БД | см. ниже §Миграции | `*/supabase/migrations/` |
 | Деплой prod / домены Microp | `vitrina/docs/DOMAINS-MICROP-PROD.md`, `DEPLOY-PHASE1.md` | Vercel + Cloudflare + Supabase Auth |
 | Auth cookie / субдомены / middleware latency | `vitrina/docs/DOMAINS-MICROP-PROD.md` §Security backlog, `ARCHITECTURE.md` §16a | `vitrina/middleware.ts`, `lib/supabase/auth-cookie.ts` |
