@@ -4,6 +4,13 @@
 
 ---
 
+## 2026-08-03
+
+**vitrina + docs** | Политика резервного копирования prod
+- Ежедневный pg_dump + Supabase Storage → GitHub Actions (`daily-backup.yml`)
+- Скрипты `scripts/backup/*`, док [BACKUP.md](../BACKUP.md)
+- **Дальше:** добавить secrets в GitHub vitrina; опционально R2 для хранения >90 дней; Cloudinary export
+
 ## 2026-07-28
 
 **tourhub + docs** | Домен prod: tourhub.kz → www.ota.kz

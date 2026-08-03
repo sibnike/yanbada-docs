@@ -9,6 +9,10 @@
 
 Полный индекс agent-context: [agent-context/README.md](./agent-context/README.md)
 
+## Ops / резервные копии
+
+[BACKUP.md](./BACKUP.md) — ежедневный pg_dump, Supabase Storage, GitHub Actions.
+
 ## Архитектура
 
 [YANBADA_ARCHITECTURE.md](./YANBADA_ARCHITECTURE.md) — экосистема Vitrina + mega-hub + TourHub (единственная каноническая копия).
