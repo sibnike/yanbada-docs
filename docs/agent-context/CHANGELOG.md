@@ -6,6 +6,12 @@
 
 ## 2026-08-15
 
+**vitrina** | Промо: пробел в заголовке + без автоплея + сторис-видео
+- Админка: `PromoStoryEditor` больше не гоняет `parsePromoStory` на каждый символ (`.trim()` съедал пробел → «Лучшийтур»)
+- Шторка: как YouTube — до Play только постер; mp4 не autoplay/loop; конец ролика → снова overlay
+- Видео: загрузка в Cloudinary (прямо из браузера, лимит 80 МБ / 60 с) или HTTPS; выдача `w_720,du_60,q_auto:eco`
+- **Prod:** vitrina `9a252a7` — пуш на main / Vercel Production
+
 **vitrina** | Промо-уголок хаба и страниц
 - Модель `PromoStory`: `pages.promo` (миграция `20260815140000`) + `tenants.settings.hub_promo`
 - Админка: общий `promo-story-editor` в Hub → Настройки и в редакторе страницы

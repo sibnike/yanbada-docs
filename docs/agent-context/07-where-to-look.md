@@ -51,6 +51,8 @@
 **Публичные страницы:** `https://vitrina.microp.app/p/{slug}`  
 **Hub тенанта:** `https://{hub_subdomain}.microp.app`
 
+**Канон видео промо:** шторка = постер + заголовок + Play; Play → cinema со звуком, без loop; конец → снова overlay. Автоплея нет. Видео: загрузка Cloudinary или HTTPS, формат сторис (до 60 с / 80 МБ); на выдаче `w_720,du_60,q_auto:eco`. YouTube — плеер только по Play.
+
 ### mega-hub
 
 | Тема | Документ | Ключевые пути |
