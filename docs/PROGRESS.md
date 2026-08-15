@@ -1,6 +1,6 @@
 # Progress — Yanbada SuperApp
 
-> **Обновлено:** 2026-07-27  
+> **Обновлено:** 2026-08-15  
 > Журнал сессий (детальнее): [agent-context/CHANGELOG.md](./agent-context/CHANGELOG.md)
 
 ## Текущая фаза
@@ -24,6 +24,7 @@
 | Market P0: seats UX, checkout timers, no demo flash | tourhub | PR #17 merged |
 | Market sheet «Подробнее» → embed Vitrina (info-only) | tourhub + vitrina | iframe `embedView=info` |
 | Admin select chevron padding + collapsible page geography | vitrina + tourhub | PR vitrina#26 tourhub#19 merged |
+| Промо-уголок хаба и `/p/*` | vitrina | PR [#30](https://github.com/sibnike/vitrina/pull/30) + миграция `pages.promo` prod ✅ |
 
 ---
 

@@ -11,7 +11,8 @@
 - Админка: общий `promo-story-editor` в Hub → Настройки и в редакторе страницы
 - Публичный UI: левый уголок с логотипом, выезд sheet, cinema на Play; скрыто в embed
 - Автооткрытие: хаб-корень 1 раз за сессию, страница 1 раз на pageId
-- **Дальше:** `db:push:prod` миграции; smoke на kendalatravel.microp.app + page editor
+- **Prod:** merge [vitrina#30](https://github.com/sibnike/vitrina/pull/30) (`e42eaf8`) + миграция `20260815140000` на mega-vitrina; Vercel Production Ready
+- **Дальше:** smoke на admin.microp.app → Hub → Настройки → «Промо главной»; публичный хаб kendala
 
 ## 2026-08-12
 
