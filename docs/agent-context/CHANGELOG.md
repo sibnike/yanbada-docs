@@ -4,12 +4,31 @@
 
 ---
 
+## 2026-08-15
+
+**vitrina** | Промо-уголок хаба и страниц
+- Модель `PromoStory`: `pages.promo` (миграция `20260815140000`) + `tenants.settings.hub_promo`
+- Админка: общий `promo-story-editor` в Hub → Настройки и в редакторе страницы
+- Публичный UI: левый уголок с логотипом, выезд sheet, cinema на Play; скрыто в embed
+- Автооткрытие: хаб-корень 1 раз за сессию, страница 1 раз на pageId
+- **Дальше:** `db:push:prod` миграции; smoke на kendalatravel.microp.app + page editor
+
+## 2026-08-12
+
+**vitrina + docs** | Daily backup: merge #29 + первый успешный run
+- Merged [PR #29](https://github.com/sibnike/vitrina/pull/29) → `main` (`817dd9e`, pg_dump 17, Node 24, `[skip vercel]`)
+- Secrets: Session pooler `SUPABASE_DB_URL` + API keys
+- Успех: [run 31562692700](https://github.com/sibnike/vitrina/actions/runs/31562692700); дальше cron 02:00 UTC
+- Док: обновлён [github-actions-backup-fix.md](../github-actions-backup-fix.md) — эталон как в vitrina + доп. рекомендации (sudo gpg, без npm ci, secrets, skip vercel)
+- **Дальше:** сменить DB password (светился в чате) + обновить secret; Cloudinary backup; квартальный restore-тест
+
 ## 2026-08-03
 
-**vitrina + docs** | Политика резервного копирования prod
-- Ежедневный pg_dump + Supabase Storage → GitHub Actions (`daily-backup.yml`)
-- Скрипты `scripts/backup/*`, док [BACKUP.md](../BACKUP.md)
-- **Дальше:** добавить secrets в GitHub vitrina; опционально R2 для хранения >90 дней; Cloudinary export
+**vitrina + docs** | Daily backup — parity с tour-hub (PR #29)
+- Скрипты: `backup-db.sh`, `backup-storage.mjs`, `restore-storage.mjs`; workflow 02:00 UTC, artifact 30 дней
+- Доки: `vitrina/docs/backup.md`, `vitrina/docs/supabase-migration.md`; обновлены `docs/BACKUP.md`, `07-where-to-look.md`, `PROGRESS.md`
+- Workflow fix: только `@supabase/supabase-js` (без `npm ci` — lockfile drift)
+- **Дальше:** secrets в GitHub → merge #29 → Run workflow → проверить artifact
 
 ## 2026-07-28
 

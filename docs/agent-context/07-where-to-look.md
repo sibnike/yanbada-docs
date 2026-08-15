@@ -16,13 +16,15 @@
 | Маркеты / publish channels | [05-categories-mapping.md](./05-categories-mapping.md), [02-ecosystem-data-flow.md](./02-ecosystem-data-flow.md) | Sidebar «Маркеты» → `/publish`; каталог `PUBLISH_CHANNELS`; TourHub = первый gated |
 | Кастомные домены B2C-маркетов | [08-multi-market-domains.md](./08-multi-market-domains.md) | отдельный Vercel на маркет; www.ota.kz; фаза 2+ — `TOURHUB_MARKET_SLUG` |
 | Миграции БД | см. ниже §Миграции | `*/supabase/migrations/` |
-| **Резервное копирование (pg_dump, Storage)** | [BACKUP.md](../BACKUP.md) | `vitrina/.github/workflows/daily-backup.yml`, `vitrina/scripts/backup/` |
+| **Резервное копирование (pg_dump, Storage)** | [BACKUP.md](../BACKUP.md), `vitrina/docs/backup.md` | `vitrina/.github/workflows/daily-backup.yml`, `scripts/backup-db.sh`, `scripts/backup-storage.mjs` |
+| **Перенос Supabase (новый project ref)** | `vitrina/docs/supabase-migration.md` | `vitrina/supabase/migrations/`, `mega-hub/supabase/migrations/` |
 | Деплой prod / домены Microp | `vitrina/docs/DOMAINS-MICROP-PROD.md`, `DEPLOY-PHASE1.md` | Vercel + Cloudflare + Supabase Auth |
 | Auth cookie / субдомены / middleware latency | `vitrina/docs/DOMAINS-MICROP-PROD.md` §Security backlog, `ARCHITECTURE.md` §16a | `vitrina/middleware.ts`, `lib/supabase/auth-cookie.ts` |
 | Serverless timeout AI match / Events | `mega-hub/docs/HUB_ARCHITECTURE.md` §Serverless limits | `maxDuration` на marketplace + participants; очередь — P2 backlog |
 | Postgres pool / cold start / Supavisor | `YANBADA_ARCHITECTURE.md` §«Доступ к БД из Vercel Serverless» | Runtime = supabase-js HTTP; прямой SQL запрещён без `:6543` |
 | Booking | `vitrina/docs/BOOKING-MODEL.md` | `vitrina/app/api/booking/`, admin booking routes |
 | Pages / blocks builder | `vitrina/docs/ARCHITECTURE.md`, `TZ-Pages-Builder-Phase1.md` | `vitrina/lib/blocks/` |
+| Промо-уголок хаба / страницы | этот файл §vitrina | `lib/promo/`, `components/admin/promo-story-editor.tsx`, `components/public/promo/`, `pages.promo` + `settings.hub_promo` |
 | AI Content Builder | `vitrina/docs/TZ-AI-Content-Builder-Tourism.md` | `components/admin/content-builder-client.tsx`, `app/api/admin/t/[tenantSlug]/ai/cb/`, `lib/page-templates/categories/` |
 | Заявки TourHub → inbox | [02-ecosystem-data-flow.md](./02-ecosystem-data-flow.md) | `tourhub/app/api/marketplace-request/`, `mega-hub/app/api/marketplace/request/` |
 | Hub events / карта / QR | `mega-hub/ARCHITECTURE.md` | `mega-hub/app/e/`, `app/organizer/` |
@@ -37,10 +39,13 @@
 | Тема | Документ | Ключевые пути |
 |------|----------|---------------|
 | Архитектура | `vitrina/docs/ARCHITECTURE.md` | `app/`, `lib/`, `components/admin/` |
+| Промо-уголок (хаб + /p/*) | `lib/promo/parse-promo-story.ts` | admin: `promo-story-editor.tsx`; public: `components/public/promo/` |
 | Roadmap фич | `vitrina/docs/ROADMAP-next.md` | — |
 | Интеграция Touchin | `vitrina/docs/INTEGRATION-TOUCHIN-VITRINA.md` | embed, identify |
 | Тест-репорты | `vitrina/docs/reports/V-*.md` | prod E2E фикстура `qa-sandbox` |
 | Handoff | `vitrina/docs/HANDOFF.md` | — |
+| **Backup / restore** | `vitrina/docs/backup.md` | `scripts/backup-db.sh`, `.github/workflows/daily-backup.yml` |
+| **Supabase migration** | `vitrina/docs/supabase-migration.md` | restore artifact + `db:push:prod` |
 
 **Admin URL:** `https://admin.microp.app/admin/t/{tenantSlug}/…`  
 **Публичные страницы:** `https://vitrina.microp.app/p/{slug}`  
@@ -76,6 +81,8 @@
 | mega-hub | `mega-hub/supabase/migrations/` | hub-специфичные; часто зеркало vitrina для `hub.*` |
 
 После миграции: `npx supabase migration list --linked` — Local = Remote.
+
+**Перенос на другой Supabase project:** `vitrina/docs/supabase-migration.md` (restore из artifact + env Vercel).
 
 **Правило:** schema `public.*` и профили — vitrina; schema `hub.*` — mega-hub (sync через webhook, не прямой write из tourhub).
 
