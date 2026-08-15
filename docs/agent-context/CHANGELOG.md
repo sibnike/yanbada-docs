@@ -12,7 +12,8 @@
 - Публичный UI: левый уголок с логотипом, выезд sheet, cinema на Play; скрыто в embed
 - Автооткрытие: хаб-корень 1 раз за сессию, страница 1 раз на pageId
 - **Prod:** merge [vitrina#30](https://github.com/sibnike/vitrina/pull/30) (`e42eaf8`) + миграция `20260815140000` на mega-vitrina; Vercel Production Ready
-- **Дальше:** smoke на admin.microp.app → Hub → Настройки → «Промо главной»; публичный хаб kendala
+- Auto-open: прямой заход — шторка; `hub_back` — только уголок; ключ seen = locale + хеш медиа; даты кампании `starts_at`/`ends_at`; постер Cloudinary `so_0` + mute-превью
+- **Дальше:** деплой этого пакета на prod; smoke page-small-tour (нет чёрного экрана, нет звука до Play)
 
 ## 2026-08-12
 
