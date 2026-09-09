@@ -23,7 +23,7 @@ export function pool(): Pool {
       connectionString: url,
       // Supabase and most managed Postgres require TLS but serve a chain the
       // Node bundle does not know.
-      ssl: /supabase|sslmode=require/.test(url) ? { rejectUnauthorized: false } : undefined,
+      ssl: /supabase|neon\.tech|sslmode=require/.test(url) ? { rejectUnauthorized: false } : undefined,
       max: Number(process.env.PGPOOL_MAX ?? 5),
     })
   }
