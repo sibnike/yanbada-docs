@@ -1,0 +1,386 @@
+:root {
+  --cab-bg: #f5f6f4;
+  --cab-panel: #ffffff;
+  --cab-ink: #14211f;
+  --cab-muted: #6b7a77;
+  --cab-line: #e2e6e3;
+  --cab-accent: #1c7c6b;
+  --cab-warn: #b4620f;
+  --cab-danger: #a3312b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: var(--cab-ink);
+  background: #fff;
+}
+
+a {
+  color: inherit;
+}
+
+.cab {
+  min-height: 100vh;
+  background: var(--cab-bg);
+  padding: 0 0 64px;
+}
+
+.cab__top {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 28px;
+  background: var(--cab-ink);
+  color: #fff;
+}
+
+.cab__top h1 {
+  font-size: 18px;
+  margin: 0;
+}
+
+.cab__top p {
+  margin: 2px 0 0;
+  font-size: 13px;
+  opacity: 0.7;
+}
+
+.cab__top nav {
+  display: flex;
+  gap: 14px;
+  font-size: 14px;
+}
+
+.cab__top nav a {
+  color: #fff;
+  opacity: 0.8;
+  text-decoration: none;
+}
+
+.cab__top nav a:hover {
+  opacity: 1;
+}
+
+.cab__kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+  padding: 20px 28px 4px;
+}
+
+.cab__kpi {
+  background: var(--cab-panel);
+  border: 1px solid var(--cab-line);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+.cab__kpi strong {
+  display: block;
+  font-size: 24px;
+  line-height: 1.2;
+}
+
+.cab__kpi span {
+  font-size: 13px;
+  color: var(--cab-muted);
+}
+
+.cab__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 18px 28px 0;
+}
+
+.cab__tab {
+  border: 1px solid var(--cab-line);
+  background: #fff;
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.cab__tab--on {
+  background: var(--cab-ink);
+  border-color: var(--cab-ink);
+  color: #fff;
+}
+
+.cab__panel {
+  margin: 18px 28px 0;
+  background: var(--cab-panel);
+  border: 1px solid var(--cab-line);
+  border-radius: 14px;
+  padding: 20px 22px;
+}
+
+.cab__panel h2 {
+  margin: 0 0 4px;
+  font-size: 17px;
+}
+
+.cab__panel > p {
+  margin: 0 0 16px;
+  color: var(--cab-muted);
+  font-size: 14px;
+}
+
+.cab__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.cab__table th {
+  text-align: left;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--cab-muted);
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--cab-line);
+}
+
+.cab__table td {
+  padding: 10px;
+  border-bottom: 1px solid var(--cab-line);
+  vertical-align: top;
+}
+
+.cab__table tr:last-child td {
+  border-bottom: none;
+}
+
+.cab__muted {
+  color: var(--cab-muted);
+  font-size: 13px;
+}
+
+.cab__badge {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  border: 1px solid var(--cab-line);
+  background: #f1f4f2;
+  white-space: nowrap;
+}
+
+.cab__badge--live {
+  background: #e6f4ef;
+  border-color: #b8ddd0;
+  color: #14634f;
+}
+
+.cab__badge--warn {
+  background: #fdf1e3;
+  border-color: #edd0a8;
+  color: var(--cab-warn);
+}
+
+.cab__badge--off {
+  background: #f7ecec;
+  border-color: #e3c3c1;
+  color: var(--cab-danger);
+}
+
+.cab__btn {
+  border: 1px solid var(--cab-ink);
+  background: var(--cab-ink);
+  color: #fff;
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.cab__btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.cab__btn--ghost {
+  background: #fff;
+  color: var(--cab-ink);
+  border-color: var(--cab-line);
+}
+
+.cab__btn--danger {
+  background: #fff;
+  color: var(--cab-danger);
+  border-color: #e3c3c1;
+}
+
+.cab__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.cab__form {
+  display: grid;
+  gap: 12px;
+  max-width: 640px;
+}
+
+.cab__form label {
+  display: grid;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--cab-muted);
+}
+
+.cab__form input,
+.cab__form select,
+.cab__form textarea,
+.cab__inline input,
+.cab__inline select {
+  font: inherit;
+  color: var(--cab-ink);
+  border: 1px solid var(--cab-line);
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: #fff;
+}
+
+.cab__inline {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.cab__inline input {
+  width: 84px;
+}
+
+.cab__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.cab__card {
+  border: 1px solid var(--cab-line);
+  border-radius: 12px;
+  padding: 14px;
+  background: #fff;
+}
+
+.cab__card h3 {
+  margin: 0 0 6px;
+  font-size: 15px;
+}
+
+.cab__note {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #eef3f1;
+  font-size: 13px;
+  color: #33534b;
+}
+
+.cab__error {
+  color: var(--cab-danger);
+  font-size: 13px;
+}
+
+.cab__editor {
+  display: grid;
+  grid-template-columns: minmax(200px, 260px) 1fr;
+  gap: 18px;
+}
+
+.cab__list {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+}
+
+.cab__list button {
+  text-align: left;
+  border: 1px solid var(--cab-line);
+  background: #fff;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.cab__list button.cab__list--on {
+  border-color: var(--cab-accent);
+  box-shadow: inset 3px 0 0 var(--cab-accent);
+}
+
+.cab__json {
+  width: 100%;
+  min-height: 220px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  border: 1px solid var(--cab-line);
+  border-radius: 10px;
+  padding: 12px;
+  resize: vertical;
+}
+
+.cab__bar {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--cab-accent);
+  opacity: 0.75;
+}
+
+.login {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: var(--cab-bg);
+  padding: 24px;
+}
+
+.login__box {
+  width: min(420px, 100%);
+  background: #fff;
+  border: 1px solid var(--cab-line);
+  border-radius: 16px;
+  padding: 26px;
+}
+
+.login__box h1 {
+  margin: 0 0 4px;
+  font-size: 20px;
+}
+
+.login__box p {
+  margin: 0 0 18px;
+  color: var(--cab-muted);
+  font-size: 14px;
+}
+
+@media (max-width: 720px) {
+  .cab__editor {
+    grid-template-columns: 1fr;
+  }
+
+  .cab__panel {
+    margin: 14px 12px 0;
+    padding: 16px;
+  }
+
+  .cab__kpis,
+  .cab__tabs {
+    padding-inline: 12px;
+  }
+}

@@ -3,10 +3,8 @@ import { callAnthropic } from '@/lib/ai/call-anthropic'
 import { extractJsonObject } from '@/lib/marketplace/marketplace-ai-json'
 import { checkRateLimit } from '@/lib/rate-limit'
 import { HEAVY_API_MAX_DURATION_SEC } from '@/lib/vercel/heavy-api-duration'
-import {
-  buildAssistantSystemPrompt,
-  loadAssistantKnowledge,
-} from '@/lib/sites/build-assistant-context'
+import { buildAssistantSystemPrompt } from '@/lib/sites/build-assistant-context'
+import { loadAssistantKnowledge } from '@/lib/sites/load-assistant-knowledge'
 import { getActiveSiteBySlug } from '@/lib/sites/get-site'
 import { loadSiteManualCards, loadSitePlacements, loadSitePlans } from '@/lib/sites/load-placements'
 import { loadSitePages, loadSitePosts } from '@/lib/sites/load-site-content'

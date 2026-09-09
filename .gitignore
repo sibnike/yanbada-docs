@@ -4,6 +4,14 @@
 /tourhub/
 /tourhub-restore/
 
+# Рабочее приложение витрины
+node_modules/
+.next/
+next-env.d.ts
+tsconfig.tsbuildinfo
+.env.local
+.vercel/
+
 # OS / IDE
 .DS_Store
 *.swp

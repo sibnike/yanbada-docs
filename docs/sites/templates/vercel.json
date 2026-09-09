@@ -1,9 +1,0 @@
-{
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "cleanUrls": true,
-  "trailingSlash": false,
-  "rewrites": [
-    { "source": "/market", "destination": "/karakol-market.html" },
-    { "source": "/owner", "destination": "/karakol-owner.html" }
-  ]
-}
