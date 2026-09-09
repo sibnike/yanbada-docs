@@ -1,15 +1,17 @@
 # Тематические сайты (hub.sites)
 
-Публичные B2C-витрины из кэша тенантов. Канон для агентов: [../agent-context/09-themed-sites.md](../agent-context/09-themed-sites.md).
+Публичные проекты из карточек тенантов + свои материалы. Канон: [../agent-context/09-themed-sites.md](../agent-context/09-themed-sites.md).
 
 | Файл | Назначение |
 |------|-----------|
-| [sql/20260909000000_hub_sites.sql](./sql/20260909000000_hub_sites.sql) | Миграция `hub.sites` |
-| [types.ts](./types.ts) | Общие типы + `listingMatchesSiteScope` |
-| [code/mega-hub/](./code/mega-hub/) | API + admin drop-in |
-| [code/tourhub/](./code/tourhub/) | Рендер `/s/[slug]` |
-| [templates/operator.html](./templates/operator.html) | Визуал бренда одного оператора |
-| [templates/destination.html](./templates/destination.html) | Визуал направления (много тенантов) |
-| [APPLY.md](./APPLY.md) | Как перенести в репо |
+| [sql/20260909000000_hub_sites.sql](./sql/20260909000000_hub_sites.sql) | Проект, scope, стиль |
+| [sql/20260909120000_hub_site_builder.sql](./sql/20260909120000_hub_site_builder.sql) | Конструктор, журнал, знания, ассистент |
+| [types.ts](./types.ts) | Типы блоков / payload / assistant |
+| [code/mega-hub/](./code/mega-hub/) | API, конструктор, assistant |
+| [code/tourhub/](./code/tourhub/) | Рендер блоков + менеджер |
+| [templates/operator.html](./templates/operator.html) | Скин operator |
+| [templates/destination.html](./templates/destination.html) | Скин destination |
+| [templates/constructor.html](./templates/constructor.html) | Холст конструктора |
+| [APPLY.md](./APPLY.md) | Перенос в репо |
 
-Срез v1: **оба** сценария на одной модели, шаблоны `operator` + `destination`.
+Карточки = live cache. Блоги и описания — `site_pages` / `site_posts`. Ассистент: base knowledge + знания сайта.

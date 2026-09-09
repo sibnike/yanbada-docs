@@ -29,7 +29,7 @@ Vitrina (write)  →  mega-hub cache  →  TourHub (read, B2C)
 ## Текущая фаза (сентябрь 2026)
 
 - ✅ **Расширенный профиль компании** — на prod (legal, tourism, media, bank; sync в hub)
-- **Тематические сайты `hub.sites`** — канон + drop-in код: [09-themed-sites.md](./09-themed-sites.md) (рендер TourHub `/s/{slug}`, не Tenant Hub и не `/m`)
+- **Тематические сайты `hub.sites`** — конструктор mega-hub + ассистент: [09-themed-sites.md](./09-themed-sites.md)
 
 Статус подробнее: [../PROGRESS.md](../PROGRESS.md)
 

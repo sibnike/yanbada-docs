@@ -5,7 +5,26 @@
 
 export type I18nMap = Record<string, string>
 
+/** Visual skin only. Layout comes from constructor blocks. */
 export type SiteTemplate = 'operator' | 'destination'
+
+export type SitePageKind = 'home' | 'page' | 'blog'
+export type SiteBlockType =
+  | 'hero'
+  | 'info'
+  | 'tenant_cards'
+  | 'listing_cards'
+  | 'posts'
+  | 'gallery'
+  | 'faq'
+  | 'cta'
+export type SiteKnowledgeKind = 'article' | 'faq' | 'rule'
+
+export type SiteAssistantSettings = {
+  enabled?: boolean
+  name?: I18nMap
+  greeting?: I18nMap
+}
 
 export type SiteSettings = {
   logo_url?: string
@@ -19,6 +38,7 @@ export type SiteSettings = {
   footer_text?: I18nMap
   display_name?: I18nMap
   map_center?: { lat: number; lng: number; zoom?: number }
+  assistant?: SiteAssistantSettings
 }
 
 export type SiteRow = {
@@ -39,6 +59,44 @@ export type SiteRow = {
   is_active: boolean
   created_at: string
   updated_at: string
+}
+
+export type SitePage = {
+  id: string
+  site_id: string
+  slug: string
+  kind: SitePageKind
+  title: I18nMap
+  sort_order: number
+  is_published: boolean
+  blocks: SiteBlock[]
+}
+
+export type SiteBlock = {
+  id: string
+  page_id: string
+  type: SiteBlockType
+  payload: Record<string, unknown>
+  sort_order: number
+}
+
+export type SitePost = {
+  id: string
+  site_id: string
+  slug: string
+  title: I18nMap
+  excerpt: I18nMap
+  body: I18nMap
+  cover_url: string | null
+  published_at: string | null
+}
+
+export type SiteKnowledge = {
+  id: string
+  site_id: string
+  title: I18nMap
+  body: string
+  kind: SiteKnowledgeKind
 }
 
 export type SiteListing = {
@@ -78,6 +136,19 @@ export type SitePublicPayload = {
   site: SiteRow
   listings: SiteListing[]
   companies: SiteCompany[]
+  pages: SitePage[]
+  posts: SitePost[]
+}
+
+export type AssistantLink = {
+  label: string
+  href: string
+  kind: 'listing' | 'company' | 'page' | 'post'
+}
+
+export type AssistantReply = {
+  reply: string
+  links: AssistantLink[]
 }
 
 /** Empty array = no filter on that dimension. All non-empty dimensions AND. */
@@ -127,3 +198,14 @@ export function listingMatchesSiteScope(
 
   return true
 }
+
+export const SITE_BLOCK_TYPES: SiteBlockType[] = [
+  'hero',
+  'info',
+  'tenant_cards',
+  'listing_cards',
+  'posts',
+  'gallery',
+  'faq',
+  'cta',
+]

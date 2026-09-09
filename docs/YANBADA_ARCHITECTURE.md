@@ -342,9 +342,9 @@ Vitrina-сторона потока 3a закрыта в **V-31/V-32** (ingest +
 
 ### Тематические сайты (`hub.sites`)
 
-Публичные B2C-витрины из `company_cache` / `listing_cache` с фильтром scope
-(tenant_ids / themes / country / city). Рендер в **TourHub** `/s/{slug}`
-(шаблоны `operator`, `destination`). Не путать с Tenant Hub `/h/*` и B2B `/m/*`.
+Публичные B2C-проекты: конструктор в mega-hub (карточки тенантов live + свои материалы),
+рендер TourHub `/s/{slug}` (скины `operator` / `destination`). Ассистент-менеджер —
+базовые знания платформы + знания сайта. Не путать с Tenant Hub `/h/*` и B2B `/m/*`.
 
 Канон: `docs/agent-context/09-themed-sites.md`.
 

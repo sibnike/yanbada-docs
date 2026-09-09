@@ -7,10 +7,11 @@
 ## 2026-09-09
 
 **docs + hub + tourhub** | Тематические сайты из данных тенантов
-- Срез: оба сценария на `hub.sites` (один тенант = `operator`, город/страна/тема = `destination`)
+- Срез: проект в конструкторе mega-hub. Карточки тенантов live из cache; блоги/описания — свои блоки; стиль operator/destination только скин
+- Ассистент-менеджер: `assistant_base_knowledge` + `site_knowledge` + холст и карточки. API `POST /api/sites/{slug}/assistant`
 - Не путать с Tenant Hub (`kendala.tourhub.kz` = vitrina `/h/*`) и B2B `/m/*`
-- Миграция, API, TourHub `/s/{slug}`, два визуальных пакета: [09-themed-sites.md](./09-themed-sites.md), [../sites/](../sites/)
-- **Дальше:** перенести drop-in в `sibnike/hub` и tourhub по [APPLY.md](../sites/APPLY.md); prod push миграции из vitrina
+- Канон: [09-themed-sites.md](./09-themed-sites.md), код: [../sites/](../sites/)
+- **Дальше:** перенос drop-in в `sibnike/hub` и tourhub по [APPLY.md](../sites/APPLY.md)
 
 ## 2026-08-15
 

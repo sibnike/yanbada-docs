@@ -1,72 +1,52 @@
 # Тематические сайты — как применить код
 
-Репозиторий **yanbada-docs** не содержит vitrina / mega-hub / tourhub (свой git, нет push из этого агента). Ниже — перенос drop-in файлов.
+Репозиторий **yanbada-docs** не содержит vitrina / mega-hub / tourhub. Ниже — перенос drop-in файлов.
 
-## 1. Миграция
+## 1. Миграции
 
 ```bash
 cp docs/sites/sql/20260909000000_hub_sites.sql mega-hub/supabase/migrations/
+cp docs/sites/sql/20260909120000_hub_site_builder.sql mega-hub/supabase/migrations/
+# зеркало:
 cp docs/sites/sql/20260909000000_hub_sites.sql vitrina/supabase/migrations/
-cd vitrina && CONFIRM_PROD_DB_PUSH=1 npm run db:push:prod   # только когда готовы к prod
+cp docs/sites/sql/20260909120000_hub_site_builder.sql vitrina/supabase/migrations/
 ```
 
-Не применять через MCP `apply_migration`.
+Prod push только из vitrina. Не MCP `apply_migration`.
 
 ## 2. mega-hub
 
-Скопировать дерево `docs/sites/code/mega-hub/` в корень mega-hub с теми же относительными путями:
+Скопировать `docs/sites/code/mega-hub/` в корень hub:
 
-- `types/site.ts`
-- `lib/sites/parse-site.ts`
-- `lib/sites/get-site.ts`
-- `lib/sites/search-site-listings.ts`
+- `types/site.ts`, `lib/sites/*`
 - `app/api/sites/[slug]/route.ts`
-- `app/api/admin/sites/route.ts`
-- `app/api/admin/sites/[slug]/route.ts`
-- `app/admin/sites/page.tsx`
+- `app/api/sites/[slug]/assistant/route.ts`
+- `app/api/admin/sites/**`
+- `app/admin/sites/**`
+- `components/sites/site-builder-client.tsx`
 
-`search-site-listings.ts` импортирует `listingMatchesSiteScope` из `@/types/site`.
-
-Smoke:
-
-```bash
-curl -s http://localhost:3001/api/sites/visit-kazakhstan | jq '.site.slug, (.listings|length)'
-```
-
-Создать operator-сайт (подставить UUID тенанта):
-
-```bash
-curl -X POST http://localhost:3001/api/admin/sites \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "slug": "kendala-studio",
-    "name": {"ru": "Kendala Studio"},
-    "template": "operator",
-    "tenant_ids": ["<tenant-uuid>"],
-    "marketplace_slug": null,
-    "settings": { "accent_color": "#C45C26" }
-  }'
-```
+Конструктор: `http://localhost:3001/admin/sites/visit-kazakhstan/builder`
 
 ## 3. tourhub
 
-Скопировать `docs/sites/code/tourhub/` в корень tourhub:
+Скопировать `docs/sites/code/tourhub/`:
 
-- `app/s/[slug]/page.tsx`
-- `app/s/[slug]/sites.css`
-- `components/sites/operator-site.tsx`
-- `components/sites/destination-site.tsx`
+- `app/s/**` (canvas + journal + CSS)
+- `app/api/sites/[slug]/assistant/route.ts` (прокси / demo)
+- `components/sites/site-canvas.tsx`, `assistant-dock.tsx`
 - `lib/sites/*`
 
-Demo без live-хаба: `TOURHUB_DATA_MODE=demo` → фикстура `lib/sites/demo-sites.json`.
-
 ```
-http://localhost:3002/s/kendala-studio
 http://localhost:3002/s/visit-kazakhstan
+http://localhost:3002/s/kendala-studio
 ```
 
-Live: `TOURHUB_DATA_MODE=live` + `MEGA_HUB_API_URL`.
+## 4. Проверка ассистента
 
-## 4. Домены
+```bash
+curl -s http://localhost:3002/api/sites/visit-kazakhstan/assistant \
+  -H 'Content-Type: application/json' \
+  -d '{"message":"есть что-то про Бурабай?"}'
+```
 
-Не использовать `{slug}.tourhub.kz` (занято vitrina). Prod path: `https://www.ota.kz/s/{slug}`.
+Live: `TOURHUB_DATA_MODE=live` + `MEGA_HUB_API_URL` + `ANTHROPIC_API_KEY` на mega-hub.

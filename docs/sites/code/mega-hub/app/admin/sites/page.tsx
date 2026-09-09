@@ -25,6 +25,8 @@ export default async function AdminSitesPage() {
             }}
           >
             <strong>{getI18nText(site.name, 'ru', site.slug)}</strong>
+            {' · '}
+            <a href={`/admin/sites/${site.slug}/builder`}>Конструктор</a>
             <div>
               {site.template} · {site.is_active ? 'active' : 'off'} · /s/{site.slug}
             </div>

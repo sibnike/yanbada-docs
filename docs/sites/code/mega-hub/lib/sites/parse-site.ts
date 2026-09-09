@@ -43,6 +43,17 @@ export function parseSiteSettings(raw: unknown): SiteSettings {
             zoom: typeof mapCenter.zoom === 'number' ? mapCenter.zoom : undefined,
           }
         : undefined,
+    assistant: parseAssistant(s.assistant),
+  }
+}
+
+function parseAssistant(raw: unknown): SiteSettings['assistant'] {
+  if (!raw || typeof raw !== 'object') return undefined
+  const a = raw as Record<string, unknown>
+  return {
+    enabled: a.enabled !== false,
+    name: asI18n(a.name),
+    greeting: asI18n(a.greeting),
   }
 }
 

@@ -55,10 +55,10 @@ components/market/    — cards, calendar, listing sheet, checkout
 ```
 
 ### Themed sites (`/s/[slug]`) — канон готов, код в docs
-- Drop-in: `docs/sites/code/tourhub/` — operator + destination
+- Конструктор mega-hub: live карточки тенантов + свои материалы
+- Рендер блоков + ассистент-менеджер (demo без hub)
 - Канон: [09-themed-sites.md](./09-themed-sites.md)
-- Demo payload: `lib/sites/demo-sites.json` (`kendala-studio`, `visit-kazakhstan`)
-- **В репо tourhub ещё не перенесено** — см. [APPLY.md](../sites/APPLY.md)
+- **В репо tourhub ещё не перенесено** — [APPLY.md](../sites/APPLY.md)
 
 ## Не сделано / backlog
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getActiveSiteBySlug } from '@/lib/sites/get-site'
 import { searchSiteListings } from '@/lib/sites/search-site-listings'
+import { loadSitePages, loadSitePosts } from '@/lib/sites/load-site-content'
 import { checkRateLimit } from '@/lib/rate-limit'
 
 export const dynamic = 'force-dynamic'
@@ -23,6 +24,11 @@ export async function GET(request: NextRequest, context: RouteContext) {
     return NextResponse.json({ error: 'Site not found' }, { status: 404 })
   }
 
-  const { listings, companies } = await searchSiteListings(site)
-  return NextResponse.json({ site, listings, companies })
+  const [{ listings, companies }, pages, posts] = await Promise.all([
+    searchSiteListings(site),
+    loadSitePages(site.id),
+    loadSitePosts(site.id),
+  ])
+
+  return NextResponse.json({ site, listings, companies, pages, posts })
 }
