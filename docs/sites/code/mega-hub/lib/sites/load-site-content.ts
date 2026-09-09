@@ -1,16 +1,15 @@
 import { createAdminClient } from '@/lib/supabase/admin'
-import type { I18nMap, SiteBlock, SiteBlockType, SitePage, SitePageKind, SitePost } from '@/types/site'
+import {
+  SITE_BLOCK_TYPES,
+  type I18nMap,
+  type SiteBlock,
+  type SiteBlockType,
+  type SitePage,
+  type SitePageKind,
+  type SitePost,
+} from '@/types/site'
 
-const BLOCK_TYPES: SiteBlockType[] = [
-  'hero',
-  'info',
-  'tenant_cards',
-  'listing_cards',
-  'posts',
-  'gallery',
-  'faq',
-  'cta',
-]
+const BLOCK_TYPES: SiteBlockType[] = SITE_BLOCK_TYPES
 
 function asI18n(raw: unknown): I18nMap {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {}

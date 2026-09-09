@@ -8,6 +8,7 @@ import {
   loadAssistantKnowledge,
 } from '@/lib/sites/build-assistant-context'
 import { getActiveSiteBySlug } from '@/lib/sites/get-site'
+import { loadSiteManualCards, loadSitePlacements, loadSitePlans } from '@/lib/sites/load-placements'
 import { loadSitePages, loadSitePosts } from '@/lib/sites/load-site-content'
 import { searchSiteListings } from '@/lib/sites/search-site-listings'
 import type { AssistantLink, AssistantReply } from '@/types/site'
@@ -45,11 +46,14 @@ export async function POST(request: NextRequest, context: RouteContext) {
     return NextResponse.json({ error: 'message обязателен' }, { status: 400 })
   }
 
-  const [{ listings, companies }, pages, posts, knowledge] = await Promise.all([
-    searchSiteListings(site),
+  const placements = await loadSitePlacements(site.id)
+  const [{ listings, companies }, pages, posts, knowledge, plans, manualCards] = await Promise.all([
+    searchSiteListings(site, placements),
     loadSitePages(site.id),
     loadSitePosts(site.id),
     loadAssistantKnowledge(site.id),
+    loadSitePlans(site.id),
+    loadSiteManualCards(site.id),
   ])
 
   const system = buildAssistantSystemPrompt({
@@ -60,6 +64,8 @@ export async function POST(request: NextRequest, context: RouteContext) {
     listings,
     siteKnowledge: knowledge.siteKnowledge,
     baseKnowledge: knowledge.baseKnowledge,
+    plans,
+    manualCards,
   })
 
   const raw = await callAnthropic({

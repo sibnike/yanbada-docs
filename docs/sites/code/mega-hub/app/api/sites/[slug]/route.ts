@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getActiveSiteBySlug } from '@/lib/sites/get-site'
-import { searchSiteListings } from '@/lib/sites/search-site-listings'
-import { loadSitePages, loadSitePosts } from '@/lib/sites/load-site-content'
 import { checkRateLimit } from '@/lib/rate-limit'
+import { loadPublicSitePayload } from '@/lib/sites/load-public-payload'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,16 +17,11 @@ export async function GET(request: NextRequest, context: RouteContext) {
   }
 
   const { slug } = await context.params
-  const site = await getActiveSiteBySlug(slug)
-  if (!site) {
+  const payload = await loadPublicSitePayload(slug)
+  if (!payload) {
     return NextResponse.json({ error: 'Site not found' }, { status: 404 })
   }
 
-  const [{ listings, companies }, pages, posts] = await Promise.all([
-    searchSiteListings(site),
-    loadSitePages(site.id),
-    loadSitePosts(site.id),
-  ])
-
-  return NextResponse.json({ site, listings, companies, pages, posts })
+  // payout and private plans never leave the server
+  return NextResponse.json(payload)
 }

@@ -251,6 +251,35 @@ COMMENT ON TABLE hub.site_manual_cards IS
 CREATE INDEX site_manual_cards_site_idx ON hub.site_manual_cards (site_id, sort_order) WHERE is_active;
 
 -- ─────────────────────────────────────────────────────────────
+-- 7b. Applications from businesses that are not tenants yet.
+-- A blogger promotes the market to local businesses, most of which
+-- have no Vitrina account. Without this the whole funnel is lost.
+-- ─────────────────────────────────────────────────────────────
+
+CREATE TABLE hub.site_leads (
+  id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  site_id       uuid NOT NULL REFERENCES hub.sites(id) ON DELETE CASCADE,
+  plan_id       uuid REFERENCES hub.site_plans(id) ON DELETE SET NULL,
+  company_name  text NOT NULL,
+  contact_name  text,
+  contact       jsonb NOT NULL DEFAULT '{}',
+  message       text,
+  source        text,
+  status        text NOT NULL DEFAULT 'new'
+                CHECK (status IN ('new', 'contacted', 'invited', 'converted', 'declined')),
+  tenant_id     uuid,
+  accepted_terms_at timestamptz,
+  created_at    timestamptz NOT NULL DEFAULT now()
+);
+
+COMMENT ON TABLE hub.site_leads IS
+  'Join-form applications without a tenant account. Owner converts them: invite to register in Vitrina, then create a placement.';
+COMMENT ON COLUMN hub.site_leads.source IS
+  'utm or referrer: a market owner running ads needs to know what worked.';
+
+CREATE INDEX site_leads_site_status_idx ON hub.site_leads (site_id, status, created_at DESC);
+
+-- ─────────────────────────────────────────────────────────────
 -- 8. Per-card stats — the reason a tenant renews
 -- ─────────────────────────────────────────────────────────────
 
@@ -297,6 +326,7 @@ ALTER TABLE hub.site_placement_requests ENABLE ROW LEVEL SECURITY;
 ALTER TABLE hub.site_placements ENABLE ROW LEVEL SECURITY;
 ALTER TABLE hub.site_invoices ENABLE ROW LEVEL SECURITY;
 ALTER TABLE hub.site_manual_cards ENABLE ROW LEVEL SECURITY;
+ALTER TABLE hub.site_leads ENABLE ROW LEVEL SECURITY;
 ALTER TABLE hub.site_card_stats ENABLE ROW LEVEL SECURITY;
 
 -- Staff list: readable by staff of the same market, writable by owner or platform
@@ -398,6 +428,12 @@ CREATE POLICY site_manual_cards_staff ON hub.site_manual_cards
   USING (public.is_platform_admin() OR hub.is_site_member(site_id, ARRAY['owner', 'editor']))
   WITH CHECK (public.is_platform_admin() OR hub.is_site_member(site_id, ARRAY['owner', 'editor']));
 
+-- Leads carry contact data: staff only, insert goes through service_role
+CREATE POLICY site_leads_staff ON hub.site_leads
+  FOR ALL TO authenticated
+  USING (public.is_platform_admin() OR hub.is_site_member(site_id, ARRAY['owner', 'moderator']))
+  WITH CHECK (public.is_platform_admin() OR hub.is_site_member(site_id, ARRAY['owner', 'moderator']));
+
 CREATE POLICY site_card_stats_read ON hub.site_card_stats
   FOR SELECT TO authenticated
   USING (
@@ -450,9 +486,10 @@ GRANT SELECT, INSERT, UPDATE ON hub.site_placement_requests TO authenticated;
 GRANT SELECT ON hub.site_invoices, hub.site_card_stats TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON hub.site_members, hub.site_plans,
   hub.site_placements, hub.site_manual_cards TO authenticated;
+GRANT SELECT, UPDATE ON hub.site_leads TO authenticated;
 GRANT ALL ON hub.site_members, hub.site_plans, hub.site_placement_requests,
   hub.site_placements, hub.site_invoices, hub.site_manual_cards,
-  hub.site_card_stats TO service_role;
+  hub.site_leads, hub.site_card_stats TO service_role;
 GRANT EXECUTE ON FUNCTION hub.is_site_member TO authenticated;
 GRANT EXECUTE ON FUNCTION hub.placement_is_live TO anon, authenticated, service_role;
 

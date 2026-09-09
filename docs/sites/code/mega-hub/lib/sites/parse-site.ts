@@ -1,7 +1,16 @@
 import type { I18nMap } from '@/types/hub-event'
-import type { SiteRow, SiteSettings, SiteTemplate } from '@/types/site'
+import type {
+  PlacementMode,
+  PricingModel,
+  SiteRow,
+  SiteSeo,
+  SiteSettings,
+  SiteTemplate,
+} from '@/types/site'
 
 const TEMPLATES: SiteTemplate[] = ['operator', 'destination']
+const PLACEMENT_MODES: PlacementMode[] = ['scope', 'approved', 'mixed']
+const PRICING_MODELS: PricingModel[] = ['free', 'monthly', 'commission', 'hybrid']
 
 function asI18n(raw: unknown): I18nMap {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {}
@@ -80,6 +89,30 @@ export function parseSiteRow(data: Record<string, unknown>): SiteRow {
     is_active: data.is_active !== false,
     created_at: String(data.created_at ?? ''),
     updated_at: String(data.updated_at ?? ''),
+    placement_mode: PLACEMENT_MODES.includes(data.placement_mode as PlacementMode)
+      ? (data.placement_mode as PlacementMode)
+      : 'scope',
+    pricing_model: PRICING_MODELS.includes(data.pricing_model as PricingModel)
+      ? (data.pricing_model as PricingModel)
+      : 'free',
+    default_currency: typeof data.default_currency === 'string' ? data.default_currency : 'KGS',
+    platform_fee_percent: Number(data.platform_fee_percent) || 0,
+    commission_percent: Number(data.commission_percent) || 0,
+    accepts_requests: data.accepts_requests === true,
+    max_cards_per_tenant:
+      typeof data.max_cards_per_tenant === 'number' ? data.max_cards_per_tenant : null,
+    locales: asStringArray(data.locales).length > 0 ? asStringArray(data.locales) : ['ru'],
+    seo: parseSiteSeo(data.seo),
+  }
+}
+
+function parseSiteSeo(raw: unknown): SiteSeo {
+  if (!raw || typeof raw !== 'object') return {}
+  const s = raw as Record<string, unknown>
+  return {
+    title: asI18n(s.title),
+    description: asI18n(s.description),
+    og_image_url: typeof s.og_image_url === 'string' ? s.og_image_url : undefined,
   }
 }
 

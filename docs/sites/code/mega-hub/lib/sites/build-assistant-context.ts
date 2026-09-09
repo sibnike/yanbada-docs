@@ -1,6 +1,15 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getI18nText } from '@/lib/i18n/get-text'
-import type { SiteCompany, SiteKnowledge, SiteListing, SitePage, SitePost, SiteRow } from '@/types/site'
+import type {
+  SiteCompany,
+  SiteKnowledge,
+  SiteListing,
+  SiteManualCard,
+  SitePage,
+  SitePlan,
+  SitePost,
+  SiteRow,
+} from '@/types/site'
 
 export type AssistantContextInput = {
   site: SiteRow
@@ -10,6 +19,8 @@ export type AssistantContextInput = {
   listings: SiteListing[]
   siteKnowledge: SiteKnowledge[]
   baseKnowledge: { title: string; body: string }[]
+  manualCards?: SiteManualCard[]
+  plans?: SitePlan[]
 }
 
 export async function loadAssistantKnowledge(siteId: string): Promise<{
@@ -82,6 +93,21 @@ export function buildAssistantSystemPrompt(input: AssistantContextInput): string
     })
     .join('\n')
 
+  const manual = (input.manualCards ?? [])
+    .map((c) => `- ${getI18nText(c.title, 'ru')} (${c.kind}, добавлено автором): ${getI18nText(c.body, 'ru')}`)
+    .join('\n')
+
+  // Owners get asked "how do I get listed" as often as guests ask about tours.
+  const plans = (input.plans ?? [])
+    .map((p) => {
+      const price =
+        p.price_per_card === 0
+          ? 'бесплатно'
+          : `${p.price_per_card} ${p.currency} за карточку / ${p.period_months} мес.`
+      return `- ${getI18nText(p.name, 'ru', p.slug)}: ${price}, карточек до ${p.card_quota}, позиция ${p.slot}`
+    })
+    .join('\n')
+
   return `Ты менеджер сайта «${name}» (slug ${input.site.slug}).
 Помогаешь гостю найти карточку тенанта, услугу или материал проекта. Не выдумывай факты вне контекста.
 
@@ -104,5 +130,12 @@ ${posts || '(нет)'}
 ${companies || '(нет)'}
 
 ## Услуги
-${listings || '(нет)'}`
+${listings || '(нет)'}
+
+## Места от автора витрины (не тенанты, бронировать нельзя)
+${manual || '(нет)'}
+
+## Тарифы размещения (для компаний, которые хотят попасть в витрину)
+${plans || '(размещение не продаётся)'}
+${input.site.accepts_requests ? `Заявка: /s/${input.site.slug}/join` : 'Приём заявок закрыт.'}`
 }
