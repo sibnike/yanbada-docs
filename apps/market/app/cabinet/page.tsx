@@ -6,7 +6,10 @@ import { LoginForm } from '@/components/cabinet/login-form'
 export const dynamic = 'force-dynamic'
 
 export default async function CabinetLogin() {
-  const sites = await listSites()
+  const preferred = process.env.DEFAULT_SITE_SLUG || 'visit-karakol'
+  const all = await listSites()
+  const sites = all.filter((site) => site.slug === preferred)
+  const shown = sites.length > 0 ? sites : all.slice(0, 1)
   const tenantRows = await q<{ id: string; name: string; site_id: string }>(
     `SELECT DISTINCT t.id, t.name, s.id AS site_id
        FROM hub.sites s
@@ -16,7 +19,7 @@ export default async function CabinetLogin() {
       ORDER BY t.name`
   )
 
-  const options = sites.map((site) => ({
+  const options = shown.map((site) => ({
     slug: site.slug,
     name: loc(site.settings.display_name, 'ru', loc(site.name, 'ru', site.slug)),
     tenants: tenantRows

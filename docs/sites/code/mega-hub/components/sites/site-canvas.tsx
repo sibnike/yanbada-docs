@@ -1,5 +1,6 @@
 import { JoinForm } from '@/components/sites/join-form'
 import { loc, vitrinaHubUrl, vitrinaPageUrl } from '@/lib/sites/public-copy'
+import type { ReactNode } from 'react'
 import type {
   I18nMap,
   SiteBlock,
@@ -35,6 +36,55 @@ function blockTitle(block: SiteBlock, locale: string, fallback = ''): string {
   return loc(block.payload.title as I18nMap, locale, fallback)
 }
 
+export function SiteFrame({
+  site,
+  locale = 'ru',
+  nav,
+  children,
+}: {
+  site: SitePublicPayload['site']
+  locale?: string
+  nav: Array<{ href: string; label: string }>
+  children: ReactNode
+}) {
+  const accent = site.settings.accent_color || '#1C7C6B'
+  const name = loc(site.settings.display_name, locale, loc(site.name, locale))
+
+  return (
+    <div className="th-site" style={{ ['--site-accent' as string]: accent }}>
+      <header className="th-nav">
+        <div className="th-wrap th-nav__inner">
+          <a href={`/s/${site.slug}`} className="th-brand">
+            {name}
+          </a>
+          <nav className="th-nav__links">
+            {nav.map((item) => (
+              <a key={item.href} href={item.href}>
+                {item.label}
+              </a>
+            ))}
+          </nav>
+        </div>
+      </header>
+      <main>{children}</main>
+      <footer className="th-foot">
+        <div className="th-wrap">{loc(site.settings.footer_text, locale)}</div>
+      </footer>
+    </div>
+  )
+}
+
+export function siteNav(
+  site: SitePublicPayload['site'],
+  pages: SitePublicPayload['pages'],
+  locale = 'ru',
+): Array<{ href: string; label: string }> {
+  return pages.map((p) => ({
+    href: p.slug === 'home' ? `/s/${site.slug}` : `/s/${site.slug}/${p.slug}`,
+    label: loc(p.title, locale, p.slug),
+  }))
+}
+
 export function SiteCanvas({
   payload,
   pageSlug = 'home',
@@ -46,33 +96,14 @@ export function SiteCanvas({
 }) {
   const { site, pages } = payload
   const page = pages.find((p) => p.slug === pageSlug) ?? pages.find((p) => p.kind === 'home')
-  const skin = site.template === 'operator' ? 'th-site--operator' : 'th-site--destination'
-  const accent = site.settings.accent_color || (site.template === 'operator' ? '#C45C26' : '#0D9488')
-  const name = loc(site.settings.display_name, locale, loc(site.name, locale))
+  const nav = siteNav(site, pages, locale)
 
   return (
-    <div className={`th-site ${skin}`} style={{ ['--site-accent' as string]: accent }}>
-      <header className={site.template === 'operator' ? 'th-op-nav' : 'th-dest-nav'}>
-        <a href={`/s/${site.slug}`} className={site.template === 'operator' ? 'th-op-brand' : 'th-dest-brand'}>
-          {name}
-        </a>
-        <nav>
-          {pages.map((p) => (
-            <a key={p.id} href={p.slug === 'home' ? `/s/${site.slug}` : `/s/${site.slug}/${p.slug}`}>
-              {loc(p.title, locale, p.slug)}
-            </a>
-          ))}
-        </nav>
-      </header>
-
+    <SiteFrame site={site} locale={locale} nav={nav}>
       {(page?.blocks.length ? page.blocks : fallbackBlocks()).map((block) => (
         <BlockView key={block.id} block={block} payload={payload} locale={locale} />
       ))}
-
-      <footer className={site.template === 'operator' ? 'th-op-foot' : 'th-dest-foot'}>
-        {loc(site.settings.footer_text, locale)}
-      </footer>
-    </div>
+    </SiteFrame>
   )
 }
 
@@ -102,19 +133,16 @@ function BlockView({
       const subtitle = loc(site.settings.hero_subtitle, locale, loc(site.description, locale))
       const actions = Array.isArray(block.payload.actions) ? (block.payload.actions as BlockList) : []
       return (
-        <section
-          className={site.template === 'operator' ? 'th-op-hero' : 'th-dest-hero'}
-          style={hero ? { backgroundImage: `url(${hero})` } : undefined}
-        >
-          {site.template === 'operator' ? <div className="th-op-hero__veil" /> : null}
-          <div className={site.template === 'operator' ? 'th-op-hero__copy' : 'th-dest-hero__copy'}>
+        <section className="th-hero" style={hero ? { backgroundImage: `url(${hero})` } : undefined}>
+          <div className="th-hero__shade" />
+          <div className="th-wrap th-hero__copy">
             <p className="th-kicker th-kicker--light">{loc(site.settings.display_name, locale, 'Витрина')}</p>
             <h1>{title}</h1>
             {subtitle ? <p className="th-lead">{subtitle}</p> : null}
             {actions.length > 0 ? (
               <div className="th-hero-actions">
                 {actions.map((action, i) => (
-                  <a key={i} className="th-btn" href={String(action.href ?? '#')}>
+                  <a key={i} className={i === 0 ? 'th-btn' : 'th-btn th-btn--ghost'} href={String(action.href ?? '#')}>
                     {loc(action.label as I18nMap, locale, 'Смотреть')}
                   </a>
                 ))}
@@ -136,13 +164,15 @@ function BlockView({
 
     case 'stats':
       return (
-        <section className="th-sec th-stats">
-          {items(block).map((item, i) => (
-            <div key={i} className="th-stat">
-              <strong>{String(item.value ?? '')}</strong>
-              <span>{loc(item.label as I18nMap, locale)}</span>
-            </div>
-          ))}
+        <section className="th-sec">
+          <div className="th-stats">
+            {items(block).map((item, i) => (
+              <div key={i} className="th-stat">
+                <strong>{String(item.value ?? '')}</strong>
+                <span>{loc(item.label as I18nMap, locale)}</span>
+              </div>
+            ))}
+          </div>
         </section>
       )
 
@@ -185,7 +215,7 @@ function BlockView({
       if (shown.length === 0) return null
       return (
         <section className="th-sec" id={String(block.payload.anchor ?? 'listings')}>
-          <p className="th-kicker">Живые карточки</p>
+          <p className="th-kicker">Услуги</p>
           <h2>{blockTitle(block, locale, 'Услуги')}</h2>
           <div className="th-grid">
             {shown.map((listing) => (
@@ -419,16 +449,18 @@ function BlockView({
     case 'cta': {
       const action = (block.payload.action ?? {}) as Record<string, unknown>
       return (
-        <section className="th-sec th-cta">
-          <div>
-            <h2>{blockTitle(block, locale)}</h2>
-            <p>{loc(block.payload.body as I18nMap, locale)}</p>
+        <section className="th-sec">
+          <div className="th-cta">
+            <div>
+              <h2>{blockTitle(block, locale)}</h2>
+              <p>{loc(block.payload.body as I18nMap, locale)}</p>
+            </div>
+            {action.href ? (
+              <a className="th-btn" href={String(action.href)}>
+                {loc(action.label as I18nMap, locale, 'Подробнее')}
+              </a>
+            ) : null}
           </div>
-          {action.href ? (
-            <a className="th-btn" href={String(action.href)}>
-              {loc(action.label as I18nMap, locale, 'Подробнее')}
-            </a>
-          ) : null}
         </section>
       )
     }
@@ -461,17 +493,19 @@ function CompanyCard({ company }: { company: SiteCompany }) {
 function ListingCard({ listing, locale }: { listing: SiteListing; locale: string }) {
   const price = money(listing.price_from, listing.price_currency)
   return (
-    <article id={`listing-${listing.id}`} className={`th-card${listing.featured ? ' th-card--featured' : ''}`}>
+    <article id={`listing-${listing.id}`} className="th-card">
       <div
         className="th-card__media"
         style={listing.cover_image_url ? { backgroundImage: `url(${listing.cover_image_url})` } : undefined}
-      />
+      >
+        {listing.featured ? <span className="th-badge">на витрине</span> : null}
+      </div>
       <div className="th-card__body">
         <p className="th-card__op">{listing.tenant_name}</p>
         <h3>{loc(listing.title, locale)}</h3>
-        <p>{loc(listing.short_text, locale)}</p>
+        <p className="th-card__text">{loc(listing.short_text, locale)}</p>
         <div className="th-card__meta">
-          {price ? <strong>{price}</strong> : <span>По запросу</span>}
+          {price ? <strong>{price}</strong> : <span>по запросу</span>}
           {listing.seats_left != null ? <span>мест: {listing.seats_left}</span> : null}
         </div>
         <a className="th-btn th-btn--wide" href={vitrinaPageUrl(listing.tenant_slug, listing.page_slug, locale)}>
@@ -514,7 +548,9 @@ function PostCard({ post, siteSlug, locale }: { post: SitePost; siteSlug: string
       <div className="th-card__body">
         <h3>{loc(post.title, locale)}</h3>
         <p>{loc(post.excerpt, locale)}</p>
-        <a href={`/s/${siteSlug}/journal/${post.slug}`}>Читать</a>
+        <a className="th-card__link" href={`/s/${siteSlug}/journal/${post.slug}`}>
+          Читать
+        </a>
       </div>
     </article>
   )
@@ -524,7 +560,7 @@ function PlanCard({ plan, locale }: { plan: SitePlan; locale: string }) {
   const price = money(plan.price_per_card, plan.currency)
   const period = plan.period_months === 1 ? 'в месяц' : `за ${plan.period_months} мес.`
   return (
-    <article className={`th-card th-plan${plan.slot !== 'standard' ? ' th-card--featured' : ''}`}>
+    <article className="th-card th-plan">
       <div className="th-card__body">
         <h3>{loc(plan.name, locale)}</h3>
         <p className="th-plan__price">

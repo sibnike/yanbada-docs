@@ -47,16 +47,18 @@ export function LoginForm({ sites }: { sites: SiteOption[] }) {
 
   return (
     <form className="cab__form" onSubmit={submit}>
-      <label>
-        Витрина
-        <select value={slug} onChange={(e) => setSlug(e.target.value)}>
-          {sites.map((option) => (
-            <option key={option.slug} value={option.slug}>
-              {option.name}
-            </option>
-          ))}
-        </select>
-      </label>
+      {sites.length > 1 ? (
+        <label>
+          Витрина
+          <select value={slug} onChange={(e) => setSlug(e.target.value)}>
+            {sites.map((option) => (
+              <option key={option.slug} value={option.slug}>
+                {option.name}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
 
       <label>
         Кто вы

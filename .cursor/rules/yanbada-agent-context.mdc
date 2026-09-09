@@ -20,8 +20,8 @@ alwaysApply: true
 ## Git (docs repo)
 
 - Remote: https://github.com/sibnike/yanbada-docs
-- Коммитить: `README.md`, `docs/**`, `.cursor/rules/yanbada*.mdc`
-- Push после значимых обновлений docs — **по просьбе пользователя** (или если он явно просил зафиксировать progress)
+- Коммитить: `README.md`, `docs/**`, `.cursor/rules/yanbada*.mdc`, `apps/**`
+- После значимой работы **сразу коммитить и пушить** — не ждать просьбы. Без `--force` на main/master.
 
 ## После значимой сессии
 

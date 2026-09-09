@@ -17,7 +17,7 @@
 | Кастомные домены B2C-маркетов | [08-multi-market-domains.md](./08-multi-market-domains.md) | отдельный Vercel на маркет; www.ota.kz; фаза 2+ — `TOURHUB_MARKET_SLUG` |
 | **Витрина market (страницы проекта)** | [09-themed-sites.md](./09-themed-sites.md), [../sites/README.md](../sites/README.md) | та же насадка mega-hub, что market; Vitrina не трогать |
 | **Владелец маркета, заявки, платные карточки** | [10-market-placement.md](./10-market-placement.md) | `hub.site_members`, `site_plans`, `site_placements`, `site_leads` |
-| **Каракол: запустить и показать** | [../sites/KARAKOL.md](../sites/KARAKOL.md) | `apps/market` (`npm run db:reset && npm run dev`), сиды `20260909150000` (маркет, `destination`) и `20260909160000` (микросайт, `operator`) |
+| **Каракол: запустить и показать** | [../sites/KARAKOL.md](../sites/KARAKOL.md) | `apps/market` (`npm run db:reset && npm run dev`); на стенде одна витрина `visit-karakol` |
 | Миграции БД | см. ниже §Миграции | `*/supabase/migrations/` |
 | **Резервное копирование (pg_dump, Storage)** | [BACKUP.md](../BACKUP.md), `vitrina/docs/backup.md` | `vitrina/.github/workflows/daily-backup.yml`, `scripts/backup-db.sh`, `scripts/backup-storage.mjs` |
 | **Перенос Supabase (новый project ref)** | `vitrina/docs/supabase-migration.md` | `vitrina/supabase/migrations/`, `mega-hub/supabase/migrations/` |

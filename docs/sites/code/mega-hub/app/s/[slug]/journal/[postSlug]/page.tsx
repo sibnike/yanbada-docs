@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import { AssistantDock } from '@/components/sites/assistant-dock'
+import { SiteFrame, siteNav } from '@/components/sites/site-canvas'
 import { loadPublicSitePayload } from '@/lib/sites/load-public-payload'
 import { loc } from '@/lib/sites/public-copy'
 import '../../../sites.css'
@@ -23,18 +24,28 @@ export default async function PublicSitePostPage({ params }: PageProps) {
   )
 
   return (
-    <div className={`th-site ${payload.site.template === 'operator' ? 'th-site--operator' : 'th-site--destination'}`}>
-      <article className="th-dest-ops" style={{ maxWidth: 720 }}>
-        <p className="th-kicker">Журнал</p>
-        <h1>{loc(post.title, 'ru')}</h1>
-        <p>{loc(post.body, 'ru')}</p>
-        <p>
-          <a href={`/s/${payload.site.slug}`}>Назад на сайт</a>
-        </p>
-      </article>
+    <>
+      <SiteFrame site={payload.site} nav={siteNav(payload.site, payload.pages)}>
+        <article className="th-sec th-article">
+          <p className="th-kicker">Журнал</p>
+          <h1>{loc(post.title, 'ru')}</h1>
+          {post.cover_url ? (
+            <div className="th-gallery">
+              <div className="th-gallery__item" style={{ backgroundImage: `url(${post.cover_url})` }} />
+            </div>
+          ) : null}
+          <p className="th-lead">{loc(post.excerpt, 'ru')}</p>
+          <p>{loc(post.body, 'ru')}</p>
+          <p>
+            <a className="th-btn" href={`/s/${payload.site.slug}`}>
+              Вернуться в витрину
+            </a>
+          </p>
+        </article>
+      </SiteFrame>
       {payload.site.settings.assistant?.enabled === false ? null : (
         <AssistantDock slug={payload.site.slug} name={assistantName} greeting={greeting} />
       )}
-    </div>
+    </>
   )
 }
