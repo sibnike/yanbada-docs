@@ -88,4 +88,4 @@ hub.site_placements — одна строка = одна карточка в э�
 ## Демо
 
 Каракол, Кыргызстан: гостевой дом + туркомпания в одном маркете.
-См. [../sites/DEMO-KARAKOL.md](../sites/DEMO-KARAKOL.md).
+См. [../sites/KARAKOL.md](../sites/KARAKOL.md).

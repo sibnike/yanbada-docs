@@ -67,30 +67,8 @@ CREATE POLICY "sites_admin_write" ON hub.sites
 GRANT SELECT ON hub.sites TO anon, authenticated;
 GRANT ALL ON hub.sites TO service_role;
 
--- Destination demo: tourism in Kazakhstan (no marketplace channel required)
-INSERT INTO hub.sites (
-  slug, name, description, template,
-  theme_slugs, country_codes, marketplace_slug, settings
-) VALUES (
-  'visit-kazakhstan',
-  '{"ru": "Visit Kazakhstan", "en": "Visit Kazakhstan", "kk": "Visit Kazakhstan"}'::jsonb,
-  '{"ru": "Туры, гиды и маршруты по Казахстану от проверенных операторов.", "en": "Tours, guides and routes across Kazakhstan from verified operators."}'::jsonb,
-  'destination',
-  ARRAY['tourism', 'guides'],
-  ARRAY['KZ'],
-  NULL,
-  '{
-    "accent_color": "#0D9488",
-    "brand_color": "#0F172A",
-    "hero_image_url": "",
-    "hero_title": {"ru": "Казахстан, который хочется пройти пешком", "en": "Kazakhstan you want to walk through"},
-    "hero_subtitle": {"ru": "Степь, озёра и города — в одном каталоге операторов.", "en": "Steppe, lakes and cities — one catalog of operators."},
-    "footer_text": {"ru": "Данные операторов — из Vitrina. Бронирование на странице услуги.", "en": "Operator data from Vitrina. Book on the service page."}
-  }'::jsonb
-);
-
--- Operator demo: empty tenant_ids until platform admin patches the real tenant UUID.
--- After seed, PATCH /api/admin/sites/kendala-studio { "tenant_ids": ["<uuid>"] }
--- Slug is NOT kendala.tourhub.kz (that host is Vitrina tenant hub).
+-- No sample row here on purpose: a site without pages renders as an empty page
+-- and still shows up in the cabinet picker. Sites come from the seed files
+-- (20260909150000 destination market, 20260909160000 operator microsite).
 
 NOTIFY pgrst, 'reload schema';

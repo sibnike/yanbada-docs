@@ -30,7 +30,7 @@ Vitrina (write)  →  mega-hub cache  →  TourHub (read, B2C)
 
 - ✅ **Расширенный профиль компании** — на prod (legal, tourism, media, bank; sync в hub)
 - **Витрина market** — публичные страницы той же насадки mega-hub (несколько тенантов или один, если микросайта мало): [09-themed-sites.md](./09-themed-sites.md)
-- **Владелец маркета** — блогер или компания настраивает витрину, тенанты просят разместить карточки, размещение платное: [10-market-placement.md](./10-market-placement.md); демо на Караколе — [../sites/DEMO-KARAKOL.md](../sites/DEMO-KARAKOL.md)
+- **Владелец маркета** — блогер или компания настраивает витрину, тенанты просят разместить карточки, размещение платное: [10-market-placement.md](./10-market-placement.md); демо на Караколе — [../sites/KARAKOL.md](../sites/KARAKOL.md)
 
 Статус подробнее: [../PROGRESS.md](../PROGRESS.md)
 

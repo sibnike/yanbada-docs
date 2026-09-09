@@ -32,13 +32,18 @@ npm run dev                         # http://localhost:3001
 уезжают в `mega-hub/supabase/migrations`. Флаг `--stub` внутри команды добавляет окружение
 mega-vitrina (роли, `auth.uid`, таблицы кэша), которого нет на голом Postgres.
 
-Адреса:
+Сид поднимает две витрины на одних данных — платный маркет города и бесплатный микросайт
+одной компании:
 
-- `/s/visit-karakol` — витрина Каракола
+- `/s/visit-karakol` — маркет Каракола, скин `destination`, режим `approved`
 - `/s/visit-karakol/join` — тарифы и заявка на размещение
+- `/s/karakol-trails` — микросайт туркомпании, скин `operator`, режим `mixed`
 - `/cabinet` — вход (код из `CABINET_CODE`, по умолчанию `karakol`)
 - `/cabinet/visit-karakol` — кабинет владельца
 - `/cabinet/visit-karakol/tenant` — кабинет компании
+
+Оба скина рисует один и тот же `site-canvas.tsx`: вид задаёт `hub.sites.template`, а состав
+страницы — блоки конструктора.
 
 ## Подключение к настоящей базе
 
@@ -47,7 +52,7 @@ DATABASE_URL='postgresql://postgres:...@db.<project>.supabase.co:5432/postgres' 
 ```
 
 Без `--reset` и без `--stub`: в mega-vitrina схема `hub`, роли и кэш уже есть. Скрипт добавит
-только таблицы `hub.site_*` и демо-данные Каракола.
+только таблицы `hub.site_*` и данные Каракола.
 
 ## Деплой на Vercel
 

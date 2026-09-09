@@ -1,6 +1,13 @@
-# Маркет Каракола: рабочая витрина
+# Каракол: маркет города и микросайт компании
 
-Два тенанта в Караколе (Кыргызстан) и один общий маркет. Туркомпания продаёт туры, гостевой дом размещает гостей, маркет ведёт местный автор и берёт деньги за размещение карточек.
+Две витрины на одних и тех же данных — обе стороны модели `hub.sites`:
+
+| Витрина | Скин | Кто ведёт | Размещение |
+|---|---|---|---|
+| `visit-karakol` | `destination` | местный автор, не platform admin | `approved`, платно за карточку в месяц, комиссия платформы 20% |
+| `karakol-trails` | `operator` | сама туркомпания | `mixed`, бесплатно, компания сама выбирает свои карточки |
+
+Тенантов два: туркомпания продаёт туры, гостевой дом размещает гостей. Туркомпания одновременно участник маркета и хозяин своего микросайта — карточки в обоих местах приходят из одного кэша Vitrina.
 
 Это не макет: приложение лежит в [`apps/market`](../../apps/market/README.md), читает и пишет настоящий Postgres. Модель размещения и монетизации — [../agent-context/10-market-placement.md](../agent-context/10-market-placement.md).
 
@@ -10,17 +17,19 @@
 cd apps/market
 cp .env.example .env.local
 npm install
-npm run db:reset     # миграции из docs/sites/sql + демо-данные Каракола
+npm run db:reset     # миграции из docs/sites/sql + данные Каракола
 npm run dev          # http://localhost:3001
 ```
 
 | Адрес | Что там |
 |---|---|
-| `/s/visit-karakol` | публичная витрина: все блоки конструктора, живые карточки, ассистент |
+| `/s/visit-karakol` | маркет города: все блоки конструктора, живые карточки, ассистент |
 | `/s/visit-karakol/join` | тарифы и заявка на размещение |
+| `/s/karakol-trails` | микросайт одной компании на скине `operator` |
 | `/cabinet` | вход: владелец витрины или компания-участник (код `karakol`) |
 | `/cabinet/visit-karakol` | кабинет владельца: заявки, карточки, тарифы, счета, конструктор |
 | `/cabinet/visit-karakol/tenant` | кабинет компании: свои карточки, статистика, счета, заявка |
+| `/cabinet/karakol-trails` | тот же кабинет, но у бесплатной витрины без тарифов и счетов |
 
 ## Сценарий, который стоит показывать
 
@@ -29,10 +38,11 @@ npm run dev          # http://localhost:3001
 3. Счёт отмечен оплаченным → `paid_until` сдвигается, карточка появляется на публичной странице.
 4. Владелец меняет текст блока или цвет витрины в конструкторе → страница перерисовывается.
 5. Гость листает витрину → показы и клики пишутся в `hub.site_card_stats`, компания видит их у себя перед продлением.
+6. Переход на `/s/karakol-trails` — тот же рендерер, другой скин и другая экономика: у компании свой сайт, платить за него никому не нужно.
 
 Отказ требует причины: без неё API не пропустит решение, иначе воронка обрывается молча.
 
-## Кто в демо
+## Кто в данных
 
 **Karakol Trails** — туркомпания, `karakol-trails`.
 Трек к Ала-Кёлю (2 дня, 7 500 KGS), джип-тур в Джети-Огуз (4 200 KGS), зимний скитур (9 800 KGS, вне сезона).
@@ -42,6 +52,8 @@ npm run dev          # http://localhost:3001
 
 **Маркет** — `visit-karakol`, скин `destination`, режим `approved`, оплата за карточку в месяц, комиссия платформы 20%. Владелец — блогер, не platform admin.
 
+**Микросайт** — `karakol-trails`, скин `operator`, режим `mixed`, бесплатно. Владелец — админ самой компании.
+
 ## Состояния, заложенные в данные
 
 Одной «зелёной» витрины мало: показывать надо то, что случается на второй месяц.
@@ -49,39 +61,45 @@ npm run dev          # http://localhost:3001
 - **Витринный тариф** — трек к Ала-Кёлю в верхнем блоке за 2 500 KGS.
 - **Триал** — карточка гостевого дома по тарифу «Старт», бесплатно 30 дней.
 - **Задержка оплаты** — койко-место просрочено на 2 дня, но висит: grace 7 дней.
-- **Истекло** — зимний скитур снят с витрины, тенант просит вернуть к декабрю.
+- **Истекло** — зимний скитур снят и с маркета, и с микросайта, тенант просит вернуть к декабрю.
 - **Отказ с причиной** — заявке гостевого дома отказали: нужны фото от 1200px и цена за ночь.
 - **Приглашение от владельца** — автор сам просит добавить баню отдельной карточкой.
 - **Лид без аккаунта** — кафе «Дасторкон» пришло с публичной формы, тенанта в Vitrina ещё нет.
 - **Ручная карточка и claim** — озеро и ущелье добавил автор; кафе просит забрать свою карточку.
 
-## Блоки конструктора в демо
+Почему у микросайта режим `mixed`, а не `scope`: в `scope` размещения игнорируются, и снятый с сезона скитур всё равно попал бы на страницу. `mixed` оставляет компании право выбирать, какие из своих карточек показывать.
 
-Главная: `hero`, `stats`, `info`, `listing_cards` (туры), `listing_cards` (ночёвки), `tenant_cards`, `manual_cards`, `steps`, `reviews`, `map`, `posts`, `faq`, `cta`.
-О витрине: `info`, `team`, `partners`, `video`, `gallery`, `contacts`.
-Разместиться: `info`, `pricing`, `join`, `faq`.
-Журнал: `posts` (три статьи про сезон, ночёвки и акклиматизацию).
+## Блоки конструктора
 
-Карточки компаний и услуг подтягиваются из кэша Vitrina. Всё остальное — контент владельца маркета.
+`visit-karakol` — главная: `hero`, `stats`, `info`, `listing_cards` (туры), `listing_cards` (ночёвки), `tenant_cards`, `manual_cards`, `steps`, `reviews`, `map`, `posts`, `faq`, `cta`.
+О витрине: `info`, `team`, `partners`, `video`, `gallery`, `contacts`. Разместиться: `info`, `pricing`, `join`, `faq`. Журнал: `posts`.
+
+`karakol-trails` — главная: `hero`, `stats`, `listing_cards`, `steps`, `gallery`, `reviews`, `map`, `posts`, `faq`, `cta`. О компании: `info`, `team`, `video`, `partners`, `contacts`. Заметки: `posts`.
+
+Карточки компаний и услуг подтягиваются из кэша Vitrina. Всё остальное — контент владельца витрины.
 
 ## Как поднять в mega-hub
 
 ```bash
-cp docs/sites/sql/20260909000000_hub_sites.sql        mega-hub/supabase/migrations/
-cp docs/sites/sql/20260909120000_hub_site_builder.sql mega-hub/supabase/migrations/
+cp docs/sites/sql/20260909000000_hub_sites.sql            mega-hub/supabase/migrations/
+cp docs/sites/sql/20260909120000_hub_site_builder.sql     mega-hub/supabase/migrations/
 cp docs/sites/sql/20260909140000_hub_market_placement.sql mega-hub/supabase/migrations/
 cp docs/sites/sql/20260909150000_seed_karakol_market.sql  mega-hub/supabase/migrations/
+cp docs/sites/sql/20260909160000_seed_karakol_operator.sql mega-hub/supabase/migrations/
 ```
 
-Карточки двух демо-тенантов — [demo/karakol-cache.sql](./demo/karakol-cache.sql). Кэш наполняет sync из Vitrina, поэтому перед запуском сверьте колонки с реальным DDL `hub.company_cache` / `hub.listing_cache` (или проще: расширьте `vitrina/scripts/seed-tourhub-demo.mjs` и дайте `syncToHub()` заполнить кэш).
+Первые три файла — только схема, без примеров данных: витрина без страниц рендерится пустой и всё равно попадает в список кабинета.
 
-Владелец в seed — placeholder `00000000-0000-4000-8000-0000000000b1`. Замените на реальный `auth.users.id`, иначе кабинет не откроется под блогером.
+Карточки двух тенантов — [demo/karakol-cache.sql](./demo/karakol-cache.sql). Кэш наполняет sync из Vitrina, поэтому перед запуском сверьте колонки с реальным DDL `hub.company_cache` / `hub.listing_cache` (или проще: расширьте `vitrina/scripts/seed-tourhub-demo.mjs` и дайте `syncToHub()` заполнить кэш).
+
+Владельцы в seed — placeholder'ы `00000000-0000-4000-8000-0000000000b1` (маркет) и `...0000000000c1` (микросайт). Замените на реальные `auth.users.id`, иначе кабинет не откроется.
 
 ```
 /s/visit-karakol          главная
 /s/visit-karakol/about    команда, партнёры, контакты
 /s/visit-karakol/join     тарифы и заявка
 /s/visit-karakol/journal  журнал
+/s/karakol-trails         микросайт компании
 ```
 
 ## Проверка логики
@@ -105,12 +123,13 @@ psql -v ON_ERROR_STOP=1 -d hubcheck \
   -f docs/sites/sql/20260909120000_hub_site_builder.sql \
   -f docs/sites/sql/20260909140000_hub_market_placement.sql \
   -f docs/sites/demo/karakol-cache.sql \
-  -f docs/sites/sql/20260909150000_seed_karakol_market.sql
+  -f docs/sites/sql/20260909150000_seed_karakol_market.sql \
+  -f docs/sites/sql/20260909160000_seed_karakol_operator.sql
 ```
 
-Что показала проверка на данных демо:
+Что показала проверка на этих данных:
 
-- под `anon` видно 6 карточек из 7 — истёкший скитур не отдаётся, просроченное койко-место отдаётся (grace);
+- под `anon` в маркете видно 6 карточек из 7 — истёкший скитур не отдаётся, просроченное койко-место отдаётся (grace);
 - под `anon` видно 3 тарифа из 4 — закрытый «Партнёр сезона» скрыт;
 - `site_leads`, `site_invoices`, `site_placement_requests` для `anon` закрыты.
 

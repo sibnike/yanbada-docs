@@ -67,6 +67,7 @@ steps.push(
   [rel('sql/20260909140000_hub_market_placement.sql'), await sql('sql/20260909140000_hub_market_placement.sql')],
   [rel('demo/karakol-cache.sql'), await sql('demo/karakol-cache.sql')],
   [rel('sql/20260909150000_seed_karakol_market.sql'), await sql('sql/20260909150000_seed_karakol_market.sql')],
+  [rel('sql/20260909160000_seed_karakol_operator.sql'), await sql('sql/20260909160000_seed_karakol_operator.sql')],
   ['card stats backfill', STATS_SQL]
 )
 
