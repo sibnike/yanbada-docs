@@ -6,6 +6,13 @@
 
 ## 2026-09-09
 
+**apps/market + vitrina** | Карточки Каракола — настоящие тенанты, не SQL в кэш
+- Компании создаются скриптом `vitrina/scripts/seed-karakol-tenants.mjs` в `public.tenants` / `pages` / `catalog_items`
+- Sync тот же webhook, что при сохранении в админке → `hub.company_cache` / `listing_cache`
+- Стенд `apps/market` читает mega-vitrina через supabase-js (`NEXT_PUBLIC_SUPABASE_URL` + service role)
+- Админка: `admin.microp.app/admin/t/ala-kol-guesthouse` и `…/karakol-trails` — правки оттуда видны на `/s/visit-karakol`
+- **Дальше:** конструктор в админке mega-hub, кабинет market тоже с mega-vitrina (сейчас пишет в Neon)
+
 **apps/market** | На стенде одна витрина и один светлый публичный вид
 - Кабинет и `/` показывают только `visit-karakol`; `karakol-trails` остаётся в сиде, в UI стенда его нет
 - Публичный рендерер больше не переключает скины `operator` / `destination`: одна шапка, герой, карточки, журнал

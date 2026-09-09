@@ -1,4 +1,5 @@
 import { q, one } from '@/lib/db'
+import { hubDb, publicDb, usesVitrinaDb } from '@/lib/sb'
 import {
   applyPlacements,
   listingMatchesSiteScope,
@@ -72,30 +73,59 @@ export function toSite(row: Row): SiteRow {
 }
 
 export async function getSite(slug: string): Promise<SiteRow | null> {
+  if (usesVitrinaDb()) {
+    const { data, error } = await hubDb().from('sites').select('*').eq('slug', slug).maybeSingle()
+    if (error) throw new Error(error.message)
+    return data ? toSite(data as Row) : null
+  }
   const row = await one<Row>('SELECT * FROM hub.sites WHERE slug = $1', [slug])
   return row ? toSite(row) : null
 }
 
 export async function listSites(): Promise<SiteRow[]> {
+  if (usesVitrinaDb()) {
+    const { data, error } = await hubDb().from('sites').select('*').order('created_at')
+    if (error) throw new Error(error.message)
+    return (data ?? []).map((row) => toSite(row as Row))
+  }
   const rows = await q<Row>('SELECT * FROM hub.sites ORDER BY created_at')
   return rows.map(toSite)
 }
 
 export async function loadPages(siteId: string, publishedOnly = true): Promise<SitePage[]> {
-  const pages = await q<Row>(
-    `SELECT * FROM hub.site_pages
-      WHERE site_id = $1 ${publishedOnly ? 'AND is_published' : ''}
-      ORDER BY sort_order, created_at`,
-    [siteId]
-  )
+  let pages: Row[]
+  if (usesVitrinaDb()) {
+    let query = hubDb().from('site_pages').select('*').eq('site_id', siteId)
+    if (publishedOnly) query = query.eq('is_published', true)
+    const { data, error } = await query.order('sort_order').order('created_at')
+    if (error) throw new Error(error.message)
+    pages = (data ?? []) as Row[]
+  } else {
+    pages = await q<Row>(
+      `SELECT * FROM hub.site_pages
+        WHERE site_id = $1 ${publishedOnly ? 'AND is_published' : ''}
+        ORDER BY sort_order, created_at`,
+      [siteId]
+    )
+  }
   if (pages.length === 0) return []
 
-  const blocks = await q<Row>(
-    `SELECT * FROM hub.site_blocks
-      WHERE page_id = ANY($1::uuid[]) ${publishedOnly ? 'AND is_active' : ''}
-      ORDER BY sort_order, created_at`,
-    [pages.map((p) => String(p.id))]
-  )
+  let blocks: Row[]
+  const pageIds = pages.map((p) => String(p.id))
+  if (usesVitrinaDb()) {
+    let query = hubDb().from('site_blocks').select('*').in('page_id', pageIds)
+    if (publishedOnly) query = query.eq('is_active', true)
+    const { data, error } = await query.order('sort_order').order('created_at')
+    if (error) throw new Error(error.message)
+    blocks = (data ?? []) as Row[]
+  } else {
+    blocks = await q<Row>(
+      `SELECT * FROM hub.site_blocks
+        WHERE page_id = ANY($1::uuid[]) ${publishedOnly ? 'AND is_active' : ''}
+        ORDER BY sort_order, created_at`,
+      [pageIds]
+    )
+  }
 
   const byPage = new Map<string, SiteBlock[]>()
   for (const raw of blocks) {
@@ -125,12 +155,21 @@ export async function loadPages(siteId: string, publishedOnly = true): Promise<S
 }
 
 export async function loadPosts(siteId: string, publishedOnly = true): Promise<SitePost[]> {
-  const rows = await q<Row>(
-    `SELECT * FROM hub.site_posts
-      WHERE site_id = $1 ${publishedOnly ? 'AND is_published' : ''}
-      ORDER BY published_at DESC NULLS LAST, created_at DESC`,
-    [siteId]
-  )
+  let rows: Row[]
+  if (usesVitrinaDb()) {
+    let query = hubDb().from('site_posts').select('*').eq('site_id', siteId)
+    if (publishedOnly) query = query.eq('is_published', true)
+    const { data, error } = await query.order('published_at', { ascending: false, nullsFirst: false })
+    if (error) throw new Error(error.message)
+    rows = (data ?? []) as Row[]
+  } else {
+    rows = await q<Row>(
+      `SELECT * FROM hub.site_posts
+        WHERE site_id = $1 ${publishedOnly ? 'AND is_published' : ''}
+        ORDER BY published_at DESC NULLS LAST, created_at DESC`,
+      [siteId]
+    )
+  }
   return rows.map((raw) => ({
     id: String(raw.id),
     site_id: String(raw.site_id),
@@ -144,12 +183,21 @@ export async function loadPosts(siteId: string, publishedOnly = true): Promise<S
 }
 
 export async function loadPlans(siteId: string, publicOnly = false): Promise<SitePlan[]> {
-  const rows = await q<Row>(
-    `SELECT * FROM hub.site_plans
-      WHERE site_id = $1 AND is_active ${publicOnly ? 'AND is_public' : ''}
-      ORDER BY sort_order, price_per_card`,
-    [siteId]
-  )
+  let rows: Row[]
+  if (usesVitrinaDb()) {
+    let query = hubDb().from('site_plans').select('*').eq('site_id', siteId).eq('is_active', true)
+    if (publicOnly) query = query.eq('is_public', true)
+    const { data, error } = await query.order('sort_order').order('price_per_card')
+    if (error) throw new Error(error.message)
+    rows = (data ?? []) as Row[]
+  } else {
+    rows = await q<Row>(
+      `SELECT * FROM hub.site_plans
+        WHERE site_id = $1 AND is_active ${publicOnly ? 'AND is_public' : ''}
+        ORDER BY sort_order, price_per_card`,
+      [siteId]
+    )
+  }
   return rows.map((raw) => ({
     id: String(raw.id),
     site_id: String(raw.site_id),
@@ -186,18 +234,41 @@ export function toPlacement(raw: Row): SitePlacement {
 }
 
 export async function loadPlacements(siteId: string): Promise<SitePlacement[]> {
-  const rows = await q<Row>(
-    'SELECT * FROM hub.site_placements WHERE site_id = $1 ORDER BY sort_weight DESC, created_at',
-    [siteId]
-  )
+  let rows: Row[]
+  if (usesVitrinaDb()) {
+    const { data, error } = await hubDb()
+      .from('site_placements')
+      .select('*')
+      .eq('site_id', siteId)
+      .order('sort_weight', { ascending: false })
+    if (error) throw new Error(error.message)
+    rows = (data ?? []) as Row[]
+  } else {
+    rows = await q<Row>(
+      'SELECT * FROM hub.site_placements WHERE site_id = $1 ORDER BY sort_weight DESC, created_at',
+      [siteId]
+    )
+  }
   return rows.map(toPlacement)
 }
 
 export async function loadManualCards(siteId: string): Promise<SiteManualCard[]> {
-  const rows = await q<Row>(
-    'SELECT * FROM hub.site_manual_cards WHERE site_id = $1 AND is_active ORDER BY sort_order, created_at',
-    [siteId]
-  )
+  let rows: Row[]
+  if (usesVitrinaDb()) {
+    const { data, error } = await hubDb()
+      .from('site_manual_cards')
+      .select('*')
+      .eq('site_id', siteId)
+      .eq('is_active', true)
+      .order('sort_order')
+    if (error) throw new Error(error.message)
+    rows = (data ?? []) as Row[]
+  } else {
+    rows = await q<Row>(
+      'SELECT * FROM hub.site_manual_cards WHERE site_id = $1 AND is_active ORDER BY sort_order, created_at',
+      [siteId]
+    )
+  }
   return rows.map((raw) => ({
     id: String(raw.id),
     site_id: String(raw.site_id),
@@ -217,10 +288,22 @@ export async function loadManualCards(siteId: string): Promise<SiteManualCard[]>
 }
 
 export async function loadKnowledge(siteId: string): Promise<SiteKnowledge[]> {
-  const rows = await q<Row>(
-    'SELECT * FROM hub.site_knowledge WHERE site_id = $1 AND is_active ORDER BY sort_order',
-    [siteId]
-  )
+  let rows: Row[]
+  if (usesVitrinaDb()) {
+    const { data, error } = await hubDb()
+      .from('site_knowledge')
+      .select('*')
+      .eq('site_id', siteId)
+      .eq('is_active', true)
+      .order('sort_order')
+    if (error) throw new Error(error.message)
+    rows = (data ?? []) as Row[]
+  } else {
+    rows = await q<Row>(
+      'SELECT * FROM hub.site_knowledge WHERE site_id = $1 AND is_active ORDER BY sort_order',
+      [siteId]
+    )
+  }
   return rows.map((raw) => ({
     id: String(raw.id),
     site_id: String(raw.site_id),
@@ -247,8 +330,28 @@ export async function loadListings(
   let rows: Row[] = []
   if (site.placement_mode === 'approved') {
     if (placedListingIds.length > 0) {
-      rows = await q<Row>('SELECT * FROM hub.listing_cache WHERE id = ANY($1::uuid[])', [placedListingIds])
+      if (usesVitrinaDb()) {
+        const { data, error } = await hubDb().from('listing_cache').select('*').in('id', placedListingIds)
+        if (error) throw new Error(error.message)
+        rows = (data ?? []) as Row[]
+      } else {
+        rows = await q<Row>('SELECT * FROM hub.listing_cache WHERE id = ANY($1::uuid[])', [placedListingIds])
+      }
     }
+  } else if (usesVitrinaDb()) {
+    let query = hubDb().from('listing_cache').select('*')
+    if (site.tenant_ids.length > 0) query = query.in('tenant_id', site.tenant_ids)
+    const { data, error } = await query.limit(200)
+    if (error) throw new Error(error.message)
+    rows = ((data ?? []) as Row[]).filter((row) => {
+      if (site.theme_slugs.length > 0 && !strings(row.marketplace_themes).some((t) => site.theme_slugs.includes(t))) {
+        return false
+      }
+      if (site.marketplace_slug && !strings(row.marketplace_slugs).includes(site.marketplace_slug)) {
+        return false
+      }
+      return true
+    })
   } else {
     const where: string[] = []
     const params: unknown[] = []
@@ -274,8 +377,26 @@ export async function loadListings(
   if (tenantIds.length === 0) return { listings: [], companies: [] }
 
   const [tenants, companies] = await Promise.all([
-    q<Row>('SELECT id, name, slug FROM public.tenants WHERE id = ANY($1::uuid[])', [tenantIds]),
-    q<Row>('SELECT * FROM hub.company_cache WHERE tenant_id = ANY($1::uuid[])', [tenantIds]),
+    usesVitrinaDb()
+      ? publicDb()
+          .from('tenants')
+          .select('id, name, slug')
+          .in('id', tenantIds)
+          .then(({ data, error }) => {
+            if (error) throw new Error(error.message)
+            return (data ?? []) as Row[]
+          })
+      : q<Row>('SELECT id, name, slug FROM public.tenants WHERE id = ANY($1::uuid[])', [tenantIds]),
+    usesVitrinaDb()
+      ? hubDb()
+          .from('company_cache')
+          .select('*')
+          .in('tenant_id', tenantIds)
+          .then(({ data, error }) => {
+            if (error) throw new Error(error.message)
+            return (data ?? []) as Row[]
+          })
+      : q<Row>('SELECT * FROM hub.company_cache WHERE tenant_id = ANY($1::uuid[])', [tenantIds]),
   ])
   const tenantById = new Map(tenants.map((t) => [String(t.id), t]))
   const companyByTenant = new Map(companies.map((c) => [String(c.tenant_id), c]))

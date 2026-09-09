@@ -1,5 +1,14 @@
 # Каракол: маркет города
 
+Карточки **не выдумываются в кэше**. Сначала компании живут в Vitrina как тенанты, потом sync пишет `hub.company_cache` / `hub.listing_cache`, витрина только читает.
+
+```
+cd vitrina
+CONFIRM_PROD_SEED=1 node scripts/seed-karakol-tenants.mjs --prod
+```
+
+После этого в админке: [Гостевой дом Ала-Кёль](https://admin.microp.app/admin/t/ala-kol-guesthouse), [Karakol Trails](https://admin.microp.app/admin/t/karakol-trails). Правка профиля или страницы → sync → карточка на `/s/visit-karakol`.
+
 На стенде показываем **одну** витрину: `visit-karakol`. Публичный вид один (светлая страница, акцент из настроек), без скинов operator/destination как двух продуктов. Сид `karakol-trails` остаётся в БД, в кабинете и на `/` его нет.
 
 В данных две записи `hub.sites` на одном кэше Vitrina — это не два продукта, а запасной пример настроек:
@@ -16,11 +25,15 @@
 ## Запустить
 
 ```bash
-cd apps/market
-cp .env.example .env.local
+# 1. Тенанты в Vitrina (карточки + sync в hub.*_cache)
+cd vitrina
+CONFIRM_PROD_SEED=1 node scripts/seed-karakol-tenants.mjs --prod
+
+# 2. Стенд витрины читает тот же mega-vitrina
+cd ../apps/market
+cp .env.example .env.local   # NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY
 npm install
-npm run db:reset     # миграции из docs/sites/sql + данные Каракола
-npm run dev          # http://localhost:3001
+npm run dev                  # http://localhost:3001
 ```
 
 | Адрес | Что там |
@@ -89,7 +102,7 @@ cp docs/sites/sql/20260909160000_seed_karakol_operator.sql mega-hub/supabase/mig
 
 Первые три файла — только схема, без примеров данных: витрина без страниц рендерится пустой и всё равно попадает в список кабинета.
 
-Карточки двух тенантов — [demo/karakol-cache.sql](./demo/karakol-cache.sql). Кэш наполняет sync из Vitrina, поэтому перед запуском сверьте колонки с реальным DDL `hub.company_cache` / `hub.listing_cache` (или проще: расширьте `vitrina/scripts/seed-tourhub-demo.mjs` и дайте `syncToHub()` заполнить кэш).
+Карточки двух тенантов создаёт `vitrina/scripts/seed-karakol-tenants.mjs` (`public.tenants` + `pages` + `catalog_items` + webhook `syncToHub()`). Витрина не вставляет строки в кэш.
 
 Владельцы в seed — placeholder'ы `00000000-0000-4000-8000-0000000000b1` (маркет) и `...0000000000c1` (микросайт). Замените на реальные `auth.users.id`, иначе кабинет не откроется.
 
@@ -121,7 +134,6 @@ psql -v ON_ERROR_STOP=1 -d hubcheck \
   -f docs/sites/sql/20260909000000_hub_sites.sql \
   -f docs/sites/sql/20260909120000_hub_site_builder.sql \
   -f docs/sites/sql/20260909140000_hub_market_placement.sql \
-  -f docs/sites/demo/karakol-cache.sql \
   -f docs/sites/sql/20260909150000_seed_karakol_market.sql \
   -f docs/sites/sql/20260909160000_seed_karakol_operator.sql
 ```

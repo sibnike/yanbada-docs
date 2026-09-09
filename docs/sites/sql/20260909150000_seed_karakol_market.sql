@@ -1,6 +1,18 @@
--- Demo market: Karakol, Kyrgyzstan. Tour company sells tours, guest house hosts guests.
--- Market side only (schema hub). Tenant cache rows: docs/sites/demo/karakol-cache.sql
--- Fixed UUIDs so the demo can be re-seeded and referenced from code.
+-- Demo market overlay for Karakol. Tenants and listings come from Vitrina
+-- (scripts/seed-karakol-tenants.mjs → hub.company_cache / listing_cache).
+-- This file only writes hub.sites and placement rows.
+
+DO $$ BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM public.tenants WHERE id = '7e4a0001-0000-4000-8000-000000000001'
+  ) OR NOT EXISTS (
+    SELECT 1 FROM hub.listing_cache
+     WHERE tenant_id = '7e4a0002-0000-4000-8000-000000000002'
+       AND page_slug = 'ala-kol-trek'
+  ) THEN
+    RAISE EXCEPTION 'Karakol tenants are missing. Run vitrina/scripts/seed-karakol-tenants.mjs first.';
+  END IF;
+END $$;
 
 -- site        5a17e001-0000-4000-8000-000000000001
 -- guest house 7e4a0001-0000-4000-8000-000000000001
@@ -122,58 +134,46 @@ INSERT INTO hub.site_plans (
 INSERT INTO hub.site_placements (
   site_id, tenant_id, listing_id, plan_id, slot, sort_weight,
   status, price_per_period, currency, starts_at, paid_until
-) VALUES
--- Tour company: company card + two tours, one of them featured
-(
-  '5a17e001-0000-4000-8000-000000000001',
-  '7e4a0002-0000-4000-8000-000000000002', NULL,
-  '91a40001-0000-4000-8000-000000000002', 'standard', 0,
-  'active', 900, 'KGS', now() - interval '2 months', now() + interval '24 days'
-),
-(
-  '5a17e001-0000-4000-8000-000000000001',
-  '7e4a0002-0000-4000-8000-000000000002',
-  '11570002-0000-4000-8000-000000000001',
-  '91a40001-0000-4000-8000-000000000003', 'featured', 100,
-  'active', 2500, 'KGS', now() - interval '2 months', now() + interval '24 days'
-),
-(
-  '5a17e001-0000-4000-8000-000000000001',
-  '7e4a0002-0000-4000-8000-000000000002',
-  '11570002-0000-4000-8000-000000000002',
-  '91a40001-0000-4000-8000-000000000002', 'standard', 10,
-  'active', 900, 'KGS', now() - interval '2 months', now() + interval '24 days'
-),
--- Winter tour: season is over, placement expired
-(
-  '5a17e001-0000-4000-8000-000000000001',
-  '7e4a0002-0000-4000-8000-000000000002',
-  '11570002-0000-4000-8000-000000000003',
-  '91a40001-0000-4000-8000-000000000002', 'standard', 0,
-  'expired', 900, 'KGS', now() - interval '7 months', now() - interval '3 months'
-),
--- Guest house: company card on the free trial + one paid room
-(
-  '5a17e001-0000-4000-8000-000000000001',
-  '7e4a0001-0000-4000-8000-000000000001', NULL,
-  '91a40001-0000-4000-8000-000000000001', 'standard', 0,
-  'active', 0, 'KGS', now() - interval '12 days', NULL
-),
-(
-  '5a17e001-0000-4000-8000-000000000001',
-  '7e4a0001-0000-4000-8000-000000000001',
-  '11570001-0000-4000-8000-000000000001',
-  '91a40001-0000-4000-8000-000000000002', 'standard', 20,
-  'active', 900, 'KGS', now() - interval '1 month', now() + interval '9 days'
-),
--- Late transfer: still visible thanks to grace_days
-(
-  '5a17e001-0000-4000-8000-000000000001',
-  '7e4a0001-0000-4000-8000-000000000001',
-  '11570001-0000-4000-8000-000000000002',
-  '91a40001-0000-4000-8000-000000000002', 'standard', 0,
-  'active', 900, 'KGS', now() - interval '2 months', now() - interval '2 days'
-);
+)
+SELECT '5a17e001-0000-4000-8000-000000000001'::uuid,
+       '7e4a0002-0000-4000-8000-000000000002'::uuid,
+       NULL, '91a40001-0000-4000-8000-000000000002'::uuid, 'standard', 0,
+       'active', 900, 'KGS', now() - interval '2 months', now() + interval '24 days'
+UNION ALL
+SELECT '5a17e001-0000-4000-8000-000000000001'::uuid,
+       lc.tenant_id, lc.id, '91a40001-0000-4000-8000-000000000003'::uuid, 'featured', 100,
+       'active', 2500, 'KGS', now() - interval '2 months', now() + interval '24 days'
+  FROM hub.listing_cache lc
+ WHERE lc.tenant_id = '7e4a0002-0000-4000-8000-000000000002' AND lc.page_slug = 'ala-kol-trek'
+UNION ALL
+SELECT '5a17e001-0000-4000-8000-000000000001'::uuid,
+       lc.tenant_id, lc.id, '91a40001-0000-4000-8000-000000000002'::uuid, 'standard', 10,
+       'active', 900, 'KGS', now() - interval '2 months', now() + interval '24 days'
+  FROM hub.listing_cache lc
+ WHERE lc.tenant_id = '7e4a0002-0000-4000-8000-000000000002' AND lc.page_slug = 'jeti-oguz-jeep'
+UNION ALL
+SELECT '5a17e001-0000-4000-8000-000000000001'::uuid,
+       lc.tenant_id, lc.id, '91a40001-0000-4000-8000-000000000002'::uuid, 'standard', 0,
+       'expired', 900, 'KGS', now() - interval '7 months', now() - interval '3 months'
+  FROM hub.listing_cache lc
+ WHERE lc.tenant_id = '7e4a0002-0000-4000-8000-000000000002' AND lc.page_slug = 'skitur'
+UNION ALL
+SELECT '5a17e001-0000-4000-8000-000000000001'::uuid,
+       '7e4a0001-0000-4000-8000-000000000001'::uuid,
+       NULL, '91a40001-0000-4000-8000-000000000001'::uuid, 'standard', 0,
+       'active', 0, 'KGS', now() - interval '12 days', NULL
+UNION ALL
+SELECT '5a17e001-0000-4000-8000-000000000001'::uuid,
+       lc.tenant_id, lc.id, '91a40001-0000-4000-8000-000000000002'::uuid, 'standard', 20,
+       'active', 900, 'KGS', now() - interval '1 month', now() + interval '9 days'
+  FROM hub.listing_cache lc
+ WHERE lc.tenant_id = '7e4a0001-0000-4000-8000-000000000001' AND lc.page_slug = 'dvuhmestny-nomer'
+UNION ALL
+SELECT '5a17e001-0000-4000-8000-000000000001'::uuid,
+       lc.tenant_id, lc.id, '91a40001-0000-4000-8000-000000000002'::uuid, 'standard', 0,
+       'active', 900, 'KGS', now() - interval '2 months', now() - interval '2 days'
+  FROM hub.listing_cache lc
+ WHERE lc.tenant_id = '7e4a0001-0000-4000-8000-000000000001' AND lc.page_slug = 'hostel-bed';
 
 -- ─────────────────────────────────────────────────────────────
 -- Intake funnel: both directions plus a rejection with a reason
@@ -188,7 +188,7 @@ INSERT INTO hub.site_placement_requests (
   '7e4a0002-0000-4000-8000-000000000002',
   '91a40001-0000-4000-8000-000000000003',
   'tenant_request',
-  ARRAY['11570002-0000-4000-8000-000000000003'::uuid],
+  ARRAY[(SELECT id FROM hub.listing_cache WHERE tenant_id = '7e4a0002-0000-4000-8000-000000000002' AND page_slug = 'skitur')],
   false,
   'Хотим вернуть зимний скитур в витрину к декабрю, готовы на витринный тариф.',
   '{"name": "Азамат", "telegram": "@karakoltrails"}'::jsonb,
@@ -199,7 +199,7 @@ INSERT INTO hub.site_placement_requests (
   '7e4a0001-0000-4000-8000-000000000001',
   '91a40001-0000-4000-8000-000000000002',
   'owner_invite',
-  ARRAY['11570001-0000-4000-8000-000000000003'::uuid],
+  ARRAY[(SELECT id FROM hub.listing_cache WHERE tenant_id = '7e4a0001-0000-4000-8000-000000000001' AND page_slug = 'banya')],
   false,
   'Добавьте баню как отдельную карточку — её ищут после трека.',
   '{}'::jsonb,

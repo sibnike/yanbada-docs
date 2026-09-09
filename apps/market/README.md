@@ -22,11 +22,12 @@
 
 ```bash
 cd apps/market
-cp .env.example .env.local          # поправьте DATABASE_URL, если нужно
+cp .env.example .env.local          # Supabase URL + service role с mega-vitrina
 npm install
-npm run db:reset                    # миграции + демо Каракола на чистый Postgres
 npm run dev                         # http://localhost:3001
 ```
+
+Тенанты Каракола — не SQL в кэш. Сначала `vitrina/scripts/seed-karakol-tenants.mjs`, потом витрина читает `hub.*_cache`. Локальный `npm run db:reset` нужен только для голого Postgres без mega-vitrina.
 
 `npm run db:reset` берёт SQL прямо из `docs/sites/sql` и `docs/sites/demo` — те же файлы, что
 уезжают в `mega-hub/supabase/migrations`. Флаг `--stub` внутри команды добавляет окружение
@@ -63,7 +64,9 @@ DATABASE_URL='postgresql://postgres:...@db.<project>.supabase.co:5432/postgres' 
 ```bash
 cd apps/market
 vercel link
-vercel env add DATABASE_URL production      # строка подключения Postgres
+vercel env add NEXT_PUBLIC_SUPABASE_URL production
+vercel env add SUPABASE_SERVICE_ROLE_KEY production
+vercel env add DATABASE_URL production      # кабинет; публичные страницы читают supabase-js
 vercel env add CABINET_CODE production
 vercel env add SESSION_SECRET production
 vercel deploy --prod
