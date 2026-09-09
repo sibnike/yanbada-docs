@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import type { AssistantReply } from '@/lib/sites/types'
+import type { AssistantReply } from '@/types/site'
 
 export function AssistantDock({
   slug,

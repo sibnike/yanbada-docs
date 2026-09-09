@@ -54,11 +54,8 @@ components/screens/   — market-screen, catalog-screen, *-profile-screen
 components/market/    — cards, calendar, listing sheet, checkout
 ```
 
-### Themed sites (`/s/[slug]`) — канон готов, код в docs
-- Конструктор mega-hub: live карточки тенантов + свои материалы
-- Рендер блоков + ассистент-менеджер (demo без hub)
-- Канон: [09-themed-sites.md](./09-themed-sites.md)
-- **В репо tourhub ещё не перенесено** — [APPLY.md](../sites/APPLY.md)
+### Themed sites
+Продукт **не в tourhub**. Публичные проекты — mega-hub `/s/{slug}`. См. [09-themed-sites.md](./09-themed-sites.md).
 
 ## Не сделано / backlog
 

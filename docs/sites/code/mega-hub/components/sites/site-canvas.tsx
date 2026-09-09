@@ -1,5 +1,5 @@
-import { loc, vitrinaHubUrl, vitrinaPageUrl } from '@/lib/sites/fetch-site'
-import type { SiteBlock, SiteCompany, SiteListing, SitePost, SitePublicPayload } from '@/lib/sites/types'
+import { loc, vitrinaHubUrl, vitrinaPageUrl } from '@/lib/sites/public-copy'
+import type { SiteBlock, SiteCompany, SiteListing, SitePost, SitePublicPayload } from '@/types/site'
 
 function money(value: number | null, currency: string | null): string | null {
   if (value == null) return null

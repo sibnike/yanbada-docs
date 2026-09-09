@@ -1,23 +1,27 @@
 import { notFound } from 'next/navigation'
-import { loc, fetchSitePayload } from '@/lib/sites/fetch-site'
 import { AssistantDock } from '@/components/sites/assistant-dock'
+import { loadPublicSitePayload } from '@/lib/sites/load-public-payload'
+import { loc } from '@/lib/sites/public-copy'
 import '../../../sites.css'
 
 export const dynamic = 'force-dynamic'
 
-type PageProps = { params: { slug: string; postSlug: string } }
+type PageProps = { params: Promise<{ slug: string; postSlug: string }> }
 
-export default async function SitePostPage({ params }: PageProps) {
-  const payload = await fetchSitePayload(params.slug)
+export default async function PublicSitePostPage({ params }: PageProps) {
+  const { slug, postSlug } = await params
+  const payload = await loadPublicSitePayload(slug)
   if (!payload) notFound()
-  const post = payload.posts.find((p) => p.slug === params.postSlug)
+  const post = payload.posts.find((p) => p.slug === postSlug)
   if (!post) notFound()
+
   const assistantName = loc(payload.site.settings.assistant?.name, 'ru', 'Менеджер')
   const greeting = loc(
     payload.site.settings.assistant?.greeting,
     'ru',
     'Могу помочь найти оператора, услугу или материал этого сайта.'
   )
+
   return (
     <div className={`th-site ${payload.site.template === 'operator' ? 'th-site--operator' : 'th-site--destination'}`}>
       <article className="th-dest-ops" style={{ maxWidth: 720 }}>

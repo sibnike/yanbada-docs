@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
       theme_slugs: themeSlugs,
       country_codes: countryCodes,
       city_codes: cityCodes,
-      marketplace_slug: body.marketplace_slug ?? 'tourhub',
+      marketplace_slug: body.marketplace_slug === undefined ? null : body.marketplace_slug,
       featured_listing_ids: asStringArray(body.featured_listing_ids),
       subdomain: body.subdomain ?? null,
       custom_domain: body.custom_domain ?? null,

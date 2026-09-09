@@ -1,6 +1,6 @@
 /**
- * Shared types for hub.sites (mega-hub API + TourHub renderer).
- * Copy into mega-hub/types/site.ts and tourhub/lib/sites/types.ts
+ * Shared types for hub.sites (mega-hub constructor + public /s/{slug}).
+ * Copy into mega-hub/types/site.ts
  */
 
 export type I18nMap = Record<string, string>

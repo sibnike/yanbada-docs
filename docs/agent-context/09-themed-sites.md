@@ -1,99 +1,61 @@
 # 09 — Тематические сайты (hub.sites)
 
-> **Решение:** 2026-09-09, уточнение: конструктор + ассистент  
-> **Срез:** проект собирается в **конструкторе mega-hub**. Карточки тенантов — живые. Блоги, описания и прочие материалы — свои. Стиль — пакет (`operator` / `destination`).  
-> **Рендер:** TourHub `/s/{slug}`. **Не** `/m/*` и **не** Tenant Hub `/h/*`.
+> **Решение:** 2026-09-09  
+> **Где живёт продукт:** целиком в **mega-hub** — конструктор, публичный сайт, ассистент.  
+> **TourHub / www.ota.kz и kendala.tourhub.kz — только примеры** чужих витрин, не рантайм этого продукта.
 
 Канон кода: [docs/sites/](../sites/README.md).
 
 ## Идея
 
-Один проект = сайт. На холсте:
+Один проект = сайт на mega-hub. На холсте:
 
-1. **Карточки тенанта или нескольких тенантов** — блок `tenant_cards` / `listing_cards`, данные из `hub.company_cache` / `listing_cache` (Vitrina остаётся источником истины).
-2. **Свои материалы** — описания, журнал, FAQ, галерея. Это уже не тенант, а контент проекта.
-3. **Стиль** чуть меняется пакетом, а не новым форком.
-4. **Ассистент-менеджер** помогает ориентироваться: базовые знания платформы + знания этого сайта + то, что лежит на холсте и в карточках.
-
-Так собирается множество проектов без клона TourHub.
+1. **Карточки тенанта или нескольких тенантов** — блоки `tenant_cards` / `listing_cards` из `hub.company_cache` / `listing_cache` (Vitrina — источник истины).
+2. **Свои материалы** — описания, журнал, FAQ. Пишутся в конструкторе, это не карточка тенанта.
+3. **Стиль** — пакет `operator` / `destination`, без нового приложения.
+4. **Ассистент-менеджер** — базовые знания платформы + знания этого сайта + холст и карточки.
 
 ```mermaid
 flowchart LR
   Vitrina["Vitrina tenants"]
   Cache["hub company/listing cache"]
-  Builder["mega-hub constructor"]
-  TourHub["TourHub /s/slug"]
+  Hub["mega-hub"]
   Guest["Guest + assistant"]
   Vitrina --> Cache
-  Builder -->|"tenant_cards live"| Cache
-  Builder -->|"info blog faq knowledge"| Pages["hub.site_pages/blocks/posts/knowledge"]
-  Cache --> TourHub
-  Pages --> TourHub
-  TourHub --> Guest
+  Cache --> Hub
+  Hub -->|"constructor /admin/sites"| Builder["builder"]
+  Hub -->|"public /s/slug"| Guest
 ```
 
 ## Не путать
 
-| Слой | Что | Где правится |
-|------|-------|----------------|
-| Tenant Hub | плитки одного тенанта | vitrina `/h/*` |
-| B2B `/m` | guided-search для тенантов | mega-hub, login |
-| **hub.sites** | публичный проект | конструктор mega-hub `/admin/sites/{slug}/builder` |
+| Слой | Что | Приложение |
+|------|------|------------|
+| Tenant Hub | плитки одного тенанта (пример: kendala.tourhub.kz) | **vitrina** `/h/*` |
+| B2B `/m` | guided-search для тенантов, login | mega-hub |
+| TourHub / OTA | отдельный маркет, **не используется здесь** | tourhub |
+| **hub.sites** | проект: карточки + материалы + ассистент | **mega-hub** `/admin/sites` и `/s/{slug}` |
 
-## Конструктор (mega-hub)
+## Конструктор
 
-Админ: `/admin/sites/{slug}/builder`
+`https://hub.microp.app/admin/sites/{slug}/builder`
 
-Блоки:
+Блоки: `hero`, `info`, `tenant_cards`, `listing_cards`, `posts`, `gallery`, `faq`, `cta`.
 
-| type | Данные |
-|------|--------|
-| `hero` | брендинг проекта |
-| `info` | свой текст |
-| `tenant_cards` | live компании (scope или явные id) |
-| `listing_cards` | live услуги |
-| `posts` | журнал проекта |
-| `gallery` / `faq` / `cta` | свои материалы |
+Прототип: [templates/constructor.html](../sites/templates/constructor.html).
 
-Страницы: `home`, плюс любые (`journal`, about, …).  
-Журнал: `hub.site_posts`. Публично `/s/{slug}/journal/{post}`.
+## Публичный сайт
 
-Прототип холста: [templates/constructor.html](../sites/templates/constructor.html).
+Фаза 1: `https://hub.microp.app/s/{slug}`  
+Фаза 2: `{subdomain}.microp.app` или `custom_domain` → rewrite на `/s/{slug}` **в mega-hub**, раньше чем B2B `/m`.
+
+Ассистент: `POST /api/sites/{slug}/assistant` на том же хосте. Anthropic остаётся в mega-hub.
 
 ## Scope карточек
 
-AND по непустым полям `hub.sites`: `tenant_ids`, `theme_slugs`, `country_codes`, `city_codes`, опционально `marketplace_slug`.
-
-Один тенант → бренд-сайт. Несколько / гео / тема → витрина направления.
-
-## Стиль
-
-`sites.template` = **скин**, не структура:
-
-- `operator` — тёмный editorial
-- `destination` — светлый DMO
-
-Холст один и тот же (блоки). Меняется оболочка.
-
-## Ассистент
-
-Роль: менеджер сайта. Находит карточку, услугу, статью; объясняет как забронировать.
-
-Два слоя знаний:
-
-1. **Базовые** — `hub.assistant_base_knowledge` (роль, карточки, бронь). Одинаковы для всех проектов, правит platform admin.
-2. **Этого сайта** — `hub.site_knowledge` + страницы/блоки/посты + текущие карточки тенантов.
-
-API: `POST /api/sites/{slug}/assistant` `{ message }` → `{ reply, links[] }`.  
-TourHub проксирует `/api/sites/{slug}/assistant`, ключ Anthropic остаётся в mega-hub.
-
-Знания сайта **не** отдаются публичным GET — только service_role ассистенту.
-
-## Хостинг
-
-Фаза 1: `https://www.ota.kz/s/{slug}`  
-Фаза 2: `{slug}.ota.kz` / custom_domain → TourHub, не mega-hub.
+AND по непустым: `tenant_ids`, `theme_slugs`, `country_codes`, `city_codes`.  
+`marketplace_slug` — необязательный доп. фильтр канала, **не** привязка к приложению TourHub.
 
 ## Куда класть код
 
-См. [APPLY.md](../sites/APPLY.md). Миграции: `20260909000000` (sites) + `20260909120000` (builder/knowledge).
+Только **sibnike/hub**. См. [APPLY.md](../sites/APPLY.md).

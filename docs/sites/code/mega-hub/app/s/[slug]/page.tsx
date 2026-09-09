@@ -1,28 +1,19 @@
-import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { AssistantDock } from '@/components/sites/assistant-dock'
 import { SiteCanvas } from '@/components/sites/site-canvas'
-import { fetchSitePayload, loc } from '@/lib/sites/fetch-site'
+import { loadPublicSitePayload } from '@/lib/sites/load-public-payload'
+import { loc } from '@/lib/sites/public-copy'
 import '../sites.css'
 
 export const dynamic = 'force-dynamic'
 
-type PageProps = {
-  params: { slug: string }
-}
+type PageProps = { params: Promise<{ slug: string }> }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const payload = await fetchSitePayload(params.slug)
-  if (!payload) return { title: 'Site' }
-  return {
-    title: loc(payload.site.settings.display_name, 'ru', loc(payload.site.name, 'ru')),
-    description: loc(payload.site.description, 'ru'),
-  }
-}
-
-export default async function ThemedSitePage({ params }: PageProps) {
-  const payload = await fetchSitePayload(params.slug)
+export default async function PublicSitePage({ params }: PageProps) {
+  const { slug } = await params
+  const payload = await loadPublicSitePayload(slug)
   if (!payload) notFound()
+
   const assistantName = loc(payload.site.settings.assistant?.name, 'ru', 'Менеджер')
   const greeting = loc(
     payload.site.settings.assistant?.greeting,

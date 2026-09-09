@@ -12,7 +12,10 @@ export default async function AdminSitesPage() {
   return (
     <main style={{ padding: '2rem', maxWidth: 920, margin: '0 auto' }}>
       <h1>Тематические сайты</h1>
-      <p>Публичный URL: TourHub <code>/s/{'{slug}'}</code>. Не путать с Tenant Hub и mega-hub /m.</p>
+      <p>
+        Публичный URL: mega-hub <code>/s/{'{slug}'}</code> или свой домен. Не Tenant Hub и не B2B{' '}
+        <code>/m</code>.
+      </p>
       <ul style={{ listStyle: 'none', padding: 0 }}>
         {sites.map((site) => (
           <li

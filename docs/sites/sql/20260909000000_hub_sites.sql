@@ -31,13 +31,13 @@ CREATE TABLE hub.sites (
 );
 
 COMMENT ON TABLE hub.sites IS
-  'Public B2C themed sites. Scope filters listing_cache/company_cache. Renderer is TourHub /s/{slug}, not mega-hub /m.';
+  'Public project sites. Constructor + public renderer live in mega-hub (/s/{slug}), not Tenant Hub /h and not B2B /m.';
 
 COMMENT ON COLUMN hub.sites.template IS
   'operator = single-tenant (or few) brand site; destination = geo/theme showcase across tenants';
 
 COMMENT ON COLUMN hub.sites.marketplace_slug IS
-  'If set, listing must contain this slug in marketplace_slugs (typically tourhub). NULL = any listing_cache row in scope.';
+  'Optional extra filter: listing_cache.marketplace_slugs. NULL = any listing in scope. Not tied to the TourHub app.';
 
 COMMENT ON COLUMN hub.sites.settings IS
   'Branding jsonb: logo_url, favicon_url, accent_color, brand_color, hero_image_url, hero_title, hero_subtitle, intro, footer_text, display_name, map_center';
@@ -67,7 +67,7 @@ CREATE POLICY "sites_admin_write" ON hub.sites
 GRANT SELECT ON hub.sites TO anon, authenticated;
 GRANT ALL ON hub.sites TO service_role;
 
--- Destination demo: all TourHub tourism in Kazakhstan (fill tenant_ids later if needed)
+-- Destination demo: tourism in Kazakhstan (no marketplace channel required)
 INSERT INTO hub.sites (
   slug, name, description, template,
   theme_slugs, country_codes, marketplace_slug, settings
@@ -78,7 +78,7 @@ INSERT INTO hub.sites (
   'destination',
   ARRAY['tourism', 'guides'],
   ARRAY['KZ'],
-  'tourhub',
+  NULL,
   '{
     "accent_color": "#0D9488",
     "brand_color": "#0F172A",
