@@ -340,10 +340,10 @@ Vitrina-сторона потока 3a закрыта в **V-31/V-32** (ingest +
   `listing_cache.marketplace_themes`.
 - Platform admin: `/admin/platform/marketplace-themes` (Vitrina), `/admin/marketplace/[slug]/…` (Hub).
 
-### Тематические сайты (`hub.sites`)
+### Публичная витрина market (`hub.sites`)
 
-Дополнительный слой: страницы проектов в mega-hub **читают** cache тенантов.
-Код Vitrina не меняется. Не путать с Tenant Hub `/h/*` и B2B `/m/*`.
+Тот же слой, что market в mega-hub: тенанты из кэша Vitrina, несколько вместе или один, если микросайта `/h/*` мало.
+Конструктор — материалы и ассистент этой витрины, не новый продукт и не перенос Vitrina.
 
 Канон: `docs/agent-context/09-themed-sites.md`.
 

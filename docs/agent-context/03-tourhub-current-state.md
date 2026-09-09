@@ -55,7 +55,7 @@ components/market/    — cards, calendar, listing sheet, checkout
 ```
 
 ### Themed sites
-Новые страницы проектов — **добавка** в mega-hub. Vitrina не меняется, TourHub не рантайм. См. [09-themed-sites.md](./09-themed-sites.md).
+Публичная витрина **market в mega-hub** (не TourHub). Vitrina не меняется. См. [09-themed-sites.md](./09-themed-sites.md).
 
 ## Не сделано / backlog
 

@@ -1,69 +1,74 @@
-# 09 — Тематические страницы проектов (hub.sites)
+# 09 — Публичные страницы market в mega-hub
 
-> **Инвариант:** Vitrina **не трогаем**. Тенанты, хабы `/h/*`, страницы `/p/*`, booking, inbox, sync — как были.  
-> **Новое:** дополнительные публичные страницы-проекты в mega-hub. Они **читают** карточки из кэша, ничего из Vitrina не переносят и не заменяют.  
-> kendala.tourhub.kz и TourHub/OTA — только примеры внешнего вида, не рантайм.
+> **Инвариант:** Vitrina **не трогаем**. Тенанты, микросайт `/h/*`, страницы `/p/*`, booking, inbox, sync — как были.  
+> **Уже есть:** mega-hub — отдельная **насадка**. Туда размещаются тенанты из Vitrina (кэш). Там живёт **market**.  
+> kendala.tourhub.kz и TourHub/OTA — примеры вида микросайта / B2C, не рантайм этой насадки.
 
 Канон кода: [docs/sites/](../sites/README.md).
 
-mega-hub уже **насадка** над Vitrina: туда попадают тенанты из кэша, там живёт market, который может объединять продукты разных тенантов или быть витриной одного, если микросайта `/h/*` недостаточно. Страницы проектов — **ещё одна такая насадка**, не перенос Vitrina.
+## Что уже зафиксировано
 
-## Что добавляем
+mega-hub не заменяет Vitrina. Это слой поверх:
 
-В конструкторе mega-hub собирается **страница проекта**:
+```
+Vitrina (тенант, микросайт /h, страницы /p, booking)
+    → webhook → hub cache
+        → mega-hub market (насадка)
+```
 
-1. На холст ставятся **карточки уже существующих тенантов** (один или несколько) — live из `hub.company_cache` / `listing_cache`.
-2. Рядом можно писать **свои материалы** проекта: описание, блог, FAQ — это не страница тенанта в Vitrina.
-3. Скин (`operator` / `destination`) чуть меняет вид, структура — блоки.
-4. **Ассистент** помогает ориентироваться: базовые знания + знания этой страницы + карточки на ней.
+**Market** в mega-hub уже умеет:
+
+- **объединять продукты разных тенантов**, или
+- быть **продуктом одного тенанта**, если микросайта `/h/*` недостаточно.
+
+Конструктор страниц — не новый продукт и не перенос Vitrina. Это **публичная витрина того же market**: свои тексты, блог, FAQ, ассистент рядом с живыми карточками из кэша.
+
+| Нужно | Где |
+|-------|-----|
+| Микросайт тенанта | Vitrina `/h/*` — **не трогаем** |
+| Один тенант, микросайта мало | mega-hub market, скин `operator` |
+| Несколько тенантов вместе | mega-hub market, скин `destination` |
+| B2B поиск и заявки | уже `/m/{slug}` в том же mega-hub |
+| Витрина с материалами + ассистент | конструктор той же насадки (`/s/{slug}`) |
 
 ```mermaid
 flowchart LR
   Vitrina["Vitrina без изменений"]
-  Cache["hub cache read-only"]
-  Pages["новые страницы проекта в hub"]
+  Cache["hub cache"]
+  Market["mega-hub market"]
   Guest["гость"]
   Vitrina -->|"как сейчас webhook"| Cache
-  Cache -->|"только чтение"| Pages
-  Pages --> Guest
+  Cache -->|"карточки тенантов"| Market
+  Market -->|"/m поиск"| Guest
+  Market -->|"/s витрина"| Guest
 ```
 
-## Что не делаем
+## Что добавляем в эту насадку
 
-Это **не перенос продукта**. Экосистема как была:
+На холсте market:
 
-| Слой | Где | Меняем? |
-|------|-----|---------|
-| Тенанты, Tenant Hub `/h/*`, страницы `/p/*`, booking, inbox, sync | **vitrina** | **нет** |
-| Cache `company_cache` / `listing_cache` | mega-hub | только **чтение** |
-| Новые страницы проекта | mega-hub `/admin/sites` и `/s/{slug}` | **только это новое** |
-| TourHub / OTA | tourhub | не участвует |
+1. **Карточки тенантов** (один или несколько) — live из `hub.company_cache` / `listing_cache`.
+2. **Свои материалы** витрины: описание, блог, FAQ — это не `/p/*` тенанта.
+3. Скин `operator` / `destination` чуть меняет вид.
+4. **Ассистент** по этой витрине: знания платформы + знания этой страницы + карточки.
 
-- Не меняем код и модель Vitrina (`hub_nodes`, `pages`, booking, tenant settings).
-- Не переносим Tenant Hub в mega-hub.
-- Не подменяем `/h/*` и `/p/*`.
-- Не привязываем эти страницы к приложению TourHub.
-
-## Конструктор
-
-`https://hub.microp.app/admin/sites/{slug}/builder`
+Черновик UI: `/admin/sites/{slug}/builder`, публично `/s/{slug}`.
 
 Блоки: `hero`, `info`, `tenant_cards`, `listing_cards`, `posts`, `gallery`, `faq`, `cta`.
 
-Прототип: [templates/constructor.html](../sites/templates/constructor.html).
+## Что не делаем
 
-## Публичный URL страницы проекта
-
-`https://hub.microp.app/s/{slug}`  
-Опционально свой домен → тот же `/s/{slug}` в mega-hub.
-
-Ассистент: `POST /api/sites/{slug}/assistant`.
+- Не меняем код и модель Vitrina (`hub_nodes`, `pages`, booking, tenant settings).
+- Не переносим микросайт `/h/*` в mega-hub.
+- Не подменяем `/p/*`.
+- Не выносим это в TourHub.
 
 ## Scope карточек
 
-AND по непустым: `tenant_ids`, `theme_slugs`, `country_codes`, `city_codes`.
+AND по непустым: `tenant_ids`, `theme_slugs`, `country_codes`, `city_codes`.  
+`marketplace_slug` — тот же канал `hub.marketplaces`, не отдельный продукт.
 
 ## Куда писать код, когда начнут реализацию
 
 Только **добавления** в mega-hub (`sibnike/hub`). Код vitrina не править.  
-DDL `hub.sites*` зеркалируется в `vitrina/supabase/migrations/` **только** потому что prod push схемы уже идёт оттуда — это не изменение приложения Vitrina.
+Таблицы `hub.sites*` — контент витрины **внутри** насадки market, не новая схема `public`.

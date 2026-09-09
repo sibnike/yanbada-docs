@@ -15,7 +15,7 @@
 | Категории / themes маркета | [05-categories-mapping.md](./05-categories-mapping.md) | `marketplace_themes` + channels (`marketplace_slugs`, sellers) |
 | Маркеты / publish channels | [05-categories-mapping.md](./05-categories-mapping.md), [02-ecosystem-data-flow.md](./02-ecosystem-data-flow.md) | Sidebar «Маркеты» → `/publish`; каталог `PUBLISH_CHANNELS`; TourHub = первый gated |
 | Кастомные домены B2C-маркетов | [08-multi-market-domains.md](./08-multi-market-domains.md) | отдельный Vercel на маркет; www.ota.kz; фаза 2+ — `TOURHUB_MARKET_SLUG` |
-| **Тематические страницы проектов** | [09-themed-sites.md](./09-themed-sites.md), [../sites/README.md](../sites/README.md) | добавка в mega-hub; Vitrina не трогать |
+| **Витрина market (страницы проекта)** | [09-themed-sites.md](./09-themed-sites.md), [../sites/README.md](../sites/README.md) | та же насадка mega-hub, что market; Vitrina не трогать |
 | Миграции БД | см. ниже §Миграции | `*/supabase/migrations/` |
 | **Резервное копирование (pg_dump, Storage)** | [BACKUP.md](../BACKUP.md), `vitrina/docs/backup.md` | `vitrina/.github/workflows/daily-backup.yml`, `scripts/backup-db.sh`, `scripts/backup-storage.mjs` |
 | **Перенос Supabase (новый project ref)** | `vitrina/docs/supabase-migration.md` | `vitrina/supabase/migrations/`, `mega-hub/supabase/migrations/` |
@@ -64,7 +64,7 @@
 
 **Prod:** `https://hub.microp.app`
 
-**Страницы проектов:** черновик `docs/sites/code/mega-hub/` — не менять vitrina
+**Витрина market:** черновик `docs/sites/code/mega-hub/` — контент той же насадки; не менять vitrina
 
 ### tourhub
 
@@ -126,7 +126,7 @@
 | Admin, CRUD, publish, sync | **vitrina** |
 | Cache, search, AI match, events | **mega-hub** |
 | Публичный UI, read API, demo fallback | **tourhub** |
-| **Страницы проектов (hub.sites)** | только **добавления** в mega-hub; **vitrina не трогать** |
+| **Витрина market (hub.sites)** | контент насадки mega-hub (как market); **vitrina не трогать** |
 
 ---
 

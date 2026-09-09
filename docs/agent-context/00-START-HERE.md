@@ -29,7 +29,7 @@ Vitrina (write)  →  mega-hub cache  →  TourHub (read, B2C)
 ## Текущая фаза (сентябрь 2026)
 
 - ✅ **Расширенный профиль компании** — на prod (legal, tourism, media, bank; sync в hub)
-- **Страницы проектов** — добавка в mega-hub, Vitrina без изменений: [09-themed-sites.md](./09-themed-sites.md)
+- **Витрина market** — публичные страницы той же насадки mega-hub (несколько тенантов или один, если микросайта мало): [09-themed-sites.md](./09-themed-sites.md)
 
 Статус подробнее: [../PROGRESS.md](../PROGRESS.md)
 

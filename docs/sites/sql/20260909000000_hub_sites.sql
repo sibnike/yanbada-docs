@@ -31,13 +31,13 @@ CREATE TABLE hub.sites (
 );
 
 COMMENT ON TABLE hub.sites IS
-  'Additive project pages in mega-hub (/s/{slug}). Does not replace Tenant Hub /h, tenant pages /p, or B2B /m.';
+  'Public content of mega-hub market overlay. Same layer as /m: tenants from Vitrina cache, one or many. Does not replace /h or /p.';
 
 COMMENT ON COLUMN hub.sites.template IS
-  'operator = single-tenant (or few) brand site; destination = geo/theme showcase across tenants';
+  'operator = one tenant when /h microsite is not enough; destination = several tenants together';
 
 COMMENT ON COLUMN hub.sites.marketplace_slug IS
-  'Optional extra filter: listing_cache.marketplace_slugs. NULL = any listing in scope. Not tied to the TourHub app.';
+  'Optional bind to hub.marketplaces.slug (same overlay). NULL = any listing in scope.';
 
 COMMENT ON COLUMN hub.sites.settings IS
   'Branding jsonb: logo_url, favicon_url, accent_color, brand_color, hero_image_url, hero_title, hero_subtitle, intro, footer_text, display_name, map_center';
