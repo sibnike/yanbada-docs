@@ -48,8 +48,8 @@
 | **—** | Multi-market B2C: www.ota.kz (отдельный Vercel) | tourhub | ✅ домен в Vercel; см. [agent-context/08-multi-market-domains.md](./agent-context/08-multi-market-domains.md) |
 | **P3** | 2+ B2C-маркет: `TOURHUB_MARKET_SLUG` + platform admin «Маркеты» | tourhub + vitrina | фаза 2–3 в 08-multi-market-domains |
 | **P1** | Витрина market: карточки тенантов + материалы + ассистент | mega-hub (та же насадка, vitrina не трогать) | [09-themed-sites.md](./agent-context/09-themed-sites.md) |
-| **P1** | Владелец маркета + платное размещение карточек (заявки, тарифы, grace) | mega-hub | схема и демо готовы: [10-market-placement.md](./agent-context/10-market-placement.md), [sites/DEMO-KARAKOL.md](./sites/DEMO-KARAKOL.md) |
-| **P2** | Счета, авто-скрытие после неоплаты, статистика карточек тенанту | mega-hub | схема заложена (`site_invoices`, `site_card_stats`), UI нет |
+| **P1** | Владелец маркета + платное размещение карточек (заявки, тарифы, grace) | mega-hub | схема + рабочее приложение `apps/market`: [10-market-placement.md](./agent-context/10-market-placement.md), [sites/DEMO-KARAKOL.md](./sites/DEMO-KARAKOL.md) |
+| **P2** | Счета, авто-скрытие после неоплаты, статистика карточек тенанту | mega-hub | цикл счёт → оплата → карточка и статистика работают в `apps/market`; в hub переносится вместе с Supabase Auth |
 | **P3** | Комиссия с брони, выплаты владельцу, claim ручной карточки | mega-hub + vitrina (атрибуция уже есть) | фаза S4 в 10-market-placement |
 
 ### Инварианты (не трогать без решения)

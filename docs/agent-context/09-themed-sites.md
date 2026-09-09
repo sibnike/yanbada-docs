@@ -56,7 +56,9 @@ flowchart LR
 
 Блоки: `hero`, `info`, `stats`, `steps`, `tenant_cards`, `listing_cards`, `manual_cards`, `team`, `posts`, `gallery`, `reviews`, `faq`, `map`, `contacts`, `partners`, `video`, `pricing`, `join`, `cta`.
 
-Владелец маркета настраивает страницу сам, карточки тенантов подтягиваются. Кто владелец, как тенанты просят размещение и как это продаётся — [10-market-placement.md](./10-market-placement.md). Демо на двух тенантах Каракола — [../sites/DEMO-KARAKOL.md](../sites/DEMO-KARAKOL.md).
+Владелец маркета настраивает страницу сам, карточки тенантов подтягиваются. Кто владелец, как тенанты просят размещение и как это продаётся — [10-market-placement.md](./10-market-placement.md).
+
+Всё это работает не на бумаге: `apps/market` — запускаемое приложение на этом же рендерере и этих же таблицах. Заявка, одобрение, счёт, оплата, появление карточки, правка блоков, статистика показов — реальные записи в Postgres. Как запустить и что показывать — [../sites/DEMO-KARAKOL.md](../sites/DEMO-KARAKOL.md).
 
 ## Что не делаем
 

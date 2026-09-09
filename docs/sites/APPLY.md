@@ -13,7 +13,7 @@ cp docs/sites/sql/20260909150000_seed_karakol_market.sql mega-hub/supabase/migra
 
 Порядок важен: `140000` добавляет колонки в `hub.sites` и расширяет CHECK на типы блоков, `150000` уже пользуется ими.
 
-Черновик UI/API: `docs/sites/code/mega-hub/` → репозиторий hub.
+Черновик UI/API: `docs/sites/code/mega-hub/` → репозиторий hub. Рабочая версия того же контура — `apps/market`: там эти же рендерер и типы уже крутятся на живой базе, а Supabase заменён на прямой pg. Логику брать оттуда, слой доступа к данным — из `code/mega-hub/`.
 
 `lib/sites/site-access.ts` ожидает серверный клиент Supabase (`@/lib/supabase/server`) и `public.current_user_tenants()`. Если в hub помощник называется иначе — поправить импорт, логику не менять.
 
