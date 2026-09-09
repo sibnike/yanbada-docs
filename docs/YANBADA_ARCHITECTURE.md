@@ -340,6 +340,14 @@ Vitrina-сторона потока 3a закрыта в **V-31/V-32** (ingest +
   `listing_cache.marketplace_themes`.
 - Platform admin: `/admin/platform/marketplace-themes` (Vitrina), `/admin/marketplace/[slug]/…` (Hub).
 
+### Тематические сайты (`hub.sites`)
+
+Публичные B2C-витрины из `company_cache` / `listing_cache` с фильтром scope
+(tenant_ids / themes / country / city). Рендер в **TourHub** `/s/{slug}`
+(шаблоны `operator`, `destination`). Не путать с Tenant Hub `/h/*` и B2B `/m/*`.
+
+Канон: `docs/agent-context/09-themed-sites.md`.
+
 ### Membership (H-M4b)
 
 - `hub.marketplace_members` — заявка тенанта на доступ к закрытому маркетплейсу.

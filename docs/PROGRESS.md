@@ -1,6 +1,6 @@
 # Progress — Yanbada SuperApp
 
-> **Обновлено:** 2026-08-15  
+> **Обновлено:** 2026-09-09  
 > Журнал сессий (детальнее): [agent-context/CHANGELOG.md](./agent-context/CHANGELOG.md)
 
 ## Текущая фаза
@@ -47,6 +47,7 @@
 | **P2** | Availability concurrency + participants async email | mega-hub | `HUB_ROADMAP-next.md` tech debt |
 | **—** | Multi-market B2C: www.ota.kz (отдельный Vercel) | tourhub | ✅ домен в Vercel; см. [agent-context/08-multi-market-domains.md](./agent-context/08-multi-market-domains.md) |
 | **P3** | 2+ B2C-маркет: `TOURHUB_MARKET_SLUG` + platform admin «Маркеты» | tourhub + vitrina | фаза 2–3 в 08-multi-market-domains |
+| **P1** | Тематические сайты `hub.sites` (operator + destination) | hub + tourhub | канон [09-themed-sites.md](./agent-context/09-themed-sites.md); drop-in [sites/](./sites/); перенос в репо по [APPLY.md](./sites/APPLY.md) |
 
 ### Инварианты (не трогать без решения)
 

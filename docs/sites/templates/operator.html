@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kendala Studio — operator template</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Geologica:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <style>
+      :root { --accent: #c45c26; }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: #14110e; color: #f6efe6; font-family: Inter, system-ui, sans-serif; }
+      h1, h2, h3, .brand { font-family: Geologica, Inter, sans-serif; letter-spacing: -0.03em; }
+      a { color: inherit; }
+      .nav { display: flex; justify-content: space-between; align-items: center; padding: 1.1rem 6vw; }
+      .nav a { margin-left: 1.2rem; opacity: 0.8; text-decoration: none; }
+      .hero { min-height: 88vh; background: url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1800&q=80') center/cover; position: relative; display: flex; align-items: flex-end; }
+      .veil { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(20,17,14,.12), rgba(20,17,14,.84)); }
+      .copy { position: relative; padding: 8vh 6vw 10vh; max-width: 46rem; }
+      .kicker { text-transform: uppercase; letter-spacing: .14em; font-size: .72rem; font-weight: 600; color: var(--accent); }
+      h1 { font-size: clamp(2.4rem, 6vw, 4.4rem); line-height: 1.05; margin: .4rem 0 1rem; }
+      .lead { font-size: 1.15rem; line-height: 1.5; max-width: 38rem; }
+      .btn { display: inline-flex; padding: .75rem 1.15rem; border-radius: 999px; background: #fff; color: #1a1714; text-decoration: none; font-weight: 600; }
+      .story { display: grid; grid-template-columns: .8fr 1.2fr; gap: 3rem; padding: 8vh 6vw; }
+      .story p { font-size: 1.25rem; line-height: 1.7; color: #e7d9c8; }
+      .tours { padding: 0 6vw 10vh; }
+      .card { display: grid; grid-template-columns: 1.1fr 1fr; min-height: 280px; background: #1d1914; margin-top: 1.5rem; }
+      .media { background: #2a241e center/cover no-repeat; }
+      .body { padding: 1.75rem; }
+      .meta { display: flex; gap: 1rem; margin: 1rem 0; color: #cbbba6; }
+      .cta { background: var(--accent); color: #fff; }
+      footer { padding: 2rem 6vw 3rem; opacity: .7; }
+      @media (max-width: 840px) { .story, .card { grid-template-columns: 1fr; } .hero { min-height: 70vh; } }
+    </style>
+  </head>
+  <body>
+    <header class="nav">
+      <span class="brand">Kendala Studio</span>
+      <nav><a href="#story">История</a><a href="#tours">Программы</a></nav>
+    </header>
+    <section class="hero">
+      <div class="veil"></div>
+      <div class="copy">
+        <p class="kicker">Астана</p>
+        <h1>Маршруты, которые держат ритм группы</h1>
+        <p class="lead">Сопровождение, логистика и программы — без плиточного хаба, как настоящий бренд.</p>
+        <a class="btn" href="#tours">Смотреть программы</a>
+      </div>
+    </section>
+    <section id="story" class="story">
+      <div>
+        <p class="kicker">О нас</p>
+        <h2>Не launcher. Бренд.</h2>
+      </div>
+      <p>Kendala собирает группы так, чтобы день был цельным: дорога, еда, смысл места. Это не каталог плиток — это студия маршрута, которой мало внутреннего хаба тенанта.</p>
+    </section>
+    <section id="tours" class="tours">
+      <p class="kicker">Программы</p>
+      <h2>Ближайшие выезды</h2>
+      <article class="card">
+        <div class="media" style="background-image:url('https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1400&q=80')"></div>
+        <div class="body">
+          <h3>Лучший тур</h3>
+          <p>Трёхдневная программа: степь, ночёвка и спокойный темп.</p>
+          <div class="meta"><strong>89 000 ₸</strong><span>Ближайшая дата 2026-09-20</span></div>
+          <a class="btn cta" href="#">Подробнее и бронь</a>
+        </div>
+      </article>
+      <article class="card">
+        <div class="media" style="background-image:url('https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1400&q=80')"></div>
+        <div class="body">
+          <h3>Городская прогулка</h3>
+          <p>Полдня по местам, которые обычно пропускают.</p>
+          <div class="meta"><strong>25 000 ₸</strong><span>Ближайшая дата 2026-09-18</span></div>
+          <a class="btn cta" href="#">Подробнее и бронь</a>
+        </div>
+      </article>
+    </section>
+    <footer>Бронирование открывает страницу услуги в Vitrina. URL: ota.kz/s/kendala-studio</footer>
+  </body>
+</html>

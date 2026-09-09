@@ -1,0 +1,213 @@
+{
+  "sites": [
+    {
+      "site": {
+        "id": "demo-operator",
+        "slug": "kendala-studio",
+        "name": { "ru": "Kendala Studio", "en": "Kendala Studio" },
+        "description": { "ru": "Сопровождение групп и авторские маршруты." },
+        "template": "operator",
+        "tenant_ids": ["demo-kendala"],
+        "theme_slugs": ["tourism", "guides"],
+        "country_codes": [],
+        "city_codes": [],
+        "marketplace_slug": null,
+        "featured_listing_ids": ["demo-tour-1"],
+        "subdomain": null,
+        "custom_domain": null,
+        "settings": {
+          "accent_color": "#C45C26",
+          "brand_color": "#1A1714",
+          "hero_image_url": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1800&q=80",
+          "hero_title": { "ru": "Маршруты, которые держат ритм группы" },
+          "hero_subtitle": { "ru": "Сопровождение, логистика и программы — без плиточного хаба, как настоящий бренд." },
+          "intro": { "ru": "Kendala собирает группы так, чтобы день был цельным: дорога, еда, смысл места. Это не каталог плиток — это студия маршрута." },
+          "footer_text": { "ru": "Бронирование открывает страницу услуги в Vitrina." }
+        },
+        "is_active": true,
+        "created_at": "2026-09-09T00:00:00.000Z",
+        "updated_at": "2026-09-09T00:00:00.000Z"
+      },
+      "companies": [
+        {
+          "tenant_id": "demo-kendala",
+          "slug": "kendala-travel",
+          "name": "Kendala Travel",
+          "city": "Астана",
+          "country": "KZ",
+          "logo_url": null,
+          "cover_photo_url": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1400&q=80",
+          "short_description": "Сопровождение туристических групп",
+          "about": { "ru": "Я занимаюсь сопровождением туристических групп и развитием маршрутов, чтобы всё было спокойно и ясно." },
+          "gallery": []
+        }
+      ],
+      "listings": [
+        {
+          "id": "demo-tour-1",
+          "tenant_id": "demo-kendala",
+          "tenant_slug": "kendala-travel",
+          "tenant_name": "Kendala Travel",
+          "page_slug": "best-tour",
+          "title": { "ru": "Лучший тур" },
+          "short_text": { "ru": "Трёхдневная программа: степь, ночёвка и спокойный темп." },
+          "cover_image_url": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1400&q=80",
+          "images": [],
+          "price_from": 89000,
+          "price_currency": "KZT",
+          "marketplace_themes": ["tourism"],
+          "service_country_code": "KZ",
+          "service_city_codes": ["astana"],
+          "next_departure_date": "2026-09-20",
+          "seats_left": 6,
+          "featured": true
+        },
+        {
+          "id": "demo-tour-2",
+          "tenant_id": "demo-kendala",
+          "tenant_slug": "kendala-travel",
+          "tenant_name": "Kendala Travel",
+          "page_slug": "contacts-walk",
+          "title": { "ru": "Городская прогулка" },
+          "short_text": { "ru": "Полдня по местам, которые обычно пропускают." },
+          "cover_image_url": "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1400&q=80",
+          "images": [],
+          "price_from": 25000,
+          "price_currency": "KZT",
+          "marketplace_themes": ["guides"],
+          "service_country_code": "KZ",
+          "service_city_codes": ["astana"],
+          "next_departure_date": "2026-09-18",
+          "seats_left": 10,
+          "featured": false
+        }
+      ]
+    },
+    {
+      "site": {
+        "id": "demo-destination",
+        "slug": "visit-kazakhstan",
+        "name": { "ru": "Visit Kazakhstan", "en": "Visit Kazakhstan" },
+        "description": { "ru": "Туры и гиды по Казахстану от нескольких операторов." },
+        "template": "destination",
+        "tenant_ids": [],
+        "theme_slugs": ["tourism", "guides"],
+        "country_codes": ["KZ"],
+        "city_codes": [],
+        "marketplace_slug": "tourhub",
+        "featured_listing_ids": [],
+        "subdomain": null,
+        "custom_domain": null,
+        "settings": {
+          "accent_color": "#0D9488",
+          "brand_color": "#0F172A",
+          "hero_image_url": "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1800&q=80",
+          "hero_title": { "ru": "Казахстан, который хочется пройти пешком" },
+          "hero_subtitle": { "ru": "Операторы, маршруты и даты — в одной витрине направления." },
+          "footer_text": { "ru": "Каждая карточка — живая услуга тенанта Vitrina." },
+          "map_center": { "lat": 48.0196, "lng": 66.9237, "zoom": 4 }
+        },
+        "is_active": true,
+        "created_at": "2026-09-09T00:00:00.000Z",
+        "updated_at": "2026-09-09T00:00:00.000Z"
+      },
+      "companies": [
+        {
+          "tenant_id": "demo-nomad",
+          "slug": "nomad-trails",
+          "name": "Nomad Trails",
+          "city": "Алматы",
+          "country": "KZ",
+          "logo_url": null,
+          "cover_photo_url": "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1200&q=80",
+          "short_description": "Горные маршруты",
+          "about": { "ru": "Горные программы вокруг Алматы." },
+          "gallery": []
+        },
+        {
+          "tenant_id": "demo-steppe",
+          "slug": "steppe-journeys",
+          "name": "Steppe Journeys",
+          "city": "Астана",
+          "country": "KZ",
+          "logo_url": null,
+          "cover_photo_url": "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1200&q=80",
+          "short_description": "Степные экспедиции",
+          "about": { "ru": "Медленные выезды в степь." },
+          "gallery": []
+        },
+        {
+          "tenant_id": "demo-aqua",
+          "slug": "aquatour-burabay",
+          "name": "Aquatour Burabay",
+          "city": "Бурабай",
+          "country": "KZ",
+          "logo_url": null,
+          "cover_photo_url": "https://images.unsplash.com/photo-1439066615861-d1af74d74000?auto=format&fit=crop&w=1200&q=80",
+          "short_description": "Озёра Борового",
+          "about": { "ru": "Вода, лес и короткие выезды." },
+          "gallery": []
+        }
+      ],
+      "listings": [
+        {
+          "id": "d1",
+          "tenant_id": "demo-nomad",
+          "tenant_slug": "nomad-trails",
+          "tenant_name": "Nomad Trails",
+          "page_slug": "almaty-weekend",
+          "title": { "ru": "Выходные в горах Алматы" },
+          "short_text": { "ru": "Два дня: подъём, озеро, ночёвка." },
+          "cover_image_url": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1400&q=80",
+          "images": [],
+          "price_from": 120000,
+          "price_currency": "KZT",
+          "marketplace_themes": ["tourism"],
+          "service_country_code": "KZ",
+          "service_city_codes": ["almaty"],
+          "next_departure_date": "2026-09-21",
+          "seats_left": 8,
+          "featured": true
+        },
+        {
+          "id": "d2",
+          "tenant_id": "demo-steppe",
+          "tenant_slug": "steppe-journeys",
+          "tenant_name": "Steppe Journeys",
+          "page_slug": "steppe-night",
+          "title": { "ru": "Ночь в степи" },
+          "short_text": { "ru": "Костёр, небо и тихий лагерь." },
+          "cover_image_url": "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1400&q=80",
+          "images": [],
+          "price_from": 75000,
+          "price_currency": "KZT",
+          "marketplace_themes": ["tourism"],
+          "service_country_code": "KZ",
+          "service_city_codes": ["astana"],
+          "next_departure_date": "2026-09-27",
+          "seats_left": 12,
+          "featured": false
+        },
+        {
+          "id": "d3",
+          "tenant_id": "demo-aqua",
+          "tenant_slug": "aquatour-burabay",
+          "tenant_name": "Aquatour Burabay",
+          "page_slug": "burabay-lakes",
+          "title": { "ru": "Озёра Бурабая" },
+          "short_text": { "ru": "Короткий выезд к воде и соснам." },
+          "cover_image_url": "https://images.unsplash.com/photo-1439066615861-d1af74d74000?auto=format&fit=crop&w=1400&q=80",
+          "images": [],
+          "price_from": 45000,
+          "price_currency": "KZT",
+          "marketplace_themes": ["guides"],
+          "service_country_code": "KZ",
+          "service_city_codes": ["burabay"],
+          "next_departure_date": "2026-09-19",
+          "seats_left": 15,
+          "featured": false
+        }
+      ]
+    }
+  ]
+}

@@ -17,6 +17,8 @@
 
 [YANBADA_ARCHITECTURE.md](./YANBADA_ARCHITECTURE.md) — экосистема Vitrina + mega-hub + TourHub (единственная каноническая копия).
 
+[sites/README.md](./sites/README.md) — тематические B2C-сайты из кэша тенантов (`hub.sites`, TourHub `/s/{slug}`).
+
 ## По проектам (детали внутри репо)
 
 | Проект | Мастер-док | Progress / backlog |

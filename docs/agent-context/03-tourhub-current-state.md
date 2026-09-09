@@ -54,6 +54,12 @@ components/screens/   — market-screen, catalog-screen, *-profile-screen
 components/market/    — cards, calendar, listing sheet, checkout
 ```
 
+### Themed sites (`/s/[slug]`) — канон готов, код в docs
+- Drop-in: `docs/sites/code/tourhub/` — operator + destination
+- Канон: [09-themed-sites.md](./09-themed-sites.md)
+- Demo payload: `lib/sites/demo-sites.json` (`kendala-studio`, `visit-kazakhstan`)
+- **В репо tourhub ещё не перенесено** — см. [APPLY.md](../sites/APPLY.md)
+
 ## Не сделано / backlog
 
 | Задача | Приоритет |
