@@ -1,34 +1,21 @@
-# Тематические сайты — как применить код
+# Если внедрять страницы проектов
 
-Всё в **mega-hub** (`sibnike/hub`). TourHub не копировать.
+Это **новая фича mega-hub**. Код приложения Vitrina не копировать и не менять.
 
-## 1. Миграции
+DDL кладётся в `mega-hub/supabase/migrations/`. Зеркало в `vitrina/supabase/migrations/` — только существующий способ push схемы `hub.*` на общий Supabase, без правок `app/` vitrina.
 
 ```bash
 cp docs/sites/sql/20260909000000_hub_sites.sql mega-hub/supabase/migrations/
 cp docs/sites/sql/20260909120000_hub_site_builder.sql mega-hub/supabase/migrations/
-cp docs/sites/sql/20260909000000_hub_sites.sql vitrina/supabase/migrations/
-cp docs/sites/sql/20260909120000_hub_site_builder.sql vitrina/supabase/migrations/
 ```
 
-Prod push только из vitrina.
+Черновик UI/API: `docs/sites/code/mega-hub/` → репозиторий hub.
 
-## 2. mega-hub
-
-Скопировать `docs/sites/code/mega-hub/` в корень репо.
-
-В `middleware.ts` **до** rewrite на `/m/` вставить `rewritePublicSite` из `lib/sites/rewrite-public-site.ts`.
-
-## 3. Проверка
+Проверка после внедрения в hub:
 
 ```
 http://localhost:3001/admin/sites/visit-kazakhstan/builder
 http://localhost:3001/s/visit-kazakhstan
-http://localhost:3001/s/kendala-studio   # demo payload, если нет строки в БД
-
-curl -s http://localhost:3001/api/sites/visit-kazakhstan/assistant \
-  -H 'Content-Type: application/json' \
-  -d '{"message":"есть что-то про озёра?"}'
 ```
 
-Нужен `ANTHROPIC_API_KEY` для live-ответов ассистента; без ключа demo-страница всё равно открывается.
+Публичные хабы тенантов (`{slug}.microp.app`, kendala.tourhub.kz) как работали в vitrina, так и остаются.

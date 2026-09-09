@@ -16,7 +16,7 @@
 | 8 | [05-categories-mapping.md](./05-categories-mapping.md) | Категории, фильтры маркета/каталога |
 | 9 | [06-conventions-for-agents.md](./06-conventions-for-agents.md) | Стиль кода, ограничения, git |
 | 10 | [08-multi-market-domains.md](./08-multi-market-domains.md) | B2C-маркеты: tourhub.kz, отдельные Vercel-проекты, план фаз 2–3 |
-| 11 | [09-themed-sites.md](./09-themed-sites.md) | Тематические сайты: всё в mega-hub, не TourHub |
+| 11 | [09-themed-sites.md](./09-themed-sites.md) | Страницы проектов: добавка в hub, Vitrina не трогать |
 | — | [CHANGELOG.md](./CHANGELOG.md) | Что менялось между сессиями |
 
 ## Мастер-документы (глубже)

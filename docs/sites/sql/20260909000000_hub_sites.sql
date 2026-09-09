@@ -1,7 +1,7 @@
--- Curated B2C sites (operator brand + destination/vertical showcases)
--- Copy into mega-hub/supabase/migrations/ and mirror in vitrina/supabase/migrations/
--- Prod push only from vitrina: CONFIRM_PROD_DB_PUSH=1 npm run db:push:prod
--- Hub-DDL via MCP apply_migration is forbidden (orphan schema_migrations).
+-- Additive hub.sites tables. Does not alter vitrina app tables
+-- (hub_nodes, pages, bookings, tenant settings).
+-- Copy into mega-hub/supabase/migrations/ AND vitrina/supabase/migrations/
+-- (same DB; prod push is from vitrina). Do not change vitrina app/.
 
 CREATE TABLE hub.sites (
   id                    uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -31,7 +31,7 @@ CREATE TABLE hub.sites (
 );
 
 COMMENT ON TABLE hub.sites IS
-  'Public project sites. Constructor + public renderer live in mega-hub (/s/{slug}), not Tenant Hub /h and not B2B /m.';
+  'Additive project pages in mega-hub (/s/{slug}). Does not replace Tenant Hub /h, tenant pages /p, or B2B /m.';
 
 COMMENT ON COLUMN hub.sites.template IS
   'operator = single-tenant (or few) brand site; destination = geo/theme showcase across tenants';

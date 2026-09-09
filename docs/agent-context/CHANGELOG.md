@@ -6,12 +6,11 @@
 
 ## 2026-09-09
 
-**docs + mega-hub** | Тематические сайты из данных тенантов
-- Продукт целиком в mega-hub: конструктор, публичный `/s/{slug}`, ассистент. **TourHub не используется** (был пример витрины)
-- Карточки тенантов live из cache; блоги/описания — свои блоки; стиль operator/destination — скин
-- Ассистент: `assistant_base_knowledge` + `site_knowledge` + холст. `POST /api/sites/{slug}/assistant`
+**docs** | Страницы проектов (добавка, Vitrina не трогаем)
+- Это не перенос продукта: Vitrina `/h/*` `/p/*` booking sync без изменений
+- Новые страницы в mega-hub — насадка как market: читают карточки тенантов из cache
+- Свои материалы проекта (блог, описания) + ассистент
 - Канон: [09-themed-sites.md](./09-themed-sites.md)
-- **Дальше:** перенос drop-in в `sibnike/hub` по [APPLY.md](../sites/APPLY.md)
 
 ## 2026-08-15
 

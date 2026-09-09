@@ -47,7 +47,7 @@
 | **P2** | Availability concurrency + participants async email | mega-hub | `HUB_ROADMAP-next.md` tech debt |
 | **—** | Multi-market B2C: www.ota.kz (отдельный Vercel) | tourhub | ✅ домен в Vercel; см. [agent-context/08-multi-market-domains.md](./agent-context/08-multi-market-domains.md) |
 | **P3** | 2+ B2C-маркет: `TOURHUB_MARKET_SLUG` + platform admin «Маркеты» | tourhub + vitrina | фаза 2–3 в 08-multi-market-domains |
-| **P1** | Тематические сайты: конструктор + live-карточки + ассистент | mega-hub | [09-themed-sites.md](./agent-context/09-themed-sites.md); TourHub не используется |
+| **P1** | Страницы проектов: карточки тенантов + свои материалы + ассистент | mega-hub (vitrina не трогать) | [09-themed-sites.md](./agent-context/09-themed-sites.md) |
 
 ### Инварианты (не трогать без решения)
 

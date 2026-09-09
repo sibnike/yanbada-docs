@@ -1,5 +1,5 @@
--- Constructor + knowledge + assistant for hub.sites
--- Copy into mega-hub/supabase/migrations/ and mirror in vitrina/supabase/migrations/
+-- Additive constructor/knowledge tables for hub.sites.
+-- Does not alter vitrina app tables. Copy into mega-hub/supabase/migrations/.
 
 CREATE TABLE hub.site_pages (
   id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),

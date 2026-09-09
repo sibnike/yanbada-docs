@@ -37,7 +37,7 @@ Firebase **не используется** в tourhub prod — Firestore тол�
 | AI Content Builder | Market/catalog screens |
 | Admin onboarding | Escrow UX (пока demo) |
 
-Тематические **проекты сайтов** (`hub.sites`) — **mega-hub**, не tourhub.
+Тематические **страницы проектов** — новая фича mega-hub (чтение cache). **Код vitrina не менять.**
 
 **Не дублировать** CRUD профилей в TourHub.
 
