@@ -17,6 +17,7 @@
 | 9 | [06-conventions-for-agents.md](./06-conventions-for-agents.md) | Стиль кода, ограничения, git |
 | 10 | [08-multi-market-domains.md](./08-multi-market-domains.md) | B2C-маркеты: tourhub.kz, отдельные Vercel-проекты, план фаз 2–3 |
 | 11 | [09-themed-sites.md](./09-themed-sites.md) | Витрина market в mega-hub; Vitrina не трогать |
+| 12 | [10-market-placement.md](./10-market-placement.md) | Владелец маркета, заявки тенантов, платное размещение карточек |
 | — | [CHANGELOG.md](./CHANGELOG.md) | Что менялось между сессиями |
 
 ## Мастер-документы (глубже)

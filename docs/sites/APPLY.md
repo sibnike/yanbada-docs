@@ -7,15 +7,23 @@ DDL — в `mega-hub/supabase/migrations/` (схема `hub`). Зеркало в
 ```bash
 cp docs/sites/sql/20260909000000_hub_sites.sql mega-hub/supabase/migrations/
 cp docs/sites/sql/20260909120000_hub_site_builder.sql mega-hub/supabase/migrations/
+cp docs/sites/sql/20260909140000_hub_market_placement.sql mega-hub/supabase/migrations/
+cp docs/sites/sql/20260909150000_seed_karakol_market.sql mega-hub/supabase/migrations/
 ```
 
+Порядок важен: `140000` добавляет колонки в `hub.sites` и расширяет CHECK на типы блоков, `150000` уже пользуется ими.
+
 Черновик UI/API: `docs/sites/code/mega-hub/` → репозиторий hub.
+
+`lib/sites/site-access.ts` ожидает серверный клиент Supabase (`@/lib/supabase/server`) и `public.current_user_tenants()`. Если в hub помощник называется иначе — поправить импорт, логику не менять.
 
 Проверка:
 
 ```
 http://localhost:3001/admin/sites/visit-kazakhstan/builder
 http://localhost:3001/s/visit-kazakhstan
+http://localhost:3001/s/visit-karakol        демо маркета Каракола
+http://localhost:3001/s/visit-karakol/join   тарифы и заявка
 ```
 
 Микросайты тенантов (`{slug}.microp.app`, kendala.tourhub.kz) остаются в vitrina.

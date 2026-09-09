@@ -1,17 +1,71 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { MarketRequestsPanel } from '@/components/sites/market-requests-panel'
 import type { SiteBlockType, SiteKnowledge, SitePage, SitePost, SiteRow } from '@/types/site'
 
 const BLOCK_LABELS: Record<SiteBlockType, string> = {
   hero: 'Hero',
   info: 'Текст / описание',
-  tenant_cards: 'Карточки тенантов',
+  stats: 'Цифры',
+  steps: 'Как это работает',
+  tenant_cards: 'Карточки компаний',
   listing_cards: 'Карточки услуг',
+  manual_cards: 'Свои карточки мест',
+  team: 'Команда',
   posts: 'Журнал',
   gallery: 'Галерея',
+  reviews: 'Отзывы',
   faq: 'FAQ',
+  map: 'Карта',
+  contacts: 'Контакты',
+  partners: 'Партнёры',
+  video: 'Видео',
+  pricing: 'Тарифы размещения',
+  join: 'Заявка на размещение',
   cta: 'Кнопка',
+}
+
+const LIVE_BLOCKS: SiteBlockType[] = ['tenant_cards', 'listing_cards']
+
+function defaultPayload(type: SiteBlockType): Record<string, unknown> {
+  switch (type) {
+    case 'tenant_cards':
+    case 'listing_cards':
+      return { mode: 'approved', limit: 12 }
+    case 'info':
+      return { title: { ru: 'Заголовок' }, body: { ru: '' } }
+    case 'stats':
+      return { items: [{ value: '0', label: { ru: 'показатель' } }] }
+    case 'steps':
+      return { title: { ru: 'Как это работает' }, items: [{ title: { ru: 'Шаг' }, body: { ru: '' } }] }
+    case 'team':
+      return { title: { ru: 'Команда' }, items: [{ name: '', role: { ru: '' }, bio: { ru: '' } }] }
+    case 'reviews':
+      return { title: { ru: 'Отзывы' }, items: [{ author: '', rating: 5, body: { ru: '' } }] }
+    case 'faq':
+      return { title: { ru: 'Частые вопросы' }, items: [{ q: { ru: '' }, a: { ru: '' } }] }
+    case 'contacts':
+      return { title: { ru: 'Связаться' }, items: [{ kind: 'telegram', value: '' }] }
+    case 'partners':
+      return { title: { ru: 'Партнёры' }, items: [{ name: '', logo_url: null }] }
+    case 'gallery':
+      return { title: { ru: 'Фото' }, images: [] }
+    case 'video':
+      return { title: { ru: 'Видео' }, provider: 'youtube', url: '' }
+    case 'map':
+      return { title: { ru: 'На карте' }, source: 'site_settings', pins: 'cards' }
+    case 'manual_cards':
+      return { title: { ru: 'Места рядом' }, limit: 6 }
+    case 'pricing':
+      return { title: { ru: 'Тарифы' }, source: 'site_plans' }
+    case 'join':
+      return { title: { ru: 'Заявка на размещение' }, require_terms: true, terms: { ru: '' } }
+    case 'cta':
+      return { title: { ru: '' }, body: { ru: '' }, action: { label: { ru: '' }, href: '' } }
+    default:
+      return {}
+  }
 }
 
 type BuilderPayload = {
@@ -41,16 +95,10 @@ export function SiteBuilderClient({ slug }: { slug: string }) {
   }, [slug])
 
   async function addBlock(pageId: string, type: SiteBlockType) {
-    const payload =
-      type === 'tenant_cards' || type === 'listing_cards'
-        ? { mode: 'scope', limit: 12 }
-        : type === 'info'
-          ? { title: { ru: 'Заголовок' }, body: { ru: '' } }
-          : {}
     await fetch(`/api/admin/sites/${slug}/pages/${pageId}/blocks`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type, payload }),
+      body: JSON.stringify({ type, payload: defaultPayload(type) }),
     })
     await reload()
   }
@@ -94,7 +142,7 @@ export function SiteBuilderClient({ slug }: { slug: string }) {
               {page.blocks.map((block) => (
                 <li key={block.id}>
                   <strong>{BLOCK_LABELS[block.type]}</strong>
-                  {block.type === 'tenant_cards' || block.type === 'listing_cards' ? ' · live cache' : null}
+                  {LIVE_BLOCKS.includes(block.type) ? ' · live cache' : null}
                 </li>
               ))}
             </ol>
@@ -102,6 +150,8 @@ export function SiteBuilderClient({ slug }: { slug: string }) {
         ))}
       </div>
       <aside>
+        <MarketRequestsPanel slug={slug} />
+
         <h2>База знаний ассистента</h2>
         <p>Плюс платформенные статьи (роль менеджера, карточки, бронь).</p>
         <ul>

@@ -113,7 +113,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         slot: body.slot ?? 'standard',
         status: 'active',
       },
-      { onConflict: body.listing_id ? 'site_id,listing_id' : 'site_id,tenant_id' }
+      { onConflict: 'site_id,tenant_id,listing_id' }
     )
     .select('*')
     .maybeSingle()

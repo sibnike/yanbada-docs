@@ -147,7 +147,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
   const { error: placeError } = await supabase
     .schema('hub')
     .from('site_placements')
-    .upsert(rows, { onConflict: 'site_id,listing_id' })
+    .upsert(rows, { onConflict: 'site_id,tenant_id,listing_id' })
 
   if (placeError) {
     console.error('[approve placement]', placeError.message)

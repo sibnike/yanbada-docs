@@ -54,7 +54,9 @@ flowchart LR
 
 Черновик UI: `/admin/sites/{slug}/builder`, публично `/s/{slug}`.
 
-Блоки: `hero`, `info`, `tenant_cards`, `listing_cards`, `posts`, `gallery`, `faq`, `cta`.
+Блоки: `hero`, `info`, `stats`, `steps`, `tenant_cards`, `listing_cards`, `manual_cards`, `team`, `posts`, `gallery`, `reviews`, `faq`, `map`, `contacts`, `partners`, `video`, `pricing`, `join`, `cta`.
+
+Владелец маркета настраивает страницу сам, карточки тенантов подтягиваются. Кто владелец, как тенанты просят размещение и как это продаётся — [10-market-placement.md](./10-market-placement.md). Демо на двух тенантах Каракола — [../sites/DEMO-KARAKOL.md](../sites/DEMO-KARAKOL.md).
 
 ## Что не делаем
 

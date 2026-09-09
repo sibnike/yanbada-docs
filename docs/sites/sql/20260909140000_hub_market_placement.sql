@@ -163,7 +163,12 @@ CREATE TABLE hub.site_placements (
   grace_days    int NOT NULL DEFAULT 7 CHECK (grace_days >= 0),
   hidden_reason text,
   created_at    timestamptz NOT NULL DEFAULT now(),
-  updated_at    timestamptz NOT NULL DEFAULT now()
+  updated_at    timestamptz NOT NULL DEFAULT now(),
+  -- NULLS NOT DISTINCT so the company card (listing_id IS NULL) is unique per
+  -- tenant too. A partial index would work for reads but cannot be an
+  -- ON CONFLICT arbiter, and approval upserts placements.
+  CONSTRAINT site_placements_card_key
+    UNIQUE NULLS NOT DISTINCT (site_id, tenant_id, listing_id)
 );
 
 COMMENT ON TABLE hub.site_placements IS
@@ -173,8 +178,6 @@ COMMENT ON COLUMN hub.site_placements.paid_until IS
 
 CREATE UNIQUE INDEX site_placements_listing_key
   ON hub.site_placements (site_id, listing_id) WHERE listing_id IS NOT NULL;
-CREATE UNIQUE INDEX site_placements_company_key
-  ON hub.site_placements (site_id, tenant_id) WHERE listing_id IS NULL;
 CREATE INDEX site_placements_site_status_idx ON hub.site_placements (site_id, status);
 CREATE INDEX site_placements_tenant_idx ON hub.site_placements (tenant_id);
 
@@ -480,6 +483,9 @@ CREATE POLICY sites_owner_update ON hub.sites
   FOR UPDATE TO authenticated
   USING (hub.is_site_member(id, ARRAY['owner']))
   WITH CHECK (hub.is_site_member(id, ARRAY['owner']));
+
+-- Already granted in hub, repeated so a fresh database renders the public page
+GRANT USAGE ON SCHEMA hub TO anon, authenticated, service_role;
 
 GRANT SELECT ON hub.site_plans, hub.site_placements, hub.site_manual_cards TO anon, authenticated;
 GRANT SELECT, INSERT, UPDATE ON hub.site_placement_requests TO authenticated;
