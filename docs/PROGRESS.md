@@ -1,6 +1,6 @@
 # Progress — Yanbada SuperApp
 
-> **Обновлено:** 2026-09-09  
+> **Обновлено:** 2026-09-11  
 > Журнал сессий (детальнее): [agent-context/CHANGELOG.md](./agent-context/CHANGELOG.md)
 
 ## Текущая фаза
@@ -24,7 +24,7 @@
 | Market P0: seats UX, checkout timers, no demo flash | tourhub | PR #17 merged |
 | Market sheet «Подробнее» → embed Vitrina (info-only) | tourhub + vitrina | iframe `embedView=info` |
 | Admin select chevron padding + collapsible page geography | vitrina + tourhub | PR vitrina#26 tourhub#19 merged |
-| Промо-уголок хаба и `/p/*` | vitrina | PR [#30](https://github.com/sibnike/vitrina/pull/30) + миграция `pages.promo` prod ✅ |
+| Промо-уголок хаба и `/p/*` | vitrina | PR [#30](https://github.com/sibnike/vitrina/pull/30) + миграция `pages.promo` prod ✅; Chrome viewport / overlap / LCP — `d0d1b98` на `production` |
 
 ---
 
@@ -65,7 +65,8 @@
 
 | Алерт | Решение |
 |-------|---------|
-| Speed Index ~3.6s | ✅ `next/font` + `display:'swap'` (root Inter + hub fonts); non-default hub fonts `preload:false` |
+| Speed Index ~3.6s | ✅ `next/font` + `display:'swap'` (root Inter + hub fonts); default Inter тоже `preload:false` (Lighthouse unused preload) |
+| Hub hero preload под promo sheet | ✅ `priority={!showPromo}` — LCP не тянет Burabay, пока sheet закрывает героя |
 | Render-blocking ~140ms | принято для admin CSS; не дробить Tailwind ради 140ms |
 | Bfcache blocked | **оставить** — нормально для admin + auth cookies / no-store |
 | Unused JS ~20 KiB | **игнорировать** |

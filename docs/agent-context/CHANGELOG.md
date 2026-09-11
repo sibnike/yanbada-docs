@@ -4,6 +4,15 @@
 
 ---
 
+## 2026-09-11
+
+**vitrina** | Промо Kendala на prod + фиксы Chrome mobile
+- На `kendala-travel` стоит Cloudinary mp4 (`jmif6ymmhhlzv84mslio`)
+- Sheet не прыгает под URL-бар (`visualViewport`), уголок не перекрывает «Назад»
+- Hero не preload, пока открыт promo sheet; Inter без unicode-range preload
+- Deploy: `sibnike/vitrina` `production` `d0d1b98` → Vercel `microp.app` / `kendala.tourhub.kz`
+- **Дальше:** WebP/AVIF для героя Burabay; image-only Cloudinary preset не принимает видео в профиле компании
+
 ## 2026-09-09
 
 **apps/market + vitrina** | Карточки Каракола — настоящие тенанты, не SQL в кэш
