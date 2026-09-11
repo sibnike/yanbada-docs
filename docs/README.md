@@ -17,6 +17,8 @@
 
 [YANBADA_ARCHITECTURE.md](./YANBADA_ARCHITECTURE.md) — экосистема Vitrina + mega-hub + TourHub (единственная каноническая копия).
 
+[sites/README.md](./sites/README.md) — публичная витрина market в mega-hub (Vitrina не меняется). Запускаемая версия — [../apps/market/](../apps/market/README.md).
+
 ## По проектам (детали внутри репо)
 
 | Проект | Мастер-док | Progress / backlog |

@@ -340,6 +340,13 @@ Vitrina-сторона потока 3a закрыта в **V-31/V-32** (ingest +
   `listing_cache.marketplace_themes`.
 - Platform admin: `/admin/platform/marketplace-themes` (Vitrina), `/admin/marketplace/[slug]/…` (Hub).
 
+### Публичная витрина market (`hub.sites`)
+
+Тот же слой, что market в mega-hub: тенанты из кэша Vitrina, несколько вместе или один, если микросайта `/h/*` мало.
+Конструктор — материалы и ассистент этой витрины, не новый продукт и не перенос Vitrina.
+
+Канон: `docs/agent-context/09-themed-sites.md`.
+
 ### Membership (H-M4b)
 
 - `hub.marketplace_members` — заявка тенанта на доступ к закрытому маркетплейсу.

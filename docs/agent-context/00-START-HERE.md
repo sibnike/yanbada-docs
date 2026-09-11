@@ -1,6 +1,6 @@
 # 00 — Start Here (2 минуты)
 
-**Дата актуализации:** 2026-07-21
+**Дата актуализации:** 2026-09-09
 
 ## Что это за экосистема
 
@@ -26,10 +26,11 @@ Vitrina (write)  →  mega-hub cache  →  TourHub (read, B2C)
 4. **Demo-режим TourHub** (`TOURHUB_DATA_MODE=demo`) — статика из `TourHub-recovered`; **live** — hub API.
 5. **AI Content Builder** делается в **vitrina**, не в tourhub.
 
-## Текущая фаза (июль 2026)
+## Текущая фаза (сентябрь 2026)
 
 - ✅ **Расширенный профиль компании** — на prod (legal, tourism, media, bank; sync в hub)
-- **Следующее:** AI Content Builder UI (vitrina) → TourHub live-mapper под новые поля cache → catalog live
+- **Витрина market** — публичные страницы той же насадки mega-hub (несколько тенантов или один, если микросайта мало): [09-themed-sites.md](./09-themed-sites.md). На стенде Каракола сейчас одна витрина `visit-karakol`.
+- **Владелец маркета** — блогер или компания настраивает витрину, тенанты просят разместить карточки, размещение платное: [10-market-placement.md](./10-market-placement.md); демо на Караколе — [../sites/KARAKOL.md](../sites/KARAKOL.md)
 
 Статус подробнее: [../PROGRESS.md](../PROGRESS.md)
 
