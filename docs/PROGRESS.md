@@ -24,7 +24,7 @@
 | Market P0: seats UX, checkout timers, no demo flash | tourhub | PR #17 merged |
 | Market sheet «Подробнее» → embed Vitrina (info-only) | tourhub + vitrina | iframe `embedView=info` |
 | Admin select chevron padding + collapsible page geography | vitrina + tourhub | PR vitrina#26 tourhub#19 merged |
-| Промо-уголок хаба и `/p/*` | vitrina | PR [#30](https://github.com/sibnike/vitrina/pull/30) + миграция `pages.promo` prod ✅; Chrome viewport / overlap / LCP — `d0d1b98` на `production` |
+| Промо-уголок хаба и `/p/*` | vitrina | PR [#30](https://github.com/sibnike/vitrina/pull/30) + миграция `pages.promo` prod ✅; уголок в углу видео, «Назад» без сдвига |
 
 ---
 
