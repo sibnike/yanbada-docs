@@ -48,10 +48,11 @@ export function SiteFrame({
   children: ReactNode
 }) {
   const accent = site.settings.accent_color || '#1C7C6B'
+  const ink = site.settings.brand_color || '#14211F'
   const name = loc(site.settings.display_name, locale, loc(site.name, locale))
 
   return (
-    <div className="th-site" style={{ ['--site-accent' as string]: accent }}>
+    <div className="th-site" style={{ ['--site-accent' as string]: accent, ['--site-ink' as string]: ink }}>
       <header className="th-nav">
         <div className="th-wrap th-nav__inner">
           <a href={`/s/${site.slug}`} className="th-brand">
@@ -198,7 +199,7 @@ function BlockView({
           <h2>{blockTitle(block, locale, 'Кто здесь работает')}</h2>
           <div className="th-grid">
             {companies.map((company) => (
-              <CompanyCard key={company.tenant_id} company={company} />
+              <CompanyCard key={company.tenant_id} company={company} locale={locale} />
             ))}
           </div>
         </section>
@@ -449,7 +450,7 @@ function BlockView({
     case 'cta': {
       const action = (block.payload.action ?? {}) as Record<string, unknown>
       return (
-        <section className="th-sec">
+        <section className="th-sec th-sec--cta">
           <div className="th-cta">
             <div>
               <h2>{blockTitle(block, locale)}</h2>
@@ -470,7 +471,8 @@ function BlockView({
   }
 }
 
-function CompanyCard({ company }: { company: SiteCompany }) {
+function CompanyCard({ company, locale }: { company: SiteCompany; locale: string }) {
+  const about = loc(company.short_description, locale, [company.city, company.country].filter(Boolean).join(', '))
   return (
     <article className="th-card">
       <div
@@ -479,7 +481,7 @@ function CompanyCard({ company }: { company: SiteCompany }) {
       />
       <div className="th-card__body">
         <h3>{company.name}</h3>
-        <p>{[company.city, company.country].filter(Boolean).join(', ')}</p>
+        {about ? <p className="th-card__text">{about}</p> : null}
         {company.slug ? (
           <a className="th-btn th-btn--wide" href={vitrinaHubUrl(company.slug) ?? '#'}>
             Профиль компании
@@ -493,7 +495,7 @@ function CompanyCard({ company }: { company: SiteCompany }) {
 function ListingCard({ listing, locale }: { listing: SiteListing; locale: string }) {
   const price = money(listing.price_from, listing.price_currency)
   return (
-    <article id={`listing-${listing.id}`} className="th-card">
+    <article id={`listing-${listing.id}`} className="th-card th-card--offer">
       <div
         className="th-card__media"
         style={listing.cover_image_url ? { backgroundImage: `url(${listing.cover_image_url})` } : undefined}

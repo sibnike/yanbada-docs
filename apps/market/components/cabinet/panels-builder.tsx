@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import { BlockEditor } from '@/components/cabinet/block-editor'
 import { useApi } from '@/components/cabinet/use-api'
 import { SITE_BLOCK_TYPES, type SiteBlockType, type SiteManualCard, type SitePage, type SitePost, type SiteRow } from '@/types/site'
 
@@ -29,17 +30,14 @@ const BLOCK_LABEL: Record<SiteBlockType, string> = {
 export function BuilderPanel({ slug, pages }: { slug: string; pages: SitePage[] }) {
   const { call, pending, error } = useApi()
   const [pageId, setPageId] = useState(pages[0]?.id ?? '')
-  const [blockId, setBlockId] = useState('')
-  const [draft, setDraft] = useState('')
+  const [blockId, setBlockId] = useState(pages[0]?.blocks[0]?.id ?? '')
+  const [draft, setDraft] = useState<Record<string, unknown> | null>(null)
   const [newType, setNewType] = useState<SiteBlockType>('info')
   const [newPage, setNewPage] = useState({ slug: '', title: '' })
 
   const page = pages.find((p) => p.id === pageId) ?? pages[0]
-  const block = page?.blocks.find((b) => b.id === blockId) ?? null
-
-  useEffect(() => {
-    setDraft(block ? JSON.stringify(block.payload, null, 2) : '')
-  }, [block])
+  const block = page?.blocks.find((b) => b.id === blockId) ?? page?.blocks[0] ?? null
+  const payload = draft ?? block?.payload ?? {}
 
   return (
     <section className="cab__panel">
@@ -57,7 +55,8 @@ export function BuilderPanel({ slug, pages }: { slug: string; pages: SitePage[] 
             className={`cab__tab ${item.id === page?.id ? 'cab__tab--on' : ''}`}
             onClick={() => {
               setPageId(item.id)
-              setBlockId('')
+              setBlockId(item.blocks[0]?.id ?? '')
+              setDraft(null)
             }}
           >
             {item.title.ru ?? item.slug}
@@ -109,7 +108,10 @@ export function BuilderPanel({ slug, pages }: { slug: string; pages: SitePage[] 
                 <button
                   key={item.id}
                   className={item.id === blockId ? 'cab__list--on' : ''}
-                  onClick={() => setBlockId(item.id)}
+                  onClick={() => {
+                    setBlockId(item.id)
+                    setDraft(null)
+                  }}
                 >
                   {BLOCK_LABEL[item.type]}
                   <div className="cab__muted">{item.type}</div>
@@ -126,14 +128,18 @@ export function BuilderPanel({ slug, pages }: { slug: string; pages: SitePage[] 
                 <button
                   className="cab__btn"
                   disabled={pending}
-                  onClick={() =>
-                    call(`/api/admin/sites/${slug}/content`, 'POST', {
+                  onClick={async () => {
+                    const created = await call(`/api/admin/sites/${slug}/content`, 'POST', {
                       entity: 'block',
                       action: 'create',
                       page_id: page.id,
                       type: newType,
                     })
-                  }
+                    if (created?.id) {
+                      setBlockId(String(created.id))
+                      setDraft(null)
+                    }
+                  }}
                 >
                   Добавить блок
                 </button>
@@ -188,29 +194,34 @@ export function BuilderPanel({ slug, pages }: { slug: string; pages: SitePage[] 
                       Удалить блок
                     </button>
                   </div>
-                  <textarea className="cab__json" value={draft} onChange={(e) => setDraft(e.target.value)} />
-                  <div className="cab__row" style={{ marginTop: 8 }}>
+                  <BlockEditor
+                    key={block.id}
+                    block={{ ...block, payload }}
+                    onChange={setDraft}
+                  />
+                  <div className="cab__row" style={{ marginTop: 12 }}>
                     <button
                       className="cab__btn"
                       disabled={pending}
-                      onClick={() => {
-                        let payload: unknown
-                        try {
-                          payload = JSON.parse(draft)
-                        } catch {
-                          alert('Это не похоже на JSON — проверьте кавычки и запятые')
-                          return
-                        }
+                      onClick={() =>
                         void call(`/api/admin/sites/${slug}/content`, 'POST', {
                           entity: 'block',
                           action: 'update',
                           id: block.id,
                           payload,
                         })
-                      }}
+                      }
                     >
                       Сохранить блок
                     </button>
+                    <a
+                      className="cab__btn cab__btn--ghost"
+                      href={page.slug === 'home' ? `/s/${slug}` : `/s/${slug}/${page.slug}`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Смотреть на сайте
+                    </a>
                   </div>
                 </>
               ) : (
@@ -256,6 +267,7 @@ export function DesignPanel({ slug, site }: { slug: string; site: SiteRow }) {
   const [form, setForm] = useState({
     display_name: site.settings.display_name?.ru ?? '',
     accent_color: site.settings.accent_color ?? '#1c7c6b',
+    brand_color: site.settings.brand_color ?? '#14211f',
     hero_title: site.settings.hero_title?.ru ?? '',
     hero_subtitle: site.settings.hero_subtitle?.ru ?? '',
     hero_image_url: site.settings.hero_image_url ?? '',
@@ -288,6 +300,17 @@ export function DesignPanel({ slug, site }: { slug: string; site: SiteRow }) {
               onChange={(e) => setForm({ ...form, accent_color: e.target.value })}
             />
           </label>
+          <label>
+            Цвет текста
+            <input
+              type="color"
+              value={form.brand_color}
+              onChange={(e) => setForm({ ...form, brand_color: e.target.value })}
+            />
+          </label>
+        </div>
+        <div className="cab__swatch" style={{ ['--swatch' as string]: form.accent_color }}>
+          Кнопки и бейджи будут этого цвета. Заголовок обложки ниже — сразу на витрине.
         </div>
         <label>
           Заголовок обложки
@@ -338,6 +361,7 @@ export function DesignPanel({ slug, site }: { slug: string; site: SiteRow }) {
               settings: {
                 display_name: { ru: form.display_name },
                 accent_color: form.accent_color,
+                brand_color: form.brand_color,
                 hero_title: { ru: form.hero_title },
                 hero_subtitle: { ru: form.hero_subtitle },
                 hero_image_url: form.hero_image_url,

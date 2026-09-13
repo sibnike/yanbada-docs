@@ -335,6 +335,67 @@ a {
   resize: vertical;
 }
 
+.cab__fields {
+  display: grid;
+  gap: 12px;
+}
+
+.cab__field {
+  display: grid;
+  gap: 5px;
+  font-size: 13px;
+  color: var(--cab-muted);
+}
+
+.cab__field em {
+  font-style: normal;
+  margin-left: 8px;
+  opacity: 0.7;
+}
+
+.cab__field input,
+.cab__field textarea,
+.cab__field select {
+  font: inherit;
+  color: var(--cab-ink);
+  border: 1px solid var(--cab-line);
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: #fff;
+}
+
+.cab__item {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--cab-line);
+  border-radius: 12px;
+  background: #fafbfa;
+}
+
+.cab__item-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.cab__check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.cab__swatch {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--swatch, var(--cab-accent)) 14%, #fff);
+  border: 1px solid color-mix(in srgb, var(--swatch, var(--cab-accent)) 28%, #fff);
+  color: var(--cab-ink);
+  font-size: 13px;
+}
+
 .cab__bar {
   height: 8px;
   border-radius: 4px;

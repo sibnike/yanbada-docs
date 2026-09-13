@@ -1,7 +1,19 @@
 import { q } from '@/lib/db'
+import { usesVitrinaDb } from '@/lib/sb'
 import { loadManualCards, loadPages, loadPlans, loadPosts } from '@/lib/sites/load'
 import { loc } from '@/lib/sites/public-copy'
 import type { I18nMap, SiteManualCard, SitePage, SitePlan, SitePost, SiteRow } from '@/types/site'
+
+type Row = Record<string, unknown>
+
+async function moneyRows<T extends Row>(query: () => Promise<T[]>): Promise<T[]> {
+  try {
+    return await query()
+  } catch (error) {
+    if (usesVitrinaDb()) return []
+    throw error
+  }
+}
 
 export type PlacementView = {
   id: string
@@ -87,8 +99,6 @@ export type OwnerDashboard = {
   daily: { day: string; impressions: number; clicks: number; booking_hits: number }[]
 }
 
-type Row = Record<string, unknown>
-
 const day = (value: unknown): string =>
   value instanceof Date ? value.toISOString().slice(0, 10) : value ? String(value).slice(0, 10) : ''
 
@@ -97,59 +107,69 @@ const stamp = (value: unknown): string =>
 
 export async function loadOwnerDashboard(site: SiteRow): Promise<OwnerDashboard> {
   const [placementRows, requestRows, leadRows, invoiceRows, dailyRows] = await Promise.all([
-    q<Row>(
-      `SELECT p.*, t.name AS tenant_name, l.title AS listing_title, pl.name AS plan_name,
-              hub.placement_is_live(p.status, p.paid_until, p.grace_days) AS live,
-              COALESCE(s.impressions, 0) AS impressions,
-              COALESCE(s.clicks, 0) AS clicks,
-              COALESCE(s.booking_hits, 0) AS booking_hits
-         FROM hub.site_placements p
-         LEFT JOIN public.tenants t ON t.id = p.tenant_id
-         LEFT JOIN hub.listing_cache l ON l.id = p.listing_id
-         LEFT JOIN hub.site_plans pl ON pl.id = p.plan_id
-         LEFT JOIN LATERAL (
-           SELECT sum(impressions)::int AS impressions,
-                  sum(clicks)::int AS clicks,
-                  sum(booking_hits)::int AS booking_hits
-             FROM hub.site_card_stats cs
-            WHERE cs.placement_id = p.id AND cs.day > current_date - 14
-         ) s ON true
-        WHERE p.site_id = $1
-        ORDER BY live DESC, p.slot DESC, p.sort_weight DESC, p.created_at`,
-      [site.id]
+    moneyRows(() =>
+      q<Row>(
+        `SELECT p.*, t.name AS tenant_name, l.title AS listing_title, pl.name AS plan_name,
+                hub.placement_is_live(p.status, p.paid_until, p.grace_days) AS live,
+                COALESCE(s.impressions, 0) AS impressions,
+                COALESCE(s.clicks, 0) AS clicks,
+                COALESCE(s.booking_hits, 0) AS booking_hits
+           FROM hub.site_placements p
+           LEFT JOIN public.tenants t ON t.id = p.tenant_id
+           LEFT JOIN hub.listing_cache l ON l.id = p.listing_id
+           LEFT JOIN hub.site_plans pl ON pl.id = p.plan_id
+           LEFT JOIN LATERAL (
+             SELECT sum(impressions)::int AS impressions,
+                    sum(clicks)::int AS clicks,
+                    sum(booking_hits)::int AS booking_hits
+               FROM hub.site_card_stats cs
+              WHERE cs.placement_id = p.id AND cs.day > current_date - 14
+           ) s ON true
+          WHERE p.site_id = $1
+          ORDER BY live DESC, p.slot DESC, p.sort_weight DESC, p.created_at`,
+        [site.id]
+      )
     ),
-    q<Row>(
-      `SELECT r.*, t.name AS tenant_name, pl.name AS plan_name
-         FROM hub.site_placement_requests r
-         LEFT JOIN public.tenants t ON t.id = r.tenant_id
-         LEFT JOIN hub.site_plans pl ON pl.id = r.plan_id
-        WHERE r.site_id = $1
-        ORDER BY (r.status = 'pending') DESC, r.created_at DESC`,
-      [site.id]
+    moneyRows(() =>
+      q<Row>(
+        `SELECT r.*, t.name AS tenant_name, pl.name AS plan_name
+           FROM hub.site_placement_requests r
+           LEFT JOIN public.tenants t ON t.id = r.tenant_id
+           LEFT JOIN hub.site_plans pl ON pl.id = r.plan_id
+          WHERE r.site_id = $1
+          ORDER BY (r.status = 'pending') DESC, r.created_at DESC`,
+        [site.id]
+      )
     ),
-    q<Row>(
-      `SELECT l.*, pl.name AS plan_name
-         FROM hub.site_leads l
-         LEFT JOIN hub.site_plans pl ON pl.id = l.plan_id
-        WHERE l.site_id = $1
-        ORDER BY (l.status = 'new') DESC, l.created_at DESC`,
-      [site.id]
+    moneyRows(() =>
+      q<Row>(
+        `SELECT l.*, pl.name AS plan_name
+           FROM hub.site_leads l
+           LEFT JOIN hub.site_plans pl ON pl.id = l.plan_id
+          WHERE l.site_id = $1
+          ORDER BY (l.status = 'new') DESC, l.created_at DESC`,
+        [site.id]
+      )
     ),
-    q<Row>(
-      `SELECT i.*, t.name AS tenant_name
-         FROM hub.site_invoices i
-         LEFT JOIN public.tenants t ON t.id = i.tenant_id
-        WHERE i.site_id = $1
-        ORDER BY i.issued_at DESC`,
-      [site.id]
+    moneyRows(() =>
+      q<Row>(
+        `SELECT i.*, t.name AS tenant_name
+           FROM hub.site_invoices i
+           LEFT JOIN public.tenants t ON t.id = i.tenant_id
+          WHERE i.site_id = $1
+          ORDER BY i.issued_at DESC`,
+        [site.id]
+      )
     ),
-    q<Row>(
-      `SELECT day, sum(impressions)::int AS impressions, sum(clicks)::int AS clicks,
-              sum(booking_hits)::int AS booking_hits
-         FROM hub.site_card_stats
-        WHERE site_id = $1 AND day > current_date - 14
-        GROUP BY day ORDER BY day`,
-      [site.id]
+    moneyRows(() =>
+      q<Row>(
+        `SELECT day, sum(impressions)::int AS impressions, sum(clicks)::int AS clicks,
+                sum(booking_hits)::int AS booking_hits
+           FROM hub.site_card_stats
+          WHERE site_id = $1 AND day > current_date - 14
+          GROUP BY day ORDER BY day`,
+        [site.id]
+      )
     ),
   ])
 

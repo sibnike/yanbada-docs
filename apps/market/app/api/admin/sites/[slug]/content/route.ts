@@ -1,6 +1,23 @@
 import { NextResponse } from 'next/server'
-import { one, q } from '@/lib/db'
 import { bad, isUuid, ownerContext, readJson, text } from '@/lib/api'
+import {
+  deleteBlock,
+  deleteManualCard,
+  deletePage,
+  deletePost,
+  getBlock,
+  insertBlock,
+  insertManualCard,
+  insertPage,
+  insertPost,
+  neighbourBlock,
+  nextBlockSort,
+  pageBelongsToSite,
+  updateBlock,
+  updateManualCard,
+  updatePage,
+  updatePost,
+} from '@/lib/sites/write'
 import { SITE_BLOCK_TYPES, type SiteBlockType } from '@/types/site'
 
 export const dynamic = 'force-dynamic'
@@ -21,11 +38,15 @@ export async function POST(request: Request, { params }: Params) {
   const entity = String(body.entity ?? '')
   const action = String(body.action ?? '')
 
-  if (entity === 'page') return handlePage(siteId, action, body)
-  if (entity === 'block') return handleBlock(siteId, action, body)
-  if (entity === 'post') return handlePost(siteId, action, body)
-  if (entity === 'manual_card') return handleManualCard(siteId, action, body)
-  return bad('Неизвестный объект')
+  try {
+    if (entity === 'page') return await handlePage(siteId, action, body)
+    if (entity === 'block') return await handleBlock(siteId, action, body)
+    if (entity === 'post') return await handlePost(siteId, action, body)
+    if (entity === 'manual_card') return await handleManualCard(siteId, action, body)
+    return bad('Неизвестный объект')
+  } catch (error) {
+    return bad(error instanceof Error ? error.message : 'Не удалось сохранить', 500)
+  }
 }
 
 async function handlePage(siteId: string, action: string, body: Record<string, unknown>) {
@@ -33,45 +54,31 @@ async function handlePage(siteId: string, action: string, body: Record<string, u
     const pageSlug = text(body.slug, 60)?.toLowerCase().replace(/[^a-z0-9-]/g, '-')
     const title = text(body.title, 120)
     if (!pageSlug || !title) return bad('Нужны адрес и заголовок страницы')
-    const row = await one<{ id: string }>(
-      `INSERT INTO hub.site_pages (site_id, slug, kind, title, sort_order, is_published)
-       VALUES ($1, $2, $3, $4, $5, $6)
-       ON CONFLICT (site_id, slug) DO UPDATE SET title = EXCLUDED.title, is_published = EXCLUDED.is_published
-       RETURNING id`,
-      [
-        siteId,
-        pageSlug,
-        ['home', 'page', 'blog'].includes(String(body.kind)) ? String(body.kind) : 'page',
-        JSON.stringify({ ru: title }),
-        Number(body.sort_order ?? 50),
-        body.is_published !== false,
-      ]
-    )
+    const row = await insertPage({
+      site_id: siteId,
+      slug: pageSlug,
+      kind: ['home', 'page', 'blog'].includes(String(body.kind)) ? String(body.kind) : 'page',
+      title: { ru: title },
+      sort_order: Number(body.sort_order ?? 50),
+      is_published: body.is_published !== false,
+    })
     return NextResponse.json({ ok: true, id: row?.id })
   }
 
   if (!isUuid(body.id)) return bad('Нет страницы')
 
   if (action === 'update') {
-    const sets: string[] = []
-    const values: unknown[] = [body.id, siteId]
-    const push = (column: string, value: unknown) => {
-      values.push(value)
-      sets.push(`${column} = $${values.length}`)
-    }
-    if (text(body.title, 120)) push('title', JSON.stringify({ ru: text(body.title, 120) }))
-    if (typeof body.is_published === 'boolean') push('is_published', body.is_published)
-    if (typeof body.sort_order === 'number') push('sort_order', Math.trunc(body.sort_order))
-    if (sets.length === 0) return bad('Нечего менять')
-    await q(
-      `UPDATE hub.site_pages SET ${sets.join(', ')}, updated_at = now() WHERE id = $1 AND site_id = $2`,
-      values
-    )
+    const patch: Record<string, unknown> = {}
+    if (text(body.title, 120)) patch.title = { ru: text(body.title, 120) }
+    if (typeof body.is_published === 'boolean') patch.is_published = body.is_published
+    if (typeof body.sort_order === 'number') patch.sort_order = Math.trunc(body.sort_order)
+    if (Object.keys(patch).length === 0) return bad('Нечего менять')
+    await updatePage(String(body.id), siteId, patch)
     return NextResponse.json({ ok: true })
   }
 
   if (action === 'delete') {
-    await q('DELETE FROM hub.site_pages WHERE id = $1 AND site_id = $2', [body.id, siteId])
+    await deletePage(String(body.id), siteId)
     return NextResponse.json({ ok: true })
   }
 
@@ -83,65 +90,41 @@ async function handleBlock(siteId: string, action: string, body: Record<string, 
     if (!isUuid(body.page_id)) return bad('Нет страницы')
     const type = String(body.type) as SiteBlockType
     if (!SITE_BLOCK_TYPES.includes(type)) return bad('Неизвестный тип блока')
-    const page = await one('SELECT id FROM hub.site_pages WHERE id = $1 AND site_id = $2', [
-      body.page_id,
-      siteId,
-    ])
-    if (!page) return bad('Страница не найдена', 404)
-
-    const next = await one<{ next: number }>(
-      'SELECT COALESCE(max(sort_order), 0) + 10 AS next FROM hub.site_blocks WHERE page_id = $1',
-      [body.page_id]
-    )
-    const row = await one<{ id: string }>(
-      'INSERT INTO hub.site_blocks (page_id, type, payload, sort_order) VALUES ($1, $2, $3, $4) RETURNING id',
-      [body.page_id, type, JSON.stringify(defaultPayload(type)), Number(next?.next ?? 10)]
-    )
+    if (!(await pageBelongsToSite(String(body.page_id), siteId))) return bad('Страница не найдена', 404)
+    const row = await insertBlock({
+      page_id: String(body.page_id),
+      type,
+      payload: defaultPayload(type),
+      sort_order: await nextBlockSort(String(body.page_id)),
+    })
     return NextResponse.json({ ok: true, id: row?.id })
   }
 
   if (!isUuid(body.id)) return bad('Нет блока')
-  const block = await one<{ id: string; page_id: string; sort_order: number }>(
-    `SELECT b.id, b.page_id, b.sort_order FROM hub.site_blocks b
-       JOIN hub.site_pages p ON p.id = b.page_id
-      WHERE b.id = $1 AND p.site_id = $2`,
-    [body.id, siteId]
-  )
+  const block = await getBlock(String(body.id), siteId)
   if (!block) return bad('Блок не найден', 404)
 
   if (action === 'update') {
-    const sets: string[] = []
-    const values: unknown[] = [block.id]
-    const push = (column: string, value: unknown) => {
-      values.push(value)
-      sets.push(`${column} = $${values.length}`)
-    }
-    if (body.payload && typeof body.payload === 'object') push('payload', JSON.stringify(body.payload))
-    if (typeof body.is_active === 'boolean') push('is_active', body.is_active)
-    if (typeof body.sort_order === 'number') push('sort_order', Math.trunc(body.sort_order))
-    if (sets.length === 0) return bad('Нечего менять')
-    await q(`UPDATE hub.site_blocks SET ${sets.join(', ')} WHERE id = $1`, values)
+    const patch: Record<string, unknown> = {}
+    if (body.payload && typeof body.payload === 'object') patch.payload = body.payload
+    if (typeof body.is_active === 'boolean') patch.is_active = body.is_active
+    if (typeof body.sort_order === 'number') patch.sort_order = Math.trunc(body.sort_order)
+    if (Object.keys(patch).length === 0) return bad('Нечего менять')
+    await updateBlock(block.id, patch)
     return NextResponse.json({ ok: true })
   }
 
   if (action === 'move') {
     const direction = body.direction === 'up' ? 'up' : 'down'
-    const neighbour = await one<{ id: string; sort_order: number }>(
-      direction === 'up'
-        ? `SELECT id, sort_order FROM hub.site_blocks
-            WHERE page_id = $1 AND sort_order < $2 ORDER BY sort_order DESC LIMIT 1`
-        : `SELECT id, sort_order FROM hub.site_blocks
-            WHERE page_id = $1 AND sort_order > $2 ORDER BY sort_order LIMIT 1`,
-      [block.page_id, block.sort_order]
-    )
+    const neighbour = await neighbourBlock(block.page_id, block.sort_order, direction)
     if (!neighbour) return NextResponse.json({ ok: true, moved: false })
-    await q('UPDATE hub.site_blocks SET sort_order = $2 WHERE id = $1', [block.id, neighbour.sort_order])
-    await q('UPDATE hub.site_blocks SET sort_order = $2 WHERE id = $1', [neighbour.id, block.sort_order])
+    await updateBlock(block.id, { sort_order: neighbour.sort_order })
+    await updateBlock(neighbour.id, { sort_order: block.sort_order })
     return NextResponse.json({ ok: true, moved: true })
   }
 
   if (action === 'delete') {
-    await q('DELETE FROM hub.site_blocks WHERE id = $1', [block.id])
+    await deleteBlock(block.id)
     return NextResponse.json({ ok: true })
   }
 
@@ -153,53 +136,37 @@ async function handlePost(siteId: string, action: string, body: Record<string, u
     const postSlug = text(body.slug, 80)?.toLowerCase().replace(/[^a-z0-9-]/g, '-')
     const title = text(body.title, 200)
     if (!postSlug || !title) return bad('Нужны адрес и заголовок статьи')
-    const row = await one<{ id: string }>(
-      `INSERT INTO hub.site_posts (site_id, slug, title, excerpt, body, cover_url, is_published, published_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, CASE WHEN $7 THEN now() ELSE NULL END)
-       ON CONFLICT (site_id, slug) DO UPDATE SET
-         title = EXCLUDED.title, excerpt = EXCLUDED.excerpt, body = EXCLUDED.body,
-         cover_url = EXCLUDED.cover_url, is_published = EXCLUDED.is_published, updated_at = now()
-       RETURNING id`,
-      [
-        siteId,
-        postSlug,
-        JSON.stringify({ ru: title }),
-        JSON.stringify({ ru: text(body.excerpt, 400) ?? '' }),
-        JSON.stringify({ ru: text(body.body, 8000) ?? '' }),
-        text(body.cover_url, 500),
-        body.is_published !== false,
-      ]
-    )
+    const row = await insertPost({
+      site_id: siteId,
+      slug: postSlug,
+      title: { ru: title },
+      excerpt: { ru: text(body.excerpt, 400) ?? '' },
+      body: { ru: text(body.body, 8000) ?? '' },
+      cover_url: text(body.cover_url, 500),
+      is_published: body.is_published !== false,
+    })
     return NextResponse.json({ ok: true, id: row?.id })
   }
 
   if (!isUuid(body.id)) return bad('Нет статьи')
 
   if (action === 'update') {
-    const sets: string[] = []
-    const values: unknown[] = [body.id, siteId]
-    const push = (column: string, value: unknown) => {
-      values.push(value)
-      sets.push(`${column} = $${values.length}`)
-    }
-    if (text(body.title, 200)) push('title', JSON.stringify({ ru: text(body.title, 200) }))
-    if (body.excerpt !== undefined) push('excerpt', JSON.stringify({ ru: text(body.excerpt, 400) ?? '' }))
-    if (body.body !== undefined) push('body', JSON.stringify({ ru: text(body.body, 8000) ?? '' }))
-    if (body.cover_url !== undefined) push('cover_url', text(body.cover_url, 500))
+    const patch: Record<string, unknown> = {}
+    if (text(body.title, 200)) patch.title = { ru: text(body.title, 200) }
+    if (body.excerpt !== undefined) patch.excerpt = { ru: text(body.excerpt, 400) ?? '' }
+    if (body.body !== undefined) patch.body = { ru: text(body.body, 8000) ?? '' }
+    if (body.cover_url !== undefined) patch.cover_url = text(body.cover_url, 500)
     if (typeof body.is_published === 'boolean') {
-      push('is_published', body.is_published)
-      if (body.is_published) sets.push('published_at = COALESCE(published_at, now())')
+      patch.is_published = body.is_published
+      if (body.is_published) patch.published_at = new Date().toISOString()
     }
-    if (sets.length === 0) return bad('Нечего менять')
-    await q(
-      `UPDATE hub.site_posts SET ${sets.join(', ')}, updated_at = now() WHERE id = $1 AND site_id = $2`,
-      values
-    )
+    if (Object.keys(patch).length === 0) return bad('Нечего менять')
+    await updatePost(String(body.id), siteId, patch)
     return NextResponse.json({ ok: true })
   }
 
   if (action === 'delete') {
-    await q('DELETE FROM hub.site_posts WHERE id = $1 AND site_id = $2', [body.id, siteId])
+    await deletePost(String(body.id), siteId)
     return NextResponse.json({ ok: true })
   }
 
@@ -210,50 +177,39 @@ async function handleManualCard(siteId: string, action: string, body: Record<str
   if (action === 'create') {
     const title = text(body.title, 200)
     if (!title) return bad('Нужен заголовок карточки')
-    const row = await one<{ id: string }>(
-      `INSERT INTO hub.site_manual_cards
-         (site_id, kind, title, body, images, price_from, currency, city_code, external_url, sort_order)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-       RETURNING id`,
-      [
-        siteId,
-        ['place', 'service', 'company'].includes(String(body.kind)) ? String(body.kind) : 'place',
-        JSON.stringify({ ru: title }),
-        JSON.stringify({ ru: text(body.body, 2000) ?? '' }),
-        text(body.image_url, 500) ? [text(body.image_url, 500)] : [],
-        body.price_from == null ? null : Number(body.price_from),
-        text(body.currency, 8),
-        text(body.city_code, 60),
-        text(body.external_url, 500),
-        Number(body.sort_order ?? 50),
-      ]
-    )
+    const row = await insertManualCard({
+      site_id: siteId,
+      kind: ['place', 'service', 'company'].includes(String(body.kind)) ? String(body.kind) : 'place',
+      title: { ru: title },
+      body: { ru: text(body.body, 2000) ?? '' },
+      images: text(body.image_url, 500) ? [text(body.image_url, 500) as string] : [],
+      price_from: body.price_from == null ? null : Number(body.price_from),
+      currency: text(body.currency, 8),
+      city_code: text(body.city_code, 60),
+      external_url: text(body.external_url, 500),
+      sort_order: Number(body.sort_order ?? 50),
+    })
     return NextResponse.json({ ok: true, id: row?.id })
   }
 
   if (!isUuid(body.id)) return bad('Нет карточки')
 
   if (action === 'update') {
-    const sets: string[] = []
-    const values: unknown[] = [body.id, siteId]
-    const push = (column: string, value: unknown) => {
-      values.push(value)
-      sets.push(`${column} = $${values.length}`)
-    }
-    if (text(body.title, 200)) push('title', JSON.stringify({ ru: text(body.title, 200) }))
-    if (body.body !== undefined) push('body', JSON.stringify({ ru: text(body.body, 2000) ?? '' }))
-    if (typeof body.is_active === 'boolean') push('is_active', body.is_active)
-    if (typeof body.sort_order === 'number') push('sort_order', Math.trunc(body.sort_order))
+    const patch: Record<string, unknown> = {}
+    if (text(body.title, 200)) patch.title = { ru: text(body.title, 200) }
+    if (body.body !== undefined) patch.body = { ru: text(body.body, 2000) ?? '' }
+    if (typeof body.is_active === 'boolean') patch.is_active = body.is_active
+    if (typeof body.sort_order === 'number') patch.sort_order = Math.trunc(body.sort_order)
     if (['unclaimed', 'requested', 'claimed'].includes(String(body.claim_status))) {
-      push('claim_status', String(body.claim_status))
+      patch.claim_status = String(body.claim_status)
     }
-    if (sets.length === 0) return bad('Нечего менять')
-    await q(`UPDATE hub.site_manual_cards SET ${sets.join(', ')} WHERE id = $1 AND site_id = $2`, values)
+    if (Object.keys(patch).length === 0) return bad('Нечего менять')
+    await updateManualCard(String(body.id), siteId, patch)
     return NextResponse.json({ ok: true })
   }
 
   if (action === 'delete') {
-    await q('DELETE FROM hub.site_manual_cards WHERE id = $1 AND site_id = $2', [body.id, siteId])
+    await deleteManualCard(String(body.id), siteId)
     return NextResponse.json({ ok: true })
   }
 
