@@ -32,10 +32,12 @@ Firebase **не используется** в tourhub prod — Firestore тол�
 
 | Делать в vitrina | Делать в tourhub |
 |------------------|------------------|
-| Профили, страницы, catalog_items | Публичный UI, read API clients |
+| Профили, страницы, catalog_items | Публичный UI маркета OTA, read API clients |
 | syncToHub, listing sync | live-mapper, demo-data fallback |
 | AI Content Builder | Market/catalog screens |
 | Admin onboarding | Escrow UX (пока demo) |
+
+Публичная витрина **market** — контент насадки mega-hub (чтение cache). **Код vitrina не менять.**
 
 **Не дублировать** CRUD профилей в TourHub.
 

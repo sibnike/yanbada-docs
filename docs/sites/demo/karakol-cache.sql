@@ -1,0 +1,4 @@
+-- Obsolete: do not insert fake tenants or cache rows.
+-- Karakol companies are real Vitrina tenants:
+--   cd vitrina && CONFIRM_PROD_SEED=1 node scripts/seed-karakol-tenants.mjs --prod
+-- That writes public.tenants / pages / catalog_items and syncs hub.company_cache / listing_cache.

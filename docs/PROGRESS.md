@@ -1,6 +1,6 @@
 # Progress — Yanbada SuperApp
 
-> **Обновлено:** 2026-08-15  
+> **Обновлено:** 2026-09-11  
 > Журнал сессий (детальнее): [agent-context/CHANGELOG.md](./agent-context/CHANGELOG.md)
 
 ## Текущая фаза
@@ -24,7 +24,7 @@
 | Market P0: seats UX, checkout timers, no demo flash | tourhub | PR #17 merged |
 | Market sheet «Подробнее» → embed Vitrina (info-only) | tourhub + vitrina | iframe `embedView=info` |
 | Admin select chevron padding + collapsible page geography | vitrina + tourhub | PR vitrina#26 tourhub#19 merged |
-| Промо-уголок хаба и `/p/*` | vitrina | PR [#30](https://github.com/sibnike/vitrina/pull/30) + миграция `pages.promo` prod ✅ |
+| Промо-уголок хаба и `/p/*` | vitrina | PR [#30](https://github.com/sibnike/vitrina/pull/30) + миграция `pages.promo` prod ✅; уголок в углу видео, «Назад» без сдвига |
 
 ---
 
@@ -47,6 +47,10 @@
 | **P2** | Availability concurrency + participants async email | mega-hub | `HUB_ROADMAP-next.md` tech debt |
 | **—** | Multi-market B2C: www.ota.kz (отдельный Vercel) | tourhub | ✅ домен в Vercel; см. [agent-context/08-multi-market-domains.md](./agent-context/08-multi-market-domains.md) |
 | **P3** | 2+ B2C-маркет: `TOURHUB_MARKET_SLUG` + platform admin «Маркеты» | tourhub + vitrina | фаза 2–3 в 08-multi-market-domains |
+| **P1** | Витрина market: карточки тенантов + материалы + ассистент | mega-hub (та же насадка, vitrina не трогать) | [09-themed-sites.md](./agent-context/09-themed-sites.md) |
+| **P1** | Владелец маркета + платное размещение карточек (заявки, тарифы, grace) | mega-hub | схема + рабочее приложение `apps/market`: [10-market-placement.md](./agent-context/10-market-placement.md), [sites/KARAKOL.md](./sites/KARAKOL.md) |
+| **P2** | Счета, авто-скрытие после неоплаты, статистика карточек тенанту | mega-hub | цикл счёт → оплата → карточка и статистика работают в `apps/market`; в hub переносится вместе с Supabase Auth |
+| **P3** | Комиссия с брони, выплаты владельцу, claim ручной карточки | mega-hub + vitrina (атрибуция уже есть) | фаза S4 в 10-market-placement |
 
 ### Инварианты (не трогать без решения)
 
@@ -61,7 +65,8 @@
 
 | Алерт | Решение |
 |-------|---------|
-| Speed Index ~3.6s | ✅ `next/font` + `display:'swap'` (root Inter + hub fonts); non-default hub fonts `preload:false` |
+| Speed Index ~3.6s | ✅ `next/font` + `display:'swap'` (root Inter + hub fonts); default Inter тоже `preload:false` (Lighthouse unused preload) |
+| Hub hero preload под promo sheet | ✅ `priority={!showPromo}` — LCP не тянет Burabay, пока sheet закрывает героя |
 | Render-blocking ~140ms | принято для admin CSS; не дробить Tailwind ради 140ms |
 | Bfcache blocked | **оставить** — нормально для admin + auth cookies / no-store |
 | Unused JS ~20 KiB | **игнорировать** |

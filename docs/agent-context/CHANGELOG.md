@@ -4,6 +4,83 @@
 
 ---
 
+## 2026-09-15
+
+**apps/market + vitrina + mega-hub** | Лендинги туризма: Vitrina — данные, витрина — показ
+- Кабинет и публичные страницы `apps/market` только через supabase-js; Neon/`DATABASE_URL` убраны из рантайма
+- Конструктор: живое превью, шаблоны `visit_center` / `tour_operator` / `guide`
+- Блоки `tour_picker` и `route_map` на `/s/visit-karakol`; бронь по-прежнему `/p/{page}?tenant=`
+- Канон маршрута: `pages.itinerary` → webhook → `hub.listing_cache.itinerary`; у Ала-Кёля три точки
+- **Дальше:** выкатить `apps/market` и `vitrina`/`mega-hub` на prod; проверить карту на стенде
+
+**welcome-kyrgyzstan + vitrina** | Три панели: кто правит KB, тенанта и карточки для ИИ
+- Tour Hub = места/аудиогиды; Vitrina = страница тенанта; админка Welcome `/admin/` = что из Vitrina видит этот портал (`shortPitch`/`bestFor`, синк)
+- Канон: Welcome `VITRINA-AI-MATCHING.md` §0, vitrina `docs/WELCOME-INDEX.md`
+- Консьерж уже читает `welcome_places` (`_live-places.js`); `geo` в индексе ещё null
+- **Дальше:** выкатить Welcome Production (логин `/admin/` + live places); `ANTHROPIC_API_KEY` в Vercel; lat/lng в индексе Vitrina
+
+## 2026-09-11
+
+**vitrina** | Промо Kendala на prod + фиксы Chrome mobile
+- На `kendala-travel` стоит Cloudinary mp4 (`jmif6ymmhhlzv84mslio`)
+- Sheet не прыгает под URL-бар (`visualViewport`)
+- «Назад» на исходном месте; уголок снова в углу видео, не под шапкой
+- Hero не preload, пока открыт promo sheet; Inter без unicode-range preload
+- Deploy: `sibnike/vitrina` `production` → Vercel `microp.app` / `kendala.tourhub.kz`
+- **Дальше:** WebP/AVIF для героя Burabay; image-only Cloudinary preset не принимает видео в профиле компании
+
+## 2026-09-13
+
+**apps/market** | Конструктор витрины: поля вместо JSON, вид страницы плотнее
+- Блоки правятся обычными полями (заголовок, текст, кнопки, отзывы, FAQ) — JSON убран
+- Запись конструктора и оформления идёт в mega-vitrina, та же база, что читает `/s/visit-karakol`
+- Публичный вид: крупнее обложка, карточки с выравниванием кнопок, чередование секций
+- **Дальше:** кабинет заявок/счетов тоже с mega-vitrina (сейчас ещё Neon)
+
+## 2026-09-09
+
+**apps/market + vitrina** | Карточки Каракола — настоящие тенанты, не SQL в кэш
+- Компании создаются скриптом `vitrina/scripts/seed-karakol-tenants.mjs` в `public.tenants` / `pages` / `catalog_items`
+- Sync тот же webhook, что при сохранении в админке → `hub.company_cache` / `listing_cache`
+- Стенд `apps/market` читает mega-vitrina через supabase-js (`NEXT_PUBLIC_SUPABASE_URL` + service role)
+- Админка: `admin.microp.app/admin/t/ala-kol-guesthouse` и `…/karakol-trails` — правки оттуда видны на `/s/visit-karakol`
+- **Дальше:** конструктор в админке mega-hub, кабинет market тоже с mega-vitrina (сейчас пишет в Neon)
+
+**apps/market** | На стенде одна витрина и один светлый публичный вид
+- Кабинет и `/` показывают только `visit-karakol`; `karakol-trails` остаётся в сиде, в UI стенда его нет
+- Публичный рендерер больше не переключает скины `operator` / `destination`: одна шапка, герой, карточки, журнал
+- Карточка «на витрине» — бейдж, не обводка; акцент из `settings.accent_color` (у Каракола `#1C7C6B`)
+- **Дальше:** конструктор в админке mega-hub, перенос на существующий Vercel hub
+
+**apps/market** | Витрина Каракола стала рабочим приложением, а не макетом
+- `apps/market` — Next 15 + прямой pg: публичная витрина, кабинет владельца, кабинет компании
+- Цикл денег работает целиком: заявка → одобрение → счёт (платформа удерживает %) → отметка оплаты → карточка появляется на странице
+- Конструктор пишет в `hub.site_pages` / `site_blocks`: правка блока, порядок, публикация, оформление и правила размещения
+- Показы и клики пишутся в `hub.site_card_stats` при просмотре витрины — это то, что компания видит перед продлением
+- Ассистент отвечает по `hub.site_knowledge`, журналу и живым карточкам; без `OPENAI_API_KEY` — подбором, с ключом — моделью
+- Рендерер, типы и стили не скопированы, а импортируются из `docs/sites` — один экземпляр кода с тем, что уедет в hub
+- Вторая витрина `karakol-trails` на тех же данных: скин `operator`, режим `mixed`, бесплатно — микросайт одной компании рядом с платным маркетом города
+- Убраны статические заглушки: HTML-макеты Каракола и скинов, `demo-sites.json`, пример `visit-kazakhstan` из миграции (витрина без страниц рендерилась пустой и висела в списке кабинета)
+- `npm run db:reset` прогоняет миграции и оба сида прямо из `docs/sites/sql`
+- **Дальше:** Supabase Auth вместо кода доступа, авто-скрытие после неоплаты по расписанию, выплаты владельцу
+
+**docs** | Маркет с владельцем и платным размещением + демо Каракола
+- Роли маркета: `hub.site_members` — владельцем может быть блогер, не platform admin
+- Размещение: `site_plans` (карточка/мес), `site_placements` (одна строка = одна карточка), `site_placement_requests` в обе стороны, `site_invoices`, `site_card_stats`
+- Режим `placement_mode = approved` — на странице только оплаченные карточки; grace-период не роняет карточку при задержке оплаты
+- `site_leads` — заявки от бизнеса без аккаунта в Vitrina: канал привлечения тенантов, а не просто форма
+- `site_manual_cards` + claim — автор добавляет объект (озеро, кафе), владелец потом забирает карточку себе
+- Конструктор: 19 блоков, включая `team`, `pricing`, `join`, `map`, `reviews`, `contacts`, `partners`, `video`, `stats`, `steps`, `manual_cards`
+- Демо-данные: гостевой дом «Ала-Кёль» + туркомпания Karakol Trails в маркете `visit-karakol`
+- Канон: [10-market-placement.md](./10-market-placement.md), [../sites/KARAKOL.md](../sites/KARAKOL.md)
+- **Дальше:** счета и авто-скрытие после неоплаты, статистика тенанту, затем комиссия с брони и выплаты владельцу
+
+**docs** | Витрина market в mega-hub (Vitrina не трогаем)
+- mega-hub уже насадка: туда размещаются тенанты из Vitrina; там живёт market
+- Market объединяет тенантов или витрина одного, если микросайта `/h/*` мало
+- Конструктор — публичная витрина **этого** market, не новый продукт и не перенос Vitrina
+- Канон: [09-themed-sites.md](./09-themed-sites.md)
+
 ## 2026-08-15
 
 **vitrina** | Промо: пробел в заголовке + без автоплея + сторис-видео

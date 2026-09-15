@@ -15,6 +15,9 @@
 | Категории / themes маркета | [05-categories-mapping.md](./05-categories-mapping.md) | `marketplace_themes` + channels (`marketplace_slugs`, sellers) |
 | Маркеты / publish channels | [05-categories-mapping.md](./05-categories-mapping.md), [02-ecosystem-data-flow.md](./02-ecosystem-data-flow.md) | Sidebar «Маркеты» → `/publish`; каталог `PUBLISH_CHANNELS`; TourHub = первый gated |
 | Кастомные домены B2C-маркетов | [08-multi-market-domains.md](./08-multi-market-domains.md) | отдельный Vercel на маркет; www.ota.kz; фаза 2+ — `TOURHUB_MARKET_SLUG` |
+| **Витрина market (страницы проекта)** | [09-themed-sites.md](./09-themed-sites.md), [../sites/README.md](../sites/README.md) | та же насадка mega-hub, что market; Vitrina не трогать |
+| **Владелец маркета, заявки, платные карточки** | [10-market-placement.md](./10-market-placement.md) | `hub.site_members`, `site_plans`, `site_placements`, `site_leads` |
+| **Каракол: запустить и показать** | [../sites/KARAKOL.md](../sites/KARAKOL.md) | тенанты: `vitrina/scripts/seed-karakol-tenants.mjs`; витрина: `apps/market` (`npm run dev`); стенд `visit-karakol` |
 | Миграции БД | см. ниже §Миграции | `*/supabase/migrations/` |
 | **Резервное копирование (pg_dump, Storage)** | [BACKUP.md](../BACKUP.md), `vitrina/docs/backup.md` | `vitrina/.github/workflows/daily-backup.yml`, `scripts/backup-db.sh`, `scripts/backup-storage.mjs` |
 | **Перенос Supabase (новый project ref)** | `vitrina/docs/supabase-migration.md` | `vitrina/supabase/migrations/`, `mega-hub/supabase/migrations/` |
@@ -23,9 +26,10 @@
 | Serverless timeout AI match / Events | `mega-hub/docs/HUB_ARCHITECTURE.md` §Serverless limits | `maxDuration` на marketplace + participants; очередь — P2 backlog |
 | Postgres pool / cold start / Supavisor | `YANBADA_ARCHITECTURE.md` §«Доступ к БД из Vercel Serverless» | Runtime = supabase-js HTTP; прямой SQL запрещён без `:6543` |
 | Booking | `vitrina/docs/BOOKING-MODEL.md` | `vitrina/app/api/booking/`, admin booking routes |
-| Pages / blocks builder | `vitrina/docs/ARCHITECTURE.md`, `TZ-Pages-Builder-Phase1.md` | `vitrina/lib/blocks/` |
+| **Маршрут тура на лендинге** | этот файл §vitrina, [09-themed-sites.md](./09-themed-sites.md) | `pages.itinerary` → sync listing → блок `route_map` / `tour_picker` |
 | Промо-уголок хаба / страницы | этот файл §vitrina | `lib/promo/`, `components/admin/promo-story-editor.tsx`, `components/public/promo/`, `pages.promo` + `settings.hub_promo` |
 | AI Content Builder | `vitrina/docs/TZ-AI-Content-Builder-Tourism.md` | `components/admin/content-builder-client.tsx`, `app/api/admin/t/[tenantSlug]/ai/cb/`, `lib/page-templates/categories/` |
+| Welcome ↔ Vitrina: кто где правит | `vitrina/docs/WELCOME-INDEX.md`; Welcome `VITRINA-AI-MATCHING.md` §0 | Tour Hub = KB/аудио; Vitrina = тенант; Welcome `/admin/` = pitch/теги этой страны. Индекс `GET /api/tenants/:slug/pages` |
 | Заявки TourHub → inbox | [02-ecosystem-data-flow.md](./02-ecosystem-data-flow.md) | `tourhub/app/api/marketplace-request/`, `mega-hub/app/api/marketplace/request/` |
 | Hub events / карта / QR | `mega-hub/ARCHITECTURE.md` | `mega-hub/app/e/`, `app/organizer/` |
 | Стиль и git | [06-conventions-for-agents.md](./06-conventions-for-agents.md) | — |
@@ -44,6 +48,7 @@
 | Интеграция Touchin | `vitrina/docs/INTEGRATION-TOUCHIN-VITRINA.md` | embed, identify |
 | Тест-репорты | `vitrina/docs/reports/V-*.md` | prod E2E фикстура `qa-sandbox` |
 | Handoff | `vitrina/docs/HANDOFF.md` | — |
+| Индекс страниц для Welcome / ИИ | `vitrina/docs/WELCOME-INDEX.md` | `GET /api/tenants/:tenant/pages`; pitch не в Tour Hub KB |
 | **Backup / restore** | `vitrina/docs/backup.md` | `scripts/backup-db.sh`, `.github/workflows/daily-backup.yml` |
 | **Supabase migration** | `vitrina/docs/supabase-migration.md` | restore artifact + `db:push:prod` |
 
@@ -62,6 +67,10 @@
 | Company card | `mega-hub/tasks/prompt_39_hub_company_card_redesign.md` | `app/e/[slug]/company/` |
 
 **Prod:** `https://hub.microp.app`
+
+**Витрина market:** черновик `docs/sites/code/mega-hub/` — контент той же насадки. Рабочая версия в `apps/market` (Next 15 + supabase-js в mega-vitrina). Маршрут тура канонически в `pages.itinerary` (Vitrina), кэш `hub.listing_cache.itinerary`.
+
+**Размещение карточек:** владелец маркета (`hub.site_members`) настраивает страницу и тарифы; тенант просит карточку через `/s/{slug}/join`
 
 ### tourhub
 
@@ -123,6 +132,7 @@
 | Admin, CRUD, publish, sync | **vitrina** |
 | Cache, search, AI match, events | **mega-hub** |
 | Публичный UI, read API, demo fallback | **tourhub** |
+| **Витрина market (hub.sites)** | контент насадки mega-hub (как market); **vitrina не трогать** |
 
 ---
 

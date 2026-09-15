@@ -54,6 +54,9 @@ components/screens/   — market-screen, catalog-screen, *-profile-screen
 components/market/    — cards, calendar, listing sheet, checkout
 ```
 
+### Themed sites
+Публичная витрина **market в mega-hub** (не TourHub). Vitrina не меняется. См. [09-themed-sites.md](./09-themed-sites.md).
+
 ## Не сделано / backlog
 
 | Задача | Приоритет |

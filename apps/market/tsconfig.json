@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["dom", "dom.iterable", "ES2022"],
+    "allowJs": false,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [{ "name": "next" }],
+    "paths": {
+      // The drop-in files live outside this package, so bare imports have to be
+      // pointed back at its node_modules.
+      "react": ["./node_modules/@types/react"],
+      "react-dom": ["./node_modules/@types/react-dom"],
+      "@/types/site": ["../../docs/sites/types.ts"],
+      "@/lib/sites/public-copy": ["../../docs/sites/code/mega-hub/lib/sites/public-copy.ts"],
+      "@/lib/sites/build-assistant-context": [
+        "../../docs/sites/code/mega-hub/lib/sites/build-assistant-context.ts"
+      ],
+      "@/components/sites/*": ["../../docs/sites/code/mega-hub/components/sites/*"],
+      "@/*": ["./*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "../../docs/sites/types.ts"],
+  "exclude": ["node_modules"]
+}
