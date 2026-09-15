@@ -26,7 +26,7 @@
 | Serverless timeout AI match / Events | `mega-hub/docs/HUB_ARCHITECTURE.md` §Serverless limits | `maxDuration` на marketplace + participants; очередь — P2 backlog |
 | Postgres pool / cold start / Supavisor | `YANBADA_ARCHITECTURE.md` §«Доступ к БД из Vercel Serverless» | Runtime = supabase-js HTTP; прямой SQL запрещён без `:6543` |
 | Booking | `vitrina/docs/BOOKING-MODEL.md` | `vitrina/app/api/booking/`, admin booking routes |
-| Pages / blocks builder | `vitrina/docs/ARCHITECTURE.md`, `TZ-Pages-Builder-Phase1.md` | `vitrina/lib/blocks/` |
+| **Маршрут тура на лендинге** | этот файл §vitrina, [09-themed-sites.md](./09-themed-sites.md) | `pages.itinerary` → sync listing → блок `route_map` / `tour_picker` |
 | Промо-уголок хаба / страницы | этот файл §vitrina | `lib/promo/`, `components/admin/promo-story-editor.tsx`, `components/public/promo/`, `pages.promo` + `settings.hub_promo` |
 | AI Content Builder | `vitrina/docs/TZ-AI-Content-Builder-Tourism.md` | `components/admin/content-builder-client.tsx`, `app/api/admin/t/[tenantSlug]/ai/cb/`, `lib/page-templates/categories/` |
 | Welcome ↔ Vitrina: кто где правит | `vitrina/docs/WELCOME-INDEX.md`; Welcome `VITRINA-AI-MATCHING.md` §0 | Tour Hub = KB/аудио; Vitrina = тенант; Welcome `/admin/` = pitch/теги этой страны. Индекс `GET /api/tenants/:slug/pages` |
@@ -68,7 +68,7 @@
 
 **Prod:** `https://hub.microp.app`
 
-**Витрина market:** черновик `docs/sites/code/mega-hub/` — контент той же насадки; не менять vitrina. Рабочая версия того же контура крутится в `apps/market` (Next 15 + pg): там проверяются рендерер, API заявок и модерация до переноса в hub
+**Витрина market:** черновик `docs/sites/code/mega-hub/` — контент той же насадки. Рабочая версия в `apps/market` (Next 15 + supabase-js в mega-vitrina). Маршрут тура канонически в `pages.itinerary` (Vitrina), кэш `hub.listing_cache.itinerary`.
 
 **Размещение карточек:** владелец маркета (`hub.site_members`) настраивает страницу и тарифы; тенант просит карточку через `/s/{slug}/join`
 

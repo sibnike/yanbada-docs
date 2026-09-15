@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Некорректный slug' }, { status: 400 })
   }
   if (!isSiteTemplate(body.template)) {
-    return NextResponse.json({ error: 'template: operator | destination' }, { status: 400 })
+    return NextResponse.json({ error: 'template: visit_center | tour_operator | guide' }, { status: 400 })
   }
   if (!body.name || typeof body.name !== 'object') {
     return NextResponse.json({ error: 'name обязателен' }, { status: 400 })

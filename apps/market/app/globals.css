@@ -303,6 +303,26 @@ a {
   gap: 18px;
 }
 
+.cab__work {
+  display: grid;
+  grid-template-columns: minmax(320px, 440px) minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.cab__preview {
+  border: 1px solid var(--cab-line);
+  border-radius: 16px;
+  overflow: auto;
+  max-height: calc(100vh - 160px);
+  background: #f6f4ef;
+  min-height: 480px;
+}
+
+.cab__preview .th-nav {
+  position: static;
+}
+
 .cab__list {
   display: grid;
   gap: 6px;
@@ -431,7 +451,8 @@ a {
 }
 
 @media (max-width: 720px) {
-  .cab__editor {
+  .cab__editor,
+  .cab__work {
     grid-template-columns: 1fr;
   }
 

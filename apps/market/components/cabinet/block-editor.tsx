@@ -253,6 +253,56 @@ function editorFor(
         </>
       )
 
+    case 'tour_picker':
+      return (
+        <>
+          <Field label="Заголовок">
+            <input value={ru(payload.title)} onChange={(e) => set({ title: setRu(payload.title, e.target.value) })} />
+          </Field>
+          <Field label="Плотность">
+            <select
+              value={String(payload.layout ?? 'split')}
+              onChange={(e) => set({ layout: e.target.value })}
+            >
+              <option value="split">сетка и карта</option>
+              <option value="dense">только карточки</option>
+            </select>
+          </Field>
+          <Field label="Сколько туров показать">
+            <input
+              type="number"
+              min={1}
+              max={48}
+              value={Number(payload.limit ?? 24)}
+              onChange={(e) => set({ limit: Number(e.target.value) || 24 })}
+            />
+          </Field>
+          <Field label="Якорь">
+            <input value={String(payload.anchor ?? 'tours')} onChange={(e) => set({ anchor: e.target.value })} />
+          </Field>
+          <p className="cab__muted">Карточки — живой listing_cache. Бронь ведёт на страницу Vitrina.</p>
+        </>
+      )
+
+    case 'route_map':
+      return (
+        <>
+          <Field label="Заголовок">
+            <input value={ru(payload.title)} onChange={(e) => set({ title: setRu(payload.title, e.target.value) })} />
+          </Field>
+          <Field label="Что показать">
+            <select value={String(payload.mode ?? 'all')} onChange={(e) => set({ mode: e.target.value })}>
+              <option value="all">маршруты всех туров витрины</option>
+              <option value="selected">маршрут выбранного тура</option>
+            </select>
+          </Field>
+          <Field label="Якорь">
+            <input value={String(payload.anchor ?? 'route')} onChange={(e) => set({ anchor: e.target.value })} />
+          </Field>
+          <p className="cab__muted">Точки маршрута правятся в Vitrina у страницы тура, не здесь.</p>
+        </>
+      )
+
     case 'stats':
       return (
         <>

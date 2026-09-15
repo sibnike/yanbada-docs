@@ -1,4 +1,4 @@
-import { q, one } from '@/lib/db'
+import { hubDb, throwIf } from '@/lib/sb'
 import type { SitePlan, SiteRow } from '@/types/site'
 
 export type InvoiceRow = {
@@ -23,6 +23,24 @@ export function addMonths(from: Date, months: number): Date {
   return next
 }
 
+function toInvoice(row: Record<string, unknown>): InvoiceRow {
+  return {
+    id: String(row.id),
+    site_id: String(row.site_id),
+    tenant_id: String(row.tenant_id),
+    placement_id: row.placement_id ? String(row.placement_id) : null,
+    period_start: String(row.period_start).slice(0, 10),
+    period_end: String(row.period_end).slice(0, 10),
+    amount: Number(row.amount ?? 0),
+    currency: String(row.currency),
+    platform_fee: Number(row.platform_fee ?? 0),
+    owner_payout: Number(row.owner_payout ?? 0),
+    status: String(row.status) as InvoiceRow['status'],
+    issued_at: String(row.issued_at ?? ''),
+    paid_at: row.paid_at ? String(row.paid_at) : null,
+  }
+}
+
 /**
  * The platform bills the tenant and keeps platform_fee_percent; the rest is the
  * market owner's payout. One invoice covers one card for one period.
@@ -41,24 +59,24 @@ export async function issueInvoice(input: {
   const end = addMonths(start, Math.max(1, input.months))
   const fee = Math.round((input.amount * input.site.platform_fee_percent) / 100)
 
-  return one<InvoiceRow>(
-    `INSERT INTO hub.site_invoices
-       (site_id, tenant_id, placement_id, period_start, period_end,
-        amount, currency, platform_fee, owner_payout, status)
-     VALUES ($1, $2, $3, $4::date, $5::date, $6, $7, $8, $9, 'issued')
-     RETURNING *`,
-    [
-      input.site.id,
-      input.tenantId,
-      input.placementId,
-      start.toISOString().slice(0, 10),
-      end.toISOString().slice(0, 10),
-      input.amount,
-      input.currency,
-      fee,
-      input.amount - fee,
-    ]
-  )
+  const { data, error } = await hubDb()
+    .from('site_invoices')
+    .insert({
+      site_id: input.site.id,
+      tenant_id: input.tenantId,
+      placement_id: input.placementId,
+      period_start: start.toISOString().slice(0, 10),
+      period_end: end.toISOString().slice(0, 10),
+      amount: input.amount,
+      currency: input.currency,
+      platform_fee: fee,
+      owner_payout: input.amount - fee,
+      status: 'issued',
+    })
+    .select('*')
+    .maybeSingle()
+  throwIf(error)
+  return data ? toInvoice(data as Record<string, unknown>) : null
 }
 
 /**
@@ -66,24 +84,60 @@ export async function issueInvoice(input: {
  * Extensions start from the current paid_until so nobody loses days.
  */
 export async function markInvoicePaid(invoiceId: string, siteId: string): Promise<InvoiceRow | null> {
-  const invoice = await one<InvoiceRow>(
-    `UPDATE hub.site_invoices SET status = 'paid', paid_at = now()
-      WHERE id = $1 AND site_id = $2 AND status <> 'paid'
-      RETURNING *`,
-    [invoiceId, siteId]
-  )
-  if (!invoice?.placement_id) return invoice
+  const current = await hubDb()
+    .from('site_invoices')
+    .select('*')
+    .eq('id', invoiceId)
+    .eq('site_id', siteId)
+    .maybeSingle()
+  throwIf(current.error)
+  if (!current.data || current.data.status === 'paid') return null
+
+  const { data, error } = await hubDb()
+    .from('site_invoices')
+    .update({ status: 'paid', paid_at: new Date().toISOString() })
+    .eq('id', invoiceId)
+    .eq('site_id', siteId)
+    .select('*')
+    .maybeSingle()
+  throwIf(error)
+  if (!data) return null
+  const invoice = toInvoice(data as Record<string, unknown>)
+  if (!invoice.placement_id) return invoice
 
   const months = monthsBetween(invoice.period_start, invoice.period_end)
-  await q(
-    `UPDATE hub.site_placements
-        SET status = 'active',
-            paid_until = GREATEST(COALESCE(paid_until, now()), now()) + make_interval(months => $2),
-            updated_at = now()
-      WHERE id = $1`,
-    [invoice.placement_id, months]
+  const placement = await hubDb()
+    .from('site_placements')
+    .select('paid_until')
+    .eq('id', invoice.placement_id)
+    .maybeSingle()
+  throwIf(placement.error)
+  const from = new Date(
+    Math.max(
+      Date.now(),
+      placement.data?.paid_until ? new Date(String(placement.data.paid_until)).getTime() : 0
+    )
   )
+  const until = addMonths(from, months)
+  const { error: placeError } = await hubDb()
+    .from('site_placements')
+    .update({
+      status: 'active',
+      paid_until: until.toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', invoice.placement_id)
+  throwIf(placeError)
   return invoice
+}
+
+export async function voidInvoice(invoiceId: string, siteId: string): Promise<void> {
+  const { error } = await hubDb()
+    .from('site_invoices')
+    .update({ status: 'void' })
+    .eq('id', invoiceId)
+    .eq('site_id', siteId)
+  throwIf(error)
 }
 
 export function monthsBetween(start: string, end: string): number {

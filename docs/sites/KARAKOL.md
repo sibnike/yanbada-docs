@@ -20,7 +20,7 @@ CONFIRM_PROD_SEED=1 node scripts/seed-karakol-tenants.mjs --prod
 
 Тенантов два: туркомпания продаёт туры, гостевой дом размещает гостей. Туркомпания одновременно участник маркета и хозяин своего микросайта — карточки в обоих местах приходят из одного кэша Vitrina.
 
-Это не макет: приложение лежит в [`apps/market`](../../apps/market/README.md), читает и пишет настоящий Postgres. Модель размещения и монетизации — [../agent-context/10-market-placement.md](../agent-context/10-market-placement.md).
+Это не макет: приложение лежит в [`apps/market`](../../apps/market/README.md), читает и пишет mega-vitrina через supabase-js. Модель размещения и монетизации — [../agent-context/10-market-placement.md](../agent-context/10-market-placement.md). Маршрут тура правится в Vitrina (`pages.itinerary` у страницы услуги), на витрине блок «подбор» и карта.
 
 ## Запустить
 

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { one } from '@/lib/db'
+import { hubDb, throwIf } from '@/lib/sb'
 import { bad, readJson, siteOr404, text } from '@/lib/api'
 import { getSession } from '@/lib/auth'
 
@@ -43,12 +43,18 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
   }
   if (Object.keys(cleaned).length === 0) return bad('Оставьте хотя бы один контакт')
 
-  const plan = text(body.plan_slug, 60)
-    ? await one<{ id: string }>('SELECT id FROM hub.site_plans WHERE site_id = $1 AND slug = $2', [
-        site.id,
-        text(body.plan_slug, 60),
-      ])
-    : null
+  let planId: string | null = null
+  const planSlug = text(body.plan_slug, 60)
+  if (planSlug) {
+    const { data, error } = await hubDb()
+      .from('site_plans')
+      .select('id')
+      .eq('site_id', site.id)
+      .eq('slug', planSlug)
+      .maybeSingle()
+    throwIf(error)
+    planId = data?.id ? String(data.id) : null
+  }
 
   const message = text(body.message, 2000)
   const acceptedTerms = body.accepted_terms === true ? new Date().toISOString() : null
@@ -56,41 +62,42 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
 
   if (session?.role === 'tenant' && session.site === slug && session.tenant) {
     const contactName = text(body.contact_name, 120)
-    const row = await one<{ id: string }>(
-      `INSERT INTO hub.site_placement_requests
-         (site_id, tenant_id, plan_id, direction, listing_ids, include_company,
-          message, contact, status, accepted_terms_at)
-       VALUES ($1, $2, $3, 'tenant_request', '{}', true, $4, $5, 'pending', $6)
-       RETURNING id`,
-      [
-        site.id,
-        session.tenant,
-        plan?.id ?? null,
+    const { data, error } = await hubDb()
+      .from('site_placement_requests')
+      .insert({
+        site_id: site.id,
+        tenant_id: session.tenant,
+        plan_id: planId,
+        direction: 'tenant_request',
+        listing_ids: [],
+        include_company: true,
         message,
-        JSON.stringify(contactName ? { ...cleaned, name: contactName } : cleaned),
-        acceptedTerms,
-      ]
-    )
-    return NextResponse.json({ ok: true, kind: 'request', id: row?.id })
+        contact: contactName ? { ...cleaned, name: contactName } : cleaned,
+        status: 'pending',
+        accepted_terms_at: acceptedTerms,
+      })
+      .select('id')
+      .maybeSingle()
+    throwIf(error)
+    return NextResponse.json({ ok: true, kind: 'request', id: data?.id })
   }
 
   const source = text(body.source, 200) || request.headers.get('referer')
-  const row = await one<{ id: string }>(
-    `INSERT INTO hub.site_leads
-       (site_id, plan_id, company_name, contact_name, contact, message, source, accepted_terms_at)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-     RETURNING id`,
-    [
-      site.id,
-      plan?.id ?? null,
-      companyName,
-      text(body.contact_name, 120),
-      JSON.stringify(cleaned),
+  const { data, error } = await hubDb()
+    .from('site_leads')
+    .insert({
+      site_id: site.id,
+      plan_id: planId,
+      company_name: companyName,
+      contact_name: text(body.contact_name, 120),
+      contact: cleaned,
       message,
       source,
-      acceptedTerms,
-    ]
-  )
+      accepted_terms_at: acceptedTerms,
+    })
+    .select('id')
+    .maybeSingle()
+  throwIf(error)
 
-  return NextResponse.json({ ok: true, kind: 'lead', id: row?.id })
+  return NextResponse.json({ ok: true, kind: 'lead', id: data?.id })
 }

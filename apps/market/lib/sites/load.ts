@@ -1,8 +1,8 @@
-import { q, one } from '@/lib/db'
-import { hubDb, publicDb, usesVitrinaDb } from '@/lib/sb'
+import { hubDb, publicDb, throwIf } from '@/lib/sb'
 import {
   applyPlacements,
   listingMatchesSiteScope,
+  parseListingItinerary,
   placementIsLive,
   type SiteBlock,
   type SiteBlockType,
@@ -16,6 +16,7 @@ import {
   type SitePost,
   type SitePublicPayload,
   type SiteRow,
+  type SiteTemplate,
   SITE_BLOCK_TYPES,
 } from '@/types/site'
 
@@ -35,13 +36,23 @@ function strings(value: unknown): string[] {
   return Array.isArray(value) ? value.map(String) : []
 }
 
+function str(value: unknown): string | null {
+  return value == null ? null : String(value)
+}
+
+export function toTemplate(value: unknown): SiteTemplate {
+  if (value === 'operator' || value === 'tour_operator') return 'tour_operator'
+  if (value === 'guide') return 'guide'
+  return 'visit_center'
+}
+
 export function toSite(row: Row): SiteRow {
   return {
     id: String(row.id),
     slug: String(row.slug),
     name: json(row.name, {}),
     description: row.description ? json(row.description, {}) : null,
-    template: row.template === 'operator' ? 'operator' : 'destination',
+    template: toTemplate(row.template),
     tenant_ids: strings(row.tenant_ids),
     theme_slugs: strings(row.theme_slugs),
     country_codes: strings(row.country_codes),
@@ -73,59 +84,31 @@ export function toSite(row: Row): SiteRow {
 }
 
 export async function getSite(slug: string): Promise<SiteRow | null> {
-  if (usesVitrinaDb()) {
-    const { data, error } = await hubDb().from('sites').select('*').eq('slug', slug).maybeSingle()
-    if (error) throw new Error(error.message)
-    return data ? toSite(data as Row) : null
-  }
-  const row = await one<Row>('SELECT * FROM hub.sites WHERE slug = $1', [slug])
-  return row ? toSite(row) : null
+  const { data, error } = await hubDb().from('sites').select('*').eq('slug', slug).maybeSingle()
+  throwIf(error)
+  return data ? toSite(data as Row) : null
 }
 
 export async function listSites(): Promise<SiteRow[]> {
-  if (usesVitrinaDb()) {
-    const { data, error } = await hubDb().from('sites').select('*').order('created_at')
-    if (error) throw new Error(error.message)
-    return (data ?? []).map((row) => toSite(row as Row))
-  }
-  const rows = await q<Row>('SELECT * FROM hub.sites ORDER BY created_at')
-  return rows.map(toSite)
+  const { data, error } = await hubDb().from('sites').select('*').order('created_at')
+  throwIf(error)
+  return (data ?? []).map((row) => toSite(row as Row))
 }
 
 export async function loadPages(siteId: string, publishedOnly = true): Promise<SitePage[]> {
-  let pages: Row[]
-  if (usesVitrinaDb()) {
-    let query = hubDb().from('site_pages').select('*').eq('site_id', siteId)
-    if (publishedOnly) query = query.eq('is_published', true)
-    const { data, error } = await query.order('sort_order').order('created_at')
-    if (error) throw new Error(error.message)
-    pages = (data ?? []) as Row[]
-  } else {
-    pages = await q<Row>(
-      `SELECT * FROM hub.site_pages
-        WHERE site_id = $1 ${publishedOnly ? 'AND is_published' : ''}
-        ORDER BY sort_order, created_at`,
-      [siteId]
-    )
-  }
+  let query = hubDb().from('site_pages').select('*').eq('site_id', siteId)
+  if (publishedOnly) query = query.eq('is_published', true)
+  const { data, error } = await query.order('sort_order').order('created_at')
+  throwIf(error)
+  const pages = (data ?? []) as Row[]
   if (pages.length === 0) return []
 
-  let blocks: Row[]
   const pageIds = pages.map((p) => String(p.id))
-  if (usesVitrinaDb()) {
-    let query = hubDb().from('site_blocks').select('*').in('page_id', pageIds)
-    if (publishedOnly) query = query.eq('is_active', true)
-    const { data, error } = await query.order('sort_order').order('created_at')
-    if (error) throw new Error(error.message)
-    blocks = (data ?? []) as Row[]
-  } else {
-    blocks = await q<Row>(
-      `SELECT * FROM hub.site_blocks
-        WHERE page_id = ANY($1::uuid[]) ${publishedOnly ? 'AND is_active' : ''}
-        ORDER BY sort_order, created_at`,
-      [pageIds]
-    )
-  }
+  let blocksQuery = hubDb().from('site_blocks').select('*').in('page_id', pageIds)
+  if (publishedOnly) blocksQuery = blocksQuery.eq('is_active', true)
+  const blocksRes = await blocksQuery.order('sort_order').order('created_at')
+  throwIf(blocksRes.error)
+  const blocks = (blocksRes.data ?? []) as Row[]
 
   const byPage = new Map<string, SiteBlock[]>()
   for (const raw of blocks) {
@@ -155,22 +138,11 @@ export async function loadPages(siteId: string, publishedOnly = true): Promise<S
 }
 
 export async function loadPosts(siteId: string, publishedOnly = true): Promise<SitePost[]> {
-  let rows: Row[]
-  if (usesVitrinaDb()) {
-    let query = hubDb().from('site_posts').select('*').eq('site_id', siteId)
-    if (publishedOnly) query = query.eq('is_published', true)
-    const { data, error } = await query.order('published_at', { ascending: false, nullsFirst: false })
-    if (error) throw new Error(error.message)
-    rows = (data ?? []) as Row[]
-  } else {
-    rows = await q<Row>(
-      `SELECT * FROM hub.site_posts
-        WHERE site_id = $1 ${publishedOnly ? 'AND is_published' : ''}
-        ORDER BY published_at DESC NULLS LAST, created_at DESC`,
-      [siteId]
-    )
-  }
-  return rows.map((raw) => ({
+  let query = hubDb().from('site_posts').select('*').eq('site_id', siteId)
+  if (publishedOnly) query = query.eq('is_published', true)
+  const { data, error } = await query.order('published_at', { ascending: false, nullsFirst: false })
+  throwIf(error)
+  return ((data ?? []) as Row[]).map((raw) => ({
     id: String(raw.id),
     site_id: String(raw.site_id),
     slug: String(raw.slug),
@@ -183,22 +155,11 @@ export async function loadPosts(siteId: string, publishedOnly = true): Promise<S
 }
 
 export async function loadPlans(siteId: string, publicOnly = false): Promise<SitePlan[]> {
-  let rows: Row[]
-  if (usesVitrinaDb()) {
-    let query = hubDb().from('site_plans').select('*').eq('site_id', siteId).eq('is_active', true)
-    if (publicOnly) query = query.eq('is_public', true)
-    const { data, error } = await query.order('sort_order').order('price_per_card')
-    if (error) throw new Error(error.message)
-    rows = (data ?? []) as Row[]
-  } else {
-    rows = await q<Row>(
-      `SELECT * FROM hub.site_plans
-        WHERE site_id = $1 AND is_active ${publicOnly ? 'AND is_public' : ''}
-        ORDER BY sort_order, price_per_card`,
-      [siteId]
-    )
-  }
-  return rows.map((raw) => ({
+  let query = hubDb().from('site_plans').select('*').eq('site_id', siteId).eq('is_active', true)
+  if (publicOnly) query = query.eq('is_public', true)
+  const { data, error } = await query.order('sort_order').order('price_per_card')
+  throwIf(error)
+  return ((data ?? []) as Row[]).map((raw) => ({
     id: String(raw.id),
     site_id: String(raw.site_id),
     slug: String(raw.slug),
@@ -234,42 +195,24 @@ export function toPlacement(raw: Row): SitePlacement {
 }
 
 export async function loadPlacements(siteId: string): Promise<SitePlacement[]> {
-  let rows: Row[]
-  if (usesVitrinaDb()) {
-    const { data, error } = await hubDb()
-      .from('site_placements')
-      .select('*')
-      .eq('site_id', siteId)
-      .order('sort_weight', { ascending: false })
-    if (error) throw new Error(error.message)
-    rows = (data ?? []) as Row[]
-  } else {
-    rows = await q<Row>(
-      'SELECT * FROM hub.site_placements WHERE site_id = $1 ORDER BY sort_weight DESC, created_at',
-      [siteId]
-    )
-  }
-  return rows.map(toPlacement)
+  const { data, error } = await hubDb()
+    .from('site_placements')
+    .select('*')
+    .eq('site_id', siteId)
+    .order('sort_weight', { ascending: false })
+  throwIf(error)
+  return ((data ?? []) as Row[]).map(toPlacement)
 }
 
 export async function loadManualCards(siteId: string): Promise<SiteManualCard[]> {
-  let rows: Row[]
-  if (usesVitrinaDb()) {
-    const { data, error } = await hubDb()
-      .from('site_manual_cards')
-      .select('*')
-      .eq('site_id', siteId)
-      .eq('is_active', true)
-      .order('sort_order')
-    if (error) throw new Error(error.message)
-    rows = (data ?? []) as Row[]
-  } else {
-    rows = await q<Row>(
-      'SELECT * FROM hub.site_manual_cards WHERE site_id = $1 AND is_active ORDER BY sort_order, created_at',
-      [siteId]
-    )
-  }
-  return rows.map((raw) => ({
+  const { data, error } = await hubDb()
+    .from('site_manual_cards')
+    .select('*')
+    .eq('site_id', siteId)
+    .eq('is_active', true)
+    .order('sort_order')
+  throwIf(error)
+  return ((data ?? []) as Row[]).map((raw) => ({
     id: String(raw.id),
     site_id: String(raw.site_id),
     kind: raw.kind === 'service' || raw.kind === 'company' ? raw.kind : 'place',
@@ -288,28 +231,32 @@ export async function loadManualCards(siteId: string): Promise<SiteManualCard[]>
 }
 
 export async function loadKnowledge(siteId: string): Promise<SiteKnowledge[]> {
-  let rows: Row[]
-  if (usesVitrinaDb()) {
-    const { data, error } = await hubDb()
-      .from('site_knowledge')
-      .select('*')
-      .eq('site_id', siteId)
-      .eq('is_active', true)
-      .order('sort_order')
-    if (error) throw new Error(error.message)
-    rows = (data ?? []) as Row[]
-  } else {
-    rows = await q<Row>(
-      'SELECT * FROM hub.site_knowledge WHERE site_id = $1 AND is_active ORDER BY sort_order',
-      [siteId]
-    )
-  }
-  return rows.map((raw) => ({
+  const { data, error } = await hubDb()
+    .from('site_knowledge')
+    .select('*')
+    .eq('site_id', siteId)
+    .eq('is_active', true)
+    .order('sort_order')
+  throwIf(error)
+  return ((data ?? []) as Row[]).map((raw) => ({
     id: String(raw.id),
     site_id: String(raw.site_id),
     title: json(raw.title, {}),
     body: String(raw.body ?? ''),
     kind: raw.kind === 'faq' || raw.kind === 'rule' ? raw.kind : 'article',
+  }))
+}
+
+export async function loadBaseKnowledge(): Promise<{ title: string; body: string }[]> {
+  const { data, error } = await hubDb()
+    .from('assistant_base_knowledge')
+    .select('title, body')
+    .eq('is_active', true)
+    .order('sort_order')
+  throwIf(error)
+  return ((data ?? []) as Row[]).map((row) => ({
+    title: json<Record<string, string>>(row.title, {}).ru ?? '',
+    body: String(row.body ?? ''),
   }))
 }
 
@@ -330,19 +277,15 @@ export async function loadListings(
   let rows: Row[] = []
   if (site.placement_mode === 'approved') {
     if (placedListingIds.length > 0) {
-      if (usesVitrinaDb()) {
-        const { data, error } = await hubDb().from('listing_cache').select('*').in('id', placedListingIds)
-        if (error) throw new Error(error.message)
-        rows = (data ?? []) as Row[]
-      } else {
-        rows = await q<Row>('SELECT * FROM hub.listing_cache WHERE id = ANY($1::uuid[])', [placedListingIds])
-      }
+      const { data, error } = await hubDb().from('listing_cache').select('*').in('id', placedListingIds)
+      throwIf(error)
+      rows = (data ?? []) as Row[]
     }
-  } else if (usesVitrinaDb()) {
+  } else {
     let query = hubDb().from('listing_cache').select('*')
     if (site.tenant_ids.length > 0) query = query.in('tenant_id', site.tenant_ids)
     const { data, error } = await query.limit(200)
-    if (error) throw new Error(error.message)
+    throwIf(error)
     rows = ((data ?? []) as Row[]).filter((row) => {
       if (site.theme_slugs.length > 0 && !strings(row.marketplace_themes).some((t) => site.theme_slugs.includes(t))) {
         return false
@@ -352,52 +295,19 @@ export async function loadListings(
       }
       return true
     })
-  } else {
-    const where: string[] = []
-    const params: unknown[] = []
-    if (site.tenant_ids.length > 0) {
-      params.push(site.tenant_ids)
-      where.push(`tenant_id = ANY($${params.length}::uuid[])`)
-    }
-    if (site.theme_slugs.length > 0) {
-      params.push(site.theme_slugs)
-      where.push(`marketplace_themes && $${params.length}::text[]`)
-    }
-    if (site.marketplace_slug) {
-      params.push([site.marketplace_slug])
-      where.push(`marketplace_slugs @> $${params.length}::text[]`)
-    }
-    rows = await q<Row>(
-      `SELECT * FROM hub.listing_cache ${where.length ? 'WHERE ' + where.join(' AND ') : ''} LIMIT 200`,
-      params
-    )
   }
 
   const tenantIds = Array.from(new Set([...rows.map((r) => String(r.tenant_id)), ...placedTenants]))
   if (tenantIds.length === 0) return { listings: [], companies: [] }
 
-  const [tenants, companies] = await Promise.all([
-    usesVitrinaDb()
-      ? publicDb()
-          .from('tenants')
-          .select('id, name, slug')
-          .in('id', tenantIds)
-          .then(({ data, error }) => {
-            if (error) throw new Error(error.message)
-            return (data ?? []) as Row[]
-          })
-      : q<Row>('SELECT id, name, slug FROM public.tenants WHERE id = ANY($1::uuid[])', [tenantIds]),
-    usesVitrinaDb()
-      ? hubDb()
-          .from('company_cache')
-          .select('*')
-          .in('tenant_id', tenantIds)
-          .then(({ data, error }) => {
-            if (error) throw new Error(error.message)
-            return (data ?? []) as Row[]
-          })
-      : q<Row>('SELECT * FROM hub.company_cache WHERE tenant_id = ANY($1::uuid[])', [tenantIds]),
+  const [tenantsRes, companiesRes] = await Promise.all([
+    publicDb().from('tenants').select('id, name, slug').in('id', tenantIds),
+    hubDb().from('company_cache').select('*').in('tenant_id', tenantIds),
   ])
+  throwIf(tenantsRes.error)
+  throwIf(companiesRes.error)
+  const tenants = (tenantsRes.data ?? []) as Row[]
+  const companies = (companiesRes.data ?? []) as Row[]
   const tenantById = new Map(tenants.map((t) => [String(t.id), t]))
   const companyByTenant = new Map(companies.map((c) => [String(c.tenant_id), c]))
 
@@ -444,6 +354,7 @@ export async function loadListings(
       next_departure_date: iso(row.next_departure_date)?.slice(0, 10) ?? null,
       seats_left: row.seats_left == null ? null : Number(row.seats_left),
       featured: featured.has(String(row.id)),
+      itinerary: parseListingItinerary(row.itinerary),
     })
   }
 
@@ -454,7 +365,6 @@ export async function loadListings(
       : ordered
   const listings = sorted.slice(0, limit)
 
-  // A company card can be placed without any listing, so keep placed tenants.
   const usedTenants = Array.from(new Set([...listings.map((l) => l.tenant_id), ...placedTenants]))
   const companyCards: SiteCompany[] = usedTenants.map((id) => {
     const company = companyByTenant.get(id)
@@ -474,10 +384,6 @@ export async function loadListings(
   })
 
   return { listings, companies: companyCards }
-}
-
-function str(value: unknown): string | null {
-  return value == null ? null : String(value)
 }
 
 export async function loadPublicPayload(slug: string): Promise<SitePublicPayload | null> {

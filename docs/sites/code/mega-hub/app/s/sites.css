@@ -630,3 +630,130 @@
   border-radius: 999px;
   padding: 0.55rem 0.8rem;
 }
+
+.th-picker__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  align-items: end;
+  margin: 1.1rem 0 1.25rem;
+}
+
+.th-picker__filters label {
+  display: grid;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--site-muted);
+}
+
+.th-picker__filters select,
+.th-picker__filters input {
+  font: inherit;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--site-ink);
+  border: 1px solid var(--site-line);
+  border-radius: 0.7rem;
+  padding: 0.5rem 0.7rem;
+  background: #fff;
+  min-width: 9rem;
+}
+
+.th-picker__count {
+  margin: 0 0 0.2rem;
+  color: var(--site-muted);
+  font-size: 0.9rem;
+}
+
+.th-picker--split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
+  gap: 1.1rem;
+  align-items: start;
+}
+
+.th-picker__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.85rem;
+}
+
+.th-offer {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 1.1rem;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(20, 33, 31, 0.06);
+}
+
+.th-offer--on {
+  outline: 2px solid var(--site-accent);
+}
+
+.th-offer__hit {
+  display: grid;
+  text-align: left;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.th-offer__media {
+  height: 128px;
+  background: #d9d3c7 center / cover no-repeat;
+}
+
+.th-offer__copy {
+  padding: 0.85rem 0.95rem 0.4rem;
+}
+
+.th-offer__copy h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+}
+
+.th-offer__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.75rem;
+  margin: 0;
+  color: var(--site-muted);
+  font-size: 0.82rem;
+}
+
+.th-offer .th-btn {
+  margin: 0.4rem 0.85rem 0.85rem;
+}
+
+.th-map--live {
+  min-height: 360px;
+  overflow: hidden;
+}
+
+.th-picker__map .th-map--live {
+  min-height: 420px;
+}
+
+.th-route-list {
+  margin: 1rem 0 0;
+  padding-left: 1.2rem;
+  max-width: 40rem;
+  color: var(--site-muted);
+  line-height: 1.5;
+}
+
+.th-route-list strong {
+  color: var(--site-ink);
+}
+
+@media (max-width: 860px) {
+  .th-picker--split {
+    grid-template-columns: 1fr;
+  }
+}

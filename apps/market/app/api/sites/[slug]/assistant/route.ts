@@ -1,9 +1,8 @@
 import { NextResponse } from 'next/server'
 import { bad, readJson, text } from '@/lib/api'
-import { q } from '@/lib/db'
 import { answerFromSite, askOpenAI } from '@/lib/sites/assistant'
 import { buildAssistantSystemPrompt } from '@/lib/sites/build-assistant-context'
-import { loadKnowledge, loadPublicPayload } from '@/lib/sites/load'
+import { loadBaseKnowledge, loadKnowledge, loadPublicPayload } from '@/lib/sites/load'
 
 export const dynamic = 'force-dynamic'
 
@@ -16,12 +15,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
   if (!payload) return bad('Витрина не найдена', 404)
   if (payload.site.settings.assistant?.enabled === false) return bad('Ассистент выключен', 403)
 
-  const [knowledge, base] = await Promise.all([
-    loadKnowledge(payload.site.id),
-    q<{ title: Record<string, string>; body: string }>(
-      'SELECT title, body FROM hub.assistant_base_knowledge WHERE is_active ORDER BY sort_order'
-    ),
-  ])
+  const knowledge = await loadKnowledge(payload.site.id)
+  const base = await loadBaseKnowledge()
 
   const system = buildAssistantSystemPrompt({
     site: payload.site,
@@ -30,7 +25,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
     companies: payload.companies,
     listings: payload.listings,
     siteKnowledge: knowledge,
-    baseKnowledge: base.map((row) => ({ title: row.title?.ru ?? '', body: row.body })),
+    baseKnowledge: base,
     plans: payload.plans,
     manualCards: payload.manual_cards,
   })

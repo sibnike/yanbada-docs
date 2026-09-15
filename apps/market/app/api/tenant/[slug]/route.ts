@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { one } from '@/lib/db'
+import { hubDb, throwIf } from '@/lib/sb'
 import { bad, isUuid, readJson, tenantContext, text } from '@/lib/api'
 
 export const dynamic = 'force-dynamic'
@@ -16,30 +16,34 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
   const includeCompany = body.include_company === true
   if (listingIds.length === 0 && !includeCompany) return bad('Выберите хотя бы одну карточку')
 
-  const pending = await one<{ id: string }>(
-    `SELECT id FROM hub.site_placement_requests
-      WHERE site_id = $1 AND tenant_id = $2 AND status = 'pending'`,
-    [context.site.id, context.session.tenant]
-  )
+  const { data: pending, error } = await hubDb()
+    .from('site_placement_requests')
+    .select('id')
+    .eq('site_id', context.site.id)
+    .eq('tenant_id', context.session.tenant)
+    .eq('status', 'pending')
+    .maybeSingle()
+  throwIf(error)
   if (pending) return bad('Предыдущая заявка ещё на рассмотрении', 409)
 
-  const row = await one<{ id: string }>(
-    `INSERT INTO hub.site_placement_requests
-       (site_id, tenant_id, plan_id, direction, listing_ids, include_company,
-        message, contact, status, accepted_terms_at)
-     VALUES ($1, $2, $3, 'tenant_request', $4::uuid[], $5, $6, $7, 'pending', now())
-     RETURNING id`,
-    [
-      context.site.id,
-      context.session.tenant,
-      isUuid(body.plan_id) ? body.plan_id : null,
-      listingIds,
-      includeCompany,
-      text(body.message, 1000),
-      JSON.stringify({ name: context.session.name ?? '' }),
-    ]
-  )
-  return NextResponse.json({ ok: true, id: row?.id })
+  const { data, error: insertError } = await hubDb()
+    .from('site_placement_requests')
+    .insert({
+      site_id: context.site.id,
+      tenant_id: context.session.tenant,
+      plan_id: isUuid(body.plan_id) ? body.plan_id : null,
+      direction: 'tenant_request',
+      listing_ids: listingIds,
+      include_company: includeCompany,
+      message: text(body.message, 1000),
+      contact: { name: context.session.name ?? '' },
+      status: 'pending',
+      accepted_terms_at: new Date().toISOString(),
+    })
+    .select('id')
+    .maybeSingle()
+  throwIf(insertError)
+  return NextResponse.json({ ok: true, id: data?.id })
 }
 
 /** Cancel a request the owner has not decided yet. */
@@ -50,10 +54,13 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ sl
 
   const body = await readJson(request)
   if (!isUuid(body.id)) return bad('Нет заявки')
-  await one(
-    `UPDATE hub.site_placement_requests SET status = 'cancelled', decided_at = now()
-      WHERE id = $1 AND site_id = $2 AND tenant_id = $3 AND status = 'pending'`,
-    [body.id, context.site.id, context.session.tenant]
-  )
+  const { error } = await hubDb()
+    .from('site_placement_requests')
+    .update({ status: 'cancelled', decided_at: new Date().toISOString() })
+    .eq('id', body.id)
+    .eq('site_id', context.site.id)
+    .eq('tenant_id', context.session.tenant)
+    .eq('status', 'pending')
+  throwIf(error)
   return NextResponse.json({ ok: true })
 }

@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
-import { q } from '@/lib/db'
 import { bad, isUuid, ownerContext, readJson } from '@/lib/api'
-import { markInvoicePaid } from '@/lib/sites/billing'
+import { markInvoicePaid, voidInvoice } from '@/lib/sites/billing'
 
 export const dynamic = 'force-dynamic'
 
@@ -16,10 +15,7 @@ export async function PATCH(request: Request, { params }: Params) {
   if (!isUuid(body.id)) return bad('Нет счёта')
 
   if (body.action === 'void') {
-    await q(`UPDATE hub.site_invoices SET status = 'void' WHERE id = $1 AND site_id = $2`, [
-      body.id,
-      context.site.id,
-    ])
+    await voidInvoice(String(body.id), context.site.id)
     return NextResponse.json({ ok: true })
   }
 

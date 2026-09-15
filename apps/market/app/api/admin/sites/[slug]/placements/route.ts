@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
-import { one, q } from '@/lib/db'
+import { hubDb, throwIf } from '@/lib/sb'
+import { addMonths } from '@/lib/sites/billing'
 import { bad, isUuid, ownerContext, readJson, text } from '@/lib/api'
 import { issueInvoice } from '@/lib/sites/billing'
 import { loadPlans } from '@/lib/sites/load'
@@ -45,24 +46,34 @@ export async function PATCH(request: Request, { params }: Params) {
   const body = await readJson(request)
   if (!isUuid(body.id)) return bad('Нет размещения')
 
-  const placement = await one<Record<string, unknown>>(
-    'SELECT * FROM hub.site_placements WHERE id = $1 AND site_id = $2',
-    [body.id, context.site.id]
-  )
+  const { data: placement, error } = await hubDb()
+    .from('site_placements')
+    .select('*')
+    .eq('id', body.id)
+    .eq('site_id', context.site.id)
+    .maybeSingle()
+  throwIf(error)
   if (!placement) return bad('Размещение не найдено', 404)
 
-  // Extension is billing, not an edit: it issues the next invoice.
   if (body.action === 'extend') {
     const months = Number(body.months ?? 1)
     const amount = Number(placement.price_per_period ?? 0)
     if (amount <= 0) {
-      await q(
-        `UPDATE hub.site_placements
-            SET paid_until = GREATEST(COALESCE(paid_until, now()), now()) + make_interval(months => $2),
-                status = 'active', updated_at = now()
-          WHERE id = $1`,
-        [placement.id, months]
+      const from = new Date(
+        Math.max(
+          Date.now(),
+          placement.paid_until ? new Date(String(placement.paid_until)).getTime() : 0
+        )
       )
+      const { error: updateError } = await hubDb()
+        .from('site_placements')
+        .update({
+          paid_until: addMonths(from, months).toISOString(),
+          status: 'active',
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', placement.id)
+      throwIf(updateError)
       return NextResponse.json({ ok: true, invoice: null })
     }
     const invoice = await issueInvoice({
@@ -76,33 +87,32 @@ export async function PATCH(request: Request, { params }: Params) {
     return NextResponse.json({ ok: true, invoice })
   }
 
-  const sets: string[] = []
-  const values: unknown[] = [placement.id]
-  const push = (column: string, value: unknown) => {
-    values.push(value)
-    sets.push(`${column} = $${values.length}`)
-  }
-
-  if (typeof body.status === 'string' &&
-      ['active', 'pending_payment', 'paused', 'expired', 'hidden'].includes(body.status)) {
-    push('status', body.status)
+  const patch: Record<string, unknown> = { updated_at: new Date().toISOString() }
+  if (
+    typeof body.status === 'string' &&
+    ['active', 'pending_payment', 'paused', 'expired', 'hidden'].includes(body.status)
+  ) {
+    patch.status = body.status
   }
   if (typeof body.slot === 'string' && ['standard', 'featured', 'pinned'].includes(body.slot)) {
-    push('slot', body.slot)
+    patch.slot = body.slot
   }
-  if (typeof body.sort_weight === 'number') push('sort_weight', Math.trunc(body.sort_weight))
-  if (typeof body.grace_days === 'number') push('grace_days', Math.max(0, Math.trunc(body.grace_days)))
-  if (typeof body.price_per_period === 'number') push('price_per_period', Math.max(0, body.price_per_period))
-  if (body.hidden_reason !== undefined) push('hidden_reason', text(body.hidden_reason, 400))
-  if (body.paid_until === null) push('paid_until', null)
-  else if (typeof body.paid_until === 'string') push('paid_until', body.paid_until)
+  if (typeof body.sort_weight === 'number') patch.sort_weight = Math.trunc(body.sort_weight)
+  if (typeof body.grace_days === 'number') patch.grace_days = Math.max(0, Math.trunc(body.grace_days))
+  if (typeof body.price_per_period === 'number') patch.price_per_period = Math.max(0, body.price_per_period)
+  if (body.hidden_reason !== undefined) patch.hidden_reason = text(body.hidden_reason, 400)
+  if (body.paid_until === null) patch.paid_until = null
+  else if (typeof body.paid_until === 'string') patch.paid_until = body.paid_until
 
-  if (sets.length === 0) return bad('Нечего менять')
+  if (Object.keys(patch).length === 1) return bad('Нечего менять')
 
-  const row = await one(
-    `UPDATE hub.site_placements SET ${sets.join(', ')}, updated_at = now() WHERE id = $1 RETURNING *`,
-    values
-  )
+  const { data: row, error: updateError } = await hubDb()
+    .from('site_placements')
+    .update(patch)
+    .eq('id', placement.id)
+    .select('*')
+    .maybeSingle()
+  throwIf(updateError)
   return NextResponse.json({ ok: true, placement: row })
 }
 
@@ -113,6 +123,11 @@ export async function DELETE(request: Request, { params }: Params) {
 
   const body = await readJson(request)
   if (!isUuid(body.id)) return bad('Нет размещения')
-  await q('DELETE FROM hub.site_placements WHERE id = $1 AND site_id = $2', [body.id, context.site.id])
+  const { error } = await hubDb()
+    .from('site_placements')
+    .delete()
+    .eq('id', body.id)
+    .eq('site_id', context.site.id)
+  throwIf(error)
   return NextResponse.json({ ok: true })
 }

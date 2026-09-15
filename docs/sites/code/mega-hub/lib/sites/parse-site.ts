@@ -8,7 +8,6 @@ import type {
   SiteTemplate,
 } from '@/types/site'
 
-const TEMPLATES: SiteTemplate[] = ['operator', 'destination']
 const PLACEMENT_MODES: PlacementMode[] = ['scope', 'approved', 'mixed']
 const PRICING_MODELS: PricingModel[] = ['free', 'monthly', 'commission', 'hybrid']
 
@@ -67,9 +66,13 @@ function parseAssistant(raw: unknown): SiteSettings['assistant'] {
 }
 
 export function parseSiteRow(data: Record<string, unknown>): SiteRow {
-  const template = TEMPLATES.includes(data.template as SiteTemplate)
-    ? (data.template as SiteTemplate)
-    : 'destination'
+  const raw = String(data.template ?? '')
+  const template: SiteTemplate =
+    raw === 'operator' || raw === 'tour_operator'
+      ? 'tour_operator'
+      : raw === 'guide'
+        ? 'guide'
+        : 'visit_center'
 
   return {
     id: String(data.id),
@@ -117,5 +120,5 @@ function parseSiteSeo(raw: unknown): SiteSeo {
 }
 
 export function isSiteTemplate(v: unknown): v is SiteTemplate {
-  return v === 'operator' || v === 'destination'
+  return v === 'visit_center' || v === 'tour_operator' || v === 'guide' || v === 'operator' || v === 'destination'
 }

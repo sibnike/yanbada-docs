@@ -4,7 +4,9 @@
 карточек, кабинет владельца и кабинет компании. Не макет — все действия пишутся в Postgres.
 
 Это та же насадка, что живёт в **mega-hub**: карточки читаются из кэша Vitrina
-(`hub.company_cache`, `hub.listing_cache`), приложение Vitrina не меняется.
+(`hub.company_cache`, `hub.listing_cache`), приложение Vitrina не меняется кроме
+маршрута (`pages.itinerary`). Кабинет и публичные страницы ходят в mega-vitrina
+только через `supabase-js` (`NEXT_PUBLIC_SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY`).
 
 ## Что здесь настоящее
 
@@ -36,9 +38,8 @@ mega-vitrina (роли, `auth.uid`, таблицы кэша), которого �
 Сид поднимает две витрины на одних данных — платный маркет города и бесплатный микросайт
 одной компании:
 
-- `/s/visit-karakol` — маркет Каракола, скин `destination`, режим `approved`
+- `/s/visit-karakol` — маркет Каракола, шаблон `visit_center`
 - `/s/visit-karakol/join` — тарифы и заявка на размещение
-- `/s/karakol-trails` — микросайт туркомпании, скин `operator`, режим `mixed`
 - `/cabinet` — вход (код из `CABINET_CODE`, по умолчанию `karakol`)
 - `/cabinet/visit-karakol` — кабинет владельца
 - `/cabinet/visit-karakol/tenant` — кабинет компании
@@ -48,12 +49,8 @@ mega-vitrina (роли, `auth.uid`, таблицы кэша), которого �
 
 ## Подключение к настоящей базе
 
-```bash
-DATABASE_URL='postgresql://postgres:...@db.<project>.supabase.co:5432/postgres' npm run db:setup
-```
-
-Без `--reset` и без `--stub`: в mega-vitrina схема `hub`, роли и кэш уже есть. Скрипт добавит
-только таблицы `hub.site_*` и данные Каракола.
+Публичные страницы и кабинет читают/пишут mega-vitrina через supabase-js. Neon / `DATABASE_URL`
+в приложении не используется. DDL — миграции в `docs/sites/sql` (копия в `vitrina/supabase/migrations`).
 
 ## Деплой на Vercel
 
@@ -66,7 +63,6 @@ cd apps/market
 vercel link
 vercel env add NEXT_PUBLIC_SUPABASE_URL production
 vercel env add SUPABASE_SERVICE_ROLE_KEY production
-vercel env add DATABASE_URL production      # кабинет; публичные страницы читают supabase-js
 vercel env add CABINET_CODE production
 vercel env add SESSION_SECRET production
 vercel deploy --prod
@@ -79,7 +75,7 @@ vercel deploy --prod
 
 | Здесь | В mega-hub |
 |---|---|
-| `lib/db.ts` (pg по `DATABASE_URL`) | `lib/supabase/server` + RLS |
+| `lib/sb.ts` (supabase-js, schema `hub` + `public`) | `lib/supabase/server` + RLS |
 | `lib/auth.ts` (код доступа) | Supabase Auth + `hub.site_members`, `public.is_tenant_admin` |
 | `app/api/admin/sites/[slug]/*` | те же адреса, черновик в `docs/sites/code/mega-hub/app/api` |
 | рендерер, типы, стили | импортируются напрямую из `docs/sites` — один экземпляр кода |

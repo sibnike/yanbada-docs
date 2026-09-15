@@ -1,4 +1,8 @@
+'use client'
+
 import { JoinForm } from '@/components/sites/join-form'
+import { RouteMap } from '@/components/sites/route-map'
+import { TourPicker } from '@/components/sites/tour-picker'
 import { loc, vitrinaHubUrl, vitrinaPageUrl } from '@/lib/sites/public-copy'
 import type { ReactNode } from 'react'
 import type {
@@ -465,6 +469,30 @@ function BlockView({
         </section>
       )
     }
+
+    case 'tour_picker':
+      return (
+        <TourPicker
+          listings={listings}
+          locale={locale}
+          title={blockTitle(block, locale, 'Подобрать тур')}
+          layout={block.payload.layout === 'dense' ? 'dense' : 'split'}
+          limit={Number(block.payload.limit) || 24}
+          anchor={String(block.payload.anchor ?? 'tours')}
+        />
+      )
+
+    case 'route_map':
+      return (
+        <RouteMap
+          listings={listings}
+          locale={locale}
+          title={blockTitle(block, locale, 'Маршрут')}
+          mode={block.payload.mode === 'selected' ? 'selected' : 'all'}
+          anchor={String(block.payload.anchor ?? 'route')}
+          center={site.settings.map_center}
+        />
+      )
 
     default:
       return null

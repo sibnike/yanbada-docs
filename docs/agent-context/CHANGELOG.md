@@ -6,6 +6,13 @@
 
 ## 2026-09-15
 
+**apps/market + vitrina + mega-hub** | Лендинги туризма: Vitrina — данные, витрина — показ
+- Кабинет и публичные страницы `apps/market` только через supabase-js; Neon/`DATABASE_URL` убраны из рантайма
+- Конструктор: живое превью, шаблоны `visit_center` / `tour_operator` / `guide`
+- Блоки `tour_picker` и `route_map` на `/s/visit-karakol`; бронь по-прежнему `/p/{page}?tenant=`
+- Канон маршрута: `pages.itinerary` → webhook → `hub.listing_cache.itinerary`; у Ала-Кёля три точки
+- **Дальше:** выкатить `apps/market` и `vitrina`/`mega-hub` на prod; проверить карту на стенде
+
 **welcome-kyrgyzstan + vitrina** | Три панели: кто правит KB, тенанта и карточки для ИИ
 - Tour Hub = места/аудиогиды; Vitrina = страница тенанта; админка Welcome `/admin/` = что из Vitrina видит этот портал (`shortPitch`/`bestFor`, синк)
 - Канон: Welcome `VITRINA-AI-MATCHING.md` §0, vitrina `docs/WELCOME-INDEX.md`

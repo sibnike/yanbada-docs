@@ -160,7 +160,7 @@ export function OwnerCabinet({ data, title }: { data: OwnerDashboard; title: str
         </>
       ) : null}
 
-      {tab === 'builder' ? <BuilderPanel slug={slug} pages={data.pages} /> : null}
+      {tab === 'builder' ? <BuilderPanel slug={slug} pages={data.pages} site={data.site} /> : null}
 
       {tab === 'content' ? (
         <ContentPanel slug={slug} posts={data.posts} manualCards={data.manualCards} />

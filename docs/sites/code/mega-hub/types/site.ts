@@ -5,8 +5,8 @@
 
 export type I18nMap = Record<string, string>
 
-/** Visual skin only. Layout comes from constructor blocks. */
-export type SiteTemplate = 'operator' | 'destination'
+/** Visual skin + starter block set. Layout still comes from constructor blocks. */
+export type SiteTemplate = 'visit_center' | 'tour_operator' | 'guide'
 
 export type SitePageKind = 'home' | 'page' | 'blog'
 export type SiteBlockType =
@@ -29,6 +29,8 @@ export type SiteBlockType =
   | 'pricing'
   | 'join'
   | 'cta'
+  | 'tour_picker'
+  | 'route_map'
 export type SiteKnowledgeKind = 'article' | 'faq' | 'rule'
 
 /** How cards get onto the page. approved = paid market. */
@@ -217,6 +219,35 @@ export type SiteListing = {
   next_departure_date: string | null
   seats_left: number | null
   featured: boolean
+  itinerary: ListingItineraryStop[]
+}
+
+export type ListingItineraryStop = {
+  day: number
+  title: string
+  lat: number
+  lng: number
+  note?: string
+}
+
+export function parseListingItinerary(value: unknown): ListingItineraryStop[] {
+  if (!Array.isArray(value)) return []
+  const stops: ListingItineraryStop[] = []
+  for (const item of value) {
+    if (!item || typeof item !== 'object') continue
+    const row = item as Record<string, unknown>
+    const lat = Number(row.lat)
+    const lng = Number(row.lng)
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue
+    stops.push({
+      day: Number(row.day) || 1,
+      title: String(row.title ?? ''),
+      lat,
+      lng,
+      note: row.note ? String(row.note) : undefined,
+    })
+  }
+  return stops
 }
 
 export type SiteCompany = {
@@ -380,4 +411,6 @@ export const SITE_BLOCK_TYPES: SiteBlockType[] = [
   'pricing',
   'join',
   'cta',
+  'tour_picker',
+  'route_map',
 ]

@@ -32,8 +32,11 @@ export async function PATCH(request: Request, { params }: Params) {
   }
   if (body.name && typeof body.name === 'object') patch.name = body.name
   if (body.description && typeof body.description === 'object') patch.description = body.description
-  if (typeof body.template === 'string' && ['operator', 'destination'].includes(body.template)) {
-    patch.template = body.template
+  if (
+    typeof body.template === 'string' &&
+    ['operator', 'destination', 'visit_center', 'tour_operator', 'guide'].includes(body.template)
+  ) {
+    patch.template = body.template === 'operator' ? 'tour_operator' : body.template === 'destination' ? 'visit_center' : body.template
   }
   if (typeof body.placement_mode === 'string' && ['scope', 'approved', 'mixed'].includes(body.placement_mode)) {
     patch.placement_mode = body.placement_mode

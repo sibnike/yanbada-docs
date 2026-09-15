@@ -1,19 +1,10 @@
-import { q } from '@/lib/db'
-import { usesVitrinaDb } from '@/lib/sb'
+import { hubDb, publicDb, throwIf } from '@/lib/sb'
 import { loadManualCards, loadPages, loadPlans, loadPosts } from '@/lib/sites/load'
 import { loc } from '@/lib/sites/public-copy'
+import { placementIsLive, type PlacementStatus } from '@/types/site'
 import type { I18nMap, SiteManualCard, SitePage, SitePlan, SitePost, SiteRow } from '@/types/site'
 
 type Row = Record<string, unknown>
-
-async function moneyRows<T extends Row>(query: () => Promise<T[]>): Promise<T[]> {
-  try {
-    return await query()
-  } catch (error) {
-    if (usesVitrinaDb()) return []
-    throw error
-  }
-}
 
 export type PlacementView = {
   id: string
@@ -105,83 +96,98 @@ const day = (value: unknown): string =>
 const stamp = (value: unknown): string =>
   value instanceof Date ? value.toISOString() : value ? String(value) : ''
 
-export async function loadOwnerDashboard(site: SiteRow): Promise<OwnerDashboard> {
-  const [placementRows, requestRows, leadRows, invoiceRows, dailyRows] = await Promise.all([
-    moneyRows(() =>
-      q<Row>(
-        `SELECT p.*, t.name AS tenant_name, l.title AS listing_title, pl.name AS plan_name,
-                hub.placement_is_live(p.status, p.paid_until, p.grace_days) AS live,
-                COALESCE(s.impressions, 0) AS impressions,
-                COALESCE(s.clicks, 0) AS clicks,
-                COALESCE(s.booking_hits, 0) AS booking_hits
-           FROM hub.site_placements p
-           LEFT JOIN public.tenants t ON t.id = p.tenant_id
-           LEFT JOIN hub.listing_cache l ON l.id = p.listing_id
-           LEFT JOIN hub.site_plans pl ON pl.id = p.plan_id
-           LEFT JOIN LATERAL (
-             SELECT sum(impressions)::int AS impressions,
-                    sum(clicks)::int AS clicks,
-                    sum(booking_hits)::int AS booking_hits
-               FROM hub.site_card_stats cs
-              WHERE cs.placement_id = p.id AND cs.day > current_date - 14
-           ) s ON true
-          WHERE p.site_id = $1
-          ORDER BY live DESC, p.slot DESC, p.sort_weight DESC, p.created_at`,
-        [site.id]
-      )
-    ),
-    moneyRows(() =>
-      q<Row>(
-        `SELECT r.*, t.name AS tenant_name, pl.name AS plan_name
-           FROM hub.site_placement_requests r
-           LEFT JOIN public.tenants t ON t.id = r.tenant_id
-           LEFT JOIN hub.site_plans pl ON pl.id = r.plan_id
-          WHERE r.site_id = $1
-          ORDER BY (r.status = 'pending') DESC, r.created_at DESC`,
-        [site.id]
-      )
-    ),
-    moneyRows(() =>
-      q<Row>(
-        `SELECT l.*, pl.name AS plan_name
-           FROM hub.site_leads l
-           LEFT JOIN hub.site_plans pl ON pl.id = l.plan_id
-          WHERE l.site_id = $1
-          ORDER BY (l.status = 'new') DESC, l.created_at DESC`,
-        [site.id]
-      )
-    ),
-    moneyRows(() =>
-      q<Row>(
-        `SELECT i.*, t.name AS tenant_name
-           FROM hub.site_invoices i
-           LEFT JOIN public.tenants t ON t.id = i.tenant_id
-          WHERE i.site_id = $1
-          ORDER BY i.issued_at DESC`,
-        [site.id]
-      )
-    ),
-    moneyRows(() =>
-      q<Row>(
-        `SELECT day, sum(impressions)::int AS impressions, sum(clicks)::int AS clicks,
-                sum(booking_hits)::int AS booking_hits
-           FROM hub.site_card_stats
-          WHERE site_id = $1 AND day > current_date - 14
-          GROUP BY day ORDER BY day`,
-        [site.id]
-      )
-    ),
-  ])
+function sinceDays(days: number): string {
+  const from = new Date()
+  from.setDate(from.getDate() - days)
+  return from.toISOString().slice(0, 10)
+}
 
-  const requestListingIds = Array.from(
-    new Set(requestRows.flatMap((row) => (Array.isArray(row.listing_ids) ? row.listing_ids.map(String) : [])))
+export async function loadOwnerDashboard(site: SiteRow): Promise<OwnerDashboard> {
+  const since = sinceDays(14)
+  const [placementRes, requestRes, leadRes, invoiceRes, statsRes] = await Promise.all([
+    hubDb().from('site_placements').select('*').eq('site_id', site.id).order('created_at', { ascending: false }),
+    hubDb().from('site_placement_requests').select('*').eq('site_id', site.id).order('created_at', { ascending: false }),
+    hubDb().from('site_leads').select('*').eq('site_id', site.id).order('created_at', { ascending: false }),
+    hubDb().from('site_invoices').select('*').eq('site_id', site.id).order('issued_at', { ascending: false }),
+    hubDb().from('site_card_stats').select('*').eq('site_id', site.id).gt('day', since),
+  ])
+  throwIf(placementRes.error)
+  throwIf(requestRes.error)
+  throwIf(leadRes.error)
+  throwIf(invoiceRes.error)
+  throwIf(statsRes.error)
+
+  const placementRows = (placementRes.data ?? []) as Row[]
+  const requestRows = (requestRes.data ?? []) as Row[]
+  const leadRows = (leadRes.data ?? []) as Row[]
+  const invoiceRows = (invoiceRes.data ?? []) as Row[]
+  const statsRows = (statsRes.data ?? []) as Row[]
+
+  const tenantIds = Array.from(
+    new Set([
+      ...placementRows.map((row) => String(row.tenant_id)),
+      ...requestRows.map((row) => String(row.tenant_id)),
+      ...invoiceRows.map((row) => String(row.tenant_id)),
+      ...site.tenant_ids,
+    ].filter(Boolean))
   )
-  const listingTitles = new Map<string, string>()
-  if (requestListingIds.length > 0) {
-    const rows = await q<Row>('SELECT id, title FROM hub.listing_cache WHERE id = ANY($1::uuid[])', [
-      requestListingIds,
+  const listingIds = Array.from(
+    new Set([
+      ...placementRows.map((row) => row.listing_id).filter(Boolean).map(String),
+      ...requestRows.flatMap((row) => (Array.isArray(row.listing_ids) ? row.listing_ids.map(String) : [])),
     ])
-    for (const row of rows) listingTitles.set(String(row.id), loc(row.title as I18nMap, 'ru'))
+  )
+  const planIds = Array.from(
+    new Set(
+      [
+        ...placementRows.map((row) => row.plan_id),
+        ...requestRows.map((row) => row.plan_id),
+        ...leadRows.map((row) => row.plan_id),
+      ]
+        .filter(Boolean)
+        .map(String)
+    )
+  )
+
+  const [tenantsRes, listingsRes, extraPlansRes] = await Promise.all([
+    tenantIds.length > 0
+      ? publicDb().from('tenants').select('id, name').in('id', tenantIds)
+      : Promise.resolve({ data: [] as Row[], error: null }),
+    listingIds.length > 0
+      ? hubDb().from('listing_cache').select('id, title').in('id', listingIds)
+      : Promise.resolve({ data: [] as Row[], error: null }),
+    planIds.length > 0
+      ? hubDb().from('site_plans').select('id, name').in('id', planIds)
+      : Promise.resolve({ data: [] as Row[], error: null }),
+  ])
+  throwIf(tenantsRes.error)
+  throwIf(listingsRes.error)
+  throwIf(extraPlansRes.error)
+
+  const tenantName = new Map(((tenantsRes.data ?? []) as Row[]).map((row) => [String(row.id), String(row.name)]))
+  const listingTitle = new Map(
+    ((listingsRes.data ?? []) as Row[]).map((row) => [String(row.id), loc(row.title as I18nMap, 'ru', 'Услуга')])
+  )
+  const planName = new Map(
+    ((extraPlansRes.data ?? []) as Row[]).map((row) => [String(row.id), loc(row.name as I18nMap, 'ru')])
+  )
+
+  const statsByPlacement = new Map<string, { impressions: number; clicks: number; booking_hits: number }>()
+  const dailyMap = new Map<string, { day: string; impressions: number; clicks: number; booking_hits: number }>()
+  for (const row of statsRows) {
+    const key = String(row.placement_id ?? '')
+    const current = statsByPlacement.get(key) ?? { impressions: 0, clicks: 0, booking_hits: 0 }
+    current.impressions += Number(row.impressions ?? 0)
+    current.clicks += Number(row.clicks ?? 0)
+    current.booking_hits += Number(row.booking_hits ?? 0)
+    statsByPlacement.set(key, current)
+
+    const dayKey = day(row.day)
+    const daily = dailyMap.get(dayKey) ?? { day: dayKey, impressions: 0, clicks: 0, booking_hits: 0 }
+    daily.impressions += Number(row.impressions ?? 0)
+    daily.clicks += Number(row.clicks ?? 0)
+    daily.booking_hits += Number(row.booking_hits ?? 0)
+    dailyMap.set(dayKey, daily)
   }
 
   const [plans, pages, posts, manualCards, tenants] = await Promise.all([
@@ -189,8 +195,38 @@ export async function loadOwnerDashboard(site: SiteRow): Promise<OwnerDashboard>
     loadPages(site.id, false),
     loadPosts(site.id, false),
     loadManualCards(site.id),
-    loadTenantOptions(site),
+    loadTenantOptions(site, placementRows),
   ])
+
+  const placements: PlacementView[] = placementRows.map((row) => {
+    const live = placementIsLive({
+      status: String(row.status) as PlacementStatus,
+      paid_until: row.paid_until ? stamp(row.paid_until) : null,
+      grace_days: Number(row.grace_days ?? 7),
+    })
+    const stats = statsByPlacement.get(String(row.id)) ?? { impressions: 0, clicks: 0, booking_hits: 0 }
+    return {
+      id: String(row.id),
+      tenant_id: String(row.tenant_id),
+      tenant_name: tenantName.get(String(row.tenant_id)) ?? null,
+      listing_id: row.listing_id ? String(row.listing_id) : null,
+      listing_title: row.listing_id ? listingTitle.get(String(row.listing_id)) ?? 'Услуга' : 'Карточка компании',
+      plan_name: row.plan_id ? planName.get(String(row.plan_id)) ?? null : null,
+      slot: String(row.slot),
+      sort_weight: Number(row.sort_weight ?? 0),
+      status: String(row.status),
+      price_per_period: Number(row.price_per_period ?? 0),
+      currency: String(row.currency ?? site.default_currency),
+      paid_until: row.paid_until ? stamp(row.paid_until) : null,
+      grace_days: Number(row.grace_days ?? 7),
+      live,
+      impressions: stats.impressions,
+      clicks: stats.clicks,
+      booking_hits: stats.booking_hits,
+    }
+  })
+
+  placements.sort((a, b) => Number(b.live) - Number(a.live) || a.slot.localeCompare(b.slot))
 
   return {
     site,
@@ -199,38 +235,18 @@ export async function loadOwnerDashboard(site: SiteRow): Promise<OwnerDashboard>
     posts,
     manualCards,
     tenants,
-    placements: placementRows.map((row) => ({
-      id: String(row.id),
-      tenant_id: String(row.tenant_id),
-      tenant_name: row.tenant_name ? String(row.tenant_name) : null,
-      listing_id: row.listing_id ? String(row.listing_id) : null,
-      listing_title: row.listing_id
-        ? loc(row.listing_title as I18nMap, 'ru', 'Услуга')
-        : 'Карточка компании',
-      plan_name: row.plan_name ? loc(row.plan_name as I18nMap, 'ru') : null,
-      slot: String(row.slot),
-      sort_weight: Number(row.sort_weight ?? 0),
-      status: String(row.status),
-      price_per_period: Number(row.price_per_period ?? 0),
-      currency: String(row.currency ?? site.default_currency),
-      paid_until: row.paid_until ? stamp(row.paid_until) : null,
-      grace_days: Number(row.grace_days ?? 7),
-      live: row.live === true,
-      impressions: Number(row.impressions ?? 0),
-      clicks: Number(row.clicks ?? 0),
-      booking_hits: Number(row.booking_hits ?? 0),
-    })),
+    placements,
     requests: requestRows.map((row) => {
       const ids = Array.isArray(row.listing_ids) ? row.listing_ids.map(String) : []
       return {
         id: String(row.id),
         tenant_id: String(row.tenant_id),
-        tenant_name: row.tenant_name ? String(row.tenant_name) : null,
+        tenant_name: tenantName.get(String(row.tenant_id)) ?? null,
         plan_id: row.plan_id ? String(row.plan_id) : null,
-        plan_name: row.plan_name ? loc(row.plan_name as I18nMap, 'ru') : null,
+        plan_name: row.plan_id ? planName.get(String(row.plan_id)) ?? null : null,
         direction: row.direction === 'owner_invite' ? 'owner_invite' : 'tenant_request',
         listing_ids: ids,
-        listing_titles: ids.map((id) => listingTitles.get(id) ?? 'Услуга'),
+        listing_titles: ids.map((id) => listingTitle.get(id) ?? 'Услуга'),
         include_company: row.include_company === true,
         message: row.message ? String(row.message) : null,
         contact: (row.contact && typeof row.contact === 'object' ? row.contact : {}) as Record<string, string>,
@@ -244,7 +260,7 @@ export async function loadOwnerDashboard(site: SiteRow): Promise<OwnerDashboard>
       company_name: String(row.company_name),
       contact_name: row.contact_name ? String(row.contact_name) : null,
       contact: (row.contact && typeof row.contact === 'object' ? row.contact : {}) as Record<string, string>,
-      plan_name: row.plan_name ? loc(row.plan_name as I18nMap, 'ru') : null,
+      plan_name: row.plan_id ? planName.get(String(row.plan_id)) ?? null : null,
       message: row.message ? String(row.message) : null,
       source: row.source ? String(row.source) : null,
       status: String(row.status),
@@ -253,7 +269,7 @@ export async function loadOwnerDashboard(site: SiteRow): Promise<OwnerDashboard>
     invoices: invoiceRows.map((row) => ({
       id: String(row.id),
       tenant_id: String(row.tenant_id),
-      tenant_name: row.tenant_name ? String(row.tenant_name) : null,
+      tenant_name: tenantName.get(String(row.tenant_id)) ?? null,
       period_start: day(row.period_start),
       period_end: day(row.period_end),
       amount: Number(row.amount ?? 0),
@@ -263,12 +279,7 @@ export async function loadOwnerDashboard(site: SiteRow): Promise<OwnerDashboard>
       status: String(row.status),
       paid_at: row.paid_at ? stamp(row.paid_at) : null,
     })),
-    daily: dailyRows.map((row) => ({
-      day: day(row.day),
-      impressions: Number(row.impressions ?? 0),
-      clicks: Number(row.clicks ?? 0),
-      booking_hits: Number(row.booking_hits ?? 0),
-    })),
+    daily: Array.from(dailyMap.values()).sort((a, b) => a.day.localeCompare(b.day)),
   }
 }
 
@@ -301,33 +312,40 @@ export async function loadTenantDashboard(site: SiteRow, tenantId: string): Prom
 }
 
 /** Tenants the owner can invite: everyone in scope plus everyone already placed. */
-async function loadTenantOptions(site: SiteRow): Promise<TenantOption[]> {
-  const rows = await q<Row>(
-    `SELECT t.id, t.name,
-            (SELECT array_agg(DISTINCT p.listing_id) FROM hub.site_placements p
-              WHERE p.site_id = $1 AND p.tenant_id = t.id AND p.listing_id IS NOT NULL) AS placed_listings,
-            EXISTS (SELECT 1 FROM hub.site_placements p
-                     WHERE p.site_id = $1 AND p.tenant_id = t.id AND p.listing_id IS NULL) AS company_placed
-       FROM public.tenants t
-      WHERE t.id = ANY($2::uuid[])
-         OR EXISTS (SELECT 1 FROM hub.site_placements p WHERE p.site_id = $1 AND p.tenant_id = t.id)
-      ORDER BY t.name`,
-    [site.id, site.tenant_ids]
+async function loadTenantOptions(site: SiteRow, placementRows: Row[]): Promise<TenantOption[]> {
+  const tenantIds = Array.from(
+    new Set([...site.tenant_ids, ...placementRows.map((row) => String(row.tenant_id))])
   )
-  if (rows.length === 0) return []
+  if (tenantIds.length === 0) return []
 
-  const listings = await q<Row>(
-    'SELECT id, tenant_id, title FROM hub.listing_cache WHERE tenant_id = ANY($1::uuid[]) ORDER BY page_slug',
-    [rows.map((row) => String(row.id))]
-  )
+  const [tenantsRes, listingsRes] = await Promise.all([
+    publicDb().from('tenants').select('id, name').in('id', tenantIds).order('name'),
+    hubDb().from('listing_cache').select('id, tenant_id, title').in('tenant_id', tenantIds).order('page_slug'),
+  ])
+  throwIf(tenantsRes.error)
+  throwIf(listingsRes.error)
 
-  return rows.map((row) => {
+  const listings = (listingsRes.data ?? []) as Row[]
+  const placedByTenant = new Map<string, Set<string>>()
+  const companyPlaced = new Set<string>()
+  for (const row of placementRows) {
+    const tenantId = String(row.tenant_id)
+    if (!row.listing_id) {
+      companyPlaced.add(tenantId)
+      continue
+    }
+    const set = placedByTenant.get(tenantId) ?? new Set<string>()
+    set.add(String(row.listing_id))
+    placedByTenant.set(tenantId, set)
+  }
+
+  return ((tenantsRes.data ?? []) as Row[]).map((row) => {
     const tenantId = String(row.id)
-    const placed = new Set((Array.isArray(row.placed_listings) ? row.placed_listings : []).map(String))
+    const placed = placedByTenant.get(tenantId) ?? new Set<string>()
     return {
       tenant_id: tenantId,
       name: String(row.name),
-      company_placed: row.company_placed === true,
+      company_placed: companyPlaced.has(tenantId),
       listings: listings
         .filter((l) => String(l.tenant_id) === tenantId)
         .map((l) => ({

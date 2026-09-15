@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { one, q } from '@/lib/db'
+import { hubDb, throwIf } from '@/lib/sb'
 import { bad, isUuid, ownerContext, readJson, text } from '@/lib/api'
 import { loadPlans } from '@/lib/sites/load'
 import { approveCards, cardLimitError } from '@/lib/sites/placements'
@@ -12,13 +12,14 @@ export async function GET(_request: Request, { params }: Params) {
   const { slug } = await params
   const context = await ownerContext(slug)
   if (context instanceof NextResponse) return context
-  const rows = await q(
-    `SELECT r.*, t.name AS tenant_name FROM hub.site_placement_requests r
-       LEFT JOIN public.tenants t ON t.id = r.tenant_id
-      WHERE r.site_id = $1 AND r.status = 'pending' ORDER BY r.created_at`,
-    [context.site.id]
-  )
-  return NextResponse.json({ requests: rows })
+  const { data, error } = await hubDb()
+    .from('site_placement_requests')
+    .select('*')
+    .eq('site_id', context.site.id)
+    .eq('status', 'pending')
+    .order('created_at')
+  throwIf(error)
+  return NextResponse.json({ requests: data ?? [] })
 }
 
 /** Owner invites a tenant: same table, other direction. */
@@ -31,21 +32,22 @@ export async function POST(request: Request, { params }: Params) {
   if (!isUuid(body.tenant_id)) return bad('Не выбрана компания')
   const listingIds = Array.isArray(body.listing_ids) ? body.listing_ids.filter(isUuid) : []
 
-  const row = await one<{ id: string }>(
-    `INSERT INTO hub.site_placement_requests
-       (site_id, tenant_id, plan_id, direction, listing_ids, include_company, message, status)
-     VALUES ($1, $2, $3, 'owner_invite', $4::uuid[], $5, $6, 'pending')
-     RETURNING id`,
-    [
-      context.site.id,
-      body.tenant_id,
-      isUuid(body.plan_id) ? body.plan_id : null,
-      listingIds,
-      body.include_company !== false,
-      text(body.message, 1000),
-    ]
-  )
-  return NextResponse.json({ ok: true, id: row?.id })
+  const { data, error } = await hubDb()
+    .from('site_placement_requests')
+    .insert({
+      site_id: context.site.id,
+      tenant_id: body.tenant_id,
+      plan_id: isUuid(body.plan_id) ? body.plan_id : null,
+      direction: 'owner_invite',
+      listing_ids: listingIds,
+      include_company: body.include_company !== false,
+      message: text(body.message, 1000),
+      status: 'pending',
+    })
+    .select('id')
+    .maybeSingle()
+  throwIf(error)
+  return NextResponse.json({ ok: true, id: data?.id })
 }
 
 export async function PATCH(request: Request, { params }: Params) {
@@ -57,22 +59,23 @@ export async function PATCH(request: Request, { params }: Params) {
   if (!isUuid(body.id)) return bad('Нет заявки')
   const action = String(body.action ?? '')
 
-  const requestRow = await one<Record<string, unknown>>(
-    'SELECT * FROM hub.site_placement_requests WHERE id = $1 AND site_id = $2',
-    [body.id, context.site.id]
-  )
+  const { data: requestRow, error } = await hubDb()
+    .from('site_placement_requests')
+    .select('*')
+    .eq('id', body.id)
+    .eq('site_id', context.site.id)
+    .maybeSingle()
+  throwIf(error)
   if (!requestRow) return bad('Заявка не найдена', 404)
 
   if (action === 'reject') {
     const reason = text(body.reject_reason, 600)
-    // Without a reason the funnel dies: the tenant never learns what to fix.
     if (!reason) return bad('Укажите причину отказа — её увидит компания')
-    await q(
-      `UPDATE hub.site_placement_requests
-          SET status = 'rejected', reject_reason = $2, decided_at = now()
-        WHERE id = $1`,
-      [body.id, reason]
-    )
+    const { error: updateError } = await hubDb()
+      .from('site_placement_requests')
+      .update({ status: 'rejected', reject_reason: reason, decided_at: new Date().toISOString() })
+      .eq('id', body.id)
+    throwIf(updateError)
     return NextResponse.json({ ok: true, status: 'rejected' })
   }
 
@@ -88,13 +91,19 @@ export async function PATCH(request: Request, { params }: Params) {
   const limit = await cardLimitError(context.site, tenantId, plan, cards.length)
   if (limit) return bad(limit)
 
-  const created = await approveCards({ site: context.site, tenantId, plan, cards, requestId: String(requestRow.id) })
+  const created = await approveCards({
+    site: context.site,
+    tenantId,
+    plan,
+    cards,
+    requestId: String(requestRow.id),
+  })
 
-  await q(
-    `UPDATE hub.site_placement_requests SET status = 'approved', decided_at = now(), reject_reason = NULL
-      WHERE id = $1`,
-    [requestRow.id]
-  )
+  const { error: approveError } = await hubDb()
+    .from('site_placement_requests')
+    .update({ status: 'approved', decided_at: new Date().toISOString(), reject_reason: null })
+    .eq('id', requestRow.id)
+  throwIf(approveError)
 
   return NextResponse.json({ ok: true, status: 'approved', ...created })
 }

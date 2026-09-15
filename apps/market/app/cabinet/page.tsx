@@ -1,4 +1,4 @@
-import { q } from '@/lib/db'
+import { publicDb, throwIf } from '@/lib/sb'
 import { listSites } from '@/lib/sites/load'
 import { loc } from '@/lib/sites/public-copy'
 import { LoginForm } from '@/components/cabinet/login-form'
@@ -10,21 +10,19 @@ export default async function CabinetLogin() {
   const all = await listSites()
   const sites = all.filter((site) => site.slug === preferred)
   const shown = sites.length > 0 ? sites : all.slice(0, 1)
-  const tenantRows = await q<{ id: string; name: string; site_id: string }>(
-    `SELECT DISTINCT t.id, t.name, s.id AS site_id
-       FROM hub.sites s
-       JOIN public.tenants t
-         ON t.id = ANY(s.tenant_ids)
-         OR EXISTS (SELECT 1 FROM hub.site_placements p WHERE p.site_id = s.id AND p.tenant_id = t.id)
-      ORDER BY t.name`
-  )
+  const tenantIds = Array.from(new Set(shown.flatMap((site) => site.tenant_ids)))
+  const { data, error } = tenantIds.length
+    ? await publicDb().from('tenants').select('id, name').in('id', tenantIds).order('name')
+    : { data: [] as { id: string; name: string }[], error: null }
+  throwIf(error)
 
+  const byId = new Map((data ?? []).map((row) => [row.id, row.name]))
   const options = shown.map((site) => ({
     slug: site.slug,
     name: loc(site.settings.display_name, 'ru', loc(site.name, 'ru', site.slug)),
-    tenants: tenantRows
-      .filter((row) => row.site_id === site.id)
-      .map((row) => ({ id: row.id, name: row.name })),
+    tenants: site.tenant_ids
+      .map((id) => ({ id, name: byId.get(id) ?? id }))
+      .filter((row) => row.name),
   }))
 
   return (

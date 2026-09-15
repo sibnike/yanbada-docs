@@ -1,8 +1,4 @@
-import { createClient } from '@supabase/supabase-js'
-
-export function usesVitrinaDb(): boolean {
-  return Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY)
-}
+import { createClient, type PostgrestError } from '@supabase/supabase-js'
 
 function url(): string {
   const value = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -27,4 +23,8 @@ export function publicDb() {
   return createClient(url(), key(), {
     auth: { persistSession: false, autoRefreshToken: false },
   })
+}
+
+export function throwIf(error: PostgrestError | null): void {
+  if (error) throw new Error(error.message)
 }

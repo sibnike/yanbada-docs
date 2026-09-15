@@ -1,9 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { BlockEditor } from '@/components/cabinet/block-editor'
 import { useApi } from '@/components/cabinet/use-api'
-import { SITE_BLOCK_TYPES, type SiteBlockType, type SiteManualCard, type SitePage, type SitePost, type SiteRow } from '@/types/site'
+import { SiteCanvas } from '@/components/sites/site-canvas'
+import { SITE_TEMPLATE_OPTIONS } from '@/lib/sites/templates'
+import { SITE_BLOCK_TYPES, type SiteBlockType, type SiteManualCard, type SitePage, type SitePost, type SitePublicPayload, type SiteRow } from '@/types/site'
 
 const BLOCK_LABEL: Record<SiteBlockType, string> = {
   hero: 'Обложка',
@@ -25,29 +27,52 @@ const BLOCK_LABEL: Record<SiteBlockType, string> = {
   pricing: 'Тарифы',
   join: 'Форма заявки',
   cta: 'Призыв',
+  tour_picker: 'Подбор туров',
+  route_map: 'Карта маршрута',
 }
 
-export function BuilderPanel({ slug, pages }: { slug: string; pages: SitePage[] }) {
+export function BuilderPanel({ slug, pages, site }: { slug: string; pages: SitePage[]; site: SiteRow }) {
   const { call, pending, error } = useApi()
   const [pageId, setPageId] = useState(pages[0]?.id ?? '')
   const [blockId, setBlockId] = useState(pages[0]?.blocks[0]?.id ?? '')
   const [draft, setDraft] = useState<Record<string, unknown> | null>(null)
-  const [newType, setNewType] = useState<SiteBlockType>('info')
+  const [newType, setNewType] = useState<SiteBlockType>('tour_picker')
   const [newPage, setNewPage] = useState({ slug: '', title: '' })
+  const [live, setLive] = useState<SitePublicPayload | null>(null)
+
+  useEffect(() => {
+    void fetch(`/api/sites/${slug}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((payload: SitePublicPayload | null) => setLive(payload))
+  }, [slug])
 
   const page = pages.find((p) => p.id === pageId) ?? pages[0]
   const block = page?.blocks.find((b) => b.id === blockId) ?? page?.blocks[0] ?? null
   const payload = draft ?? block?.payload ?? {}
 
+  const preview = useMemo<SitePublicPayload | null>(() => {
+    if (!live) return null
+    const nextPages = (page ? pages : live.pages).map((item) => {
+      if (!page || item.id !== page.id) return item
+      return {
+        ...item,
+        blocks: item.blocks.map((b) => (b.id === block?.id ? { ...b, payload } : b)),
+      }
+    })
+    return { ...live, site: { ...live.site, ...site, settings: { ...live.site.settings, ...site.settings } }, pages: nextPages }
+  }, [live, pages, page, block, payload, site])
+
   return (
     <section className="cab__panel">
       <h2>Конструктор страниц</h2>
       <p>
-        Страница собирается из блоков. Карточки компаний и услуг подтягиваются из размещений, всё
-        остальное — контент витрины.
+        Слева блоки витрины, справа живая страница. Туры и бронь берутся из Vitrina, здесь — как их
+        показать.
       </p>
       {error ? <p className="cab__error">{error}</p> : null}
 
+      <div className="cab__work">
+        <div>
       <div className="cab__row" style={{ marginBottom: 14 }}>
         {pages.map((item) => (
           <button
@@ -258,12 +283,18 @@ export function BuilderPanel({ slug, pages }: { slug: string; pages: SitePage[] 
           Создать
         </button>
       </div>
+        </div>
+        <div className="cab__preview">
+          {preview ? <SiteCanvas payload={preview} pageSlug={page?.slug ?? 'home'} /> : <p className="cab__muted">Загружаем превью…</p>}
+        </div>
+      </div>
     </section>
   )
 }
 
 export function DesignPanel({ slug, site }: { slug: string; site: SiteRow }) {
   const { call, pending, error } = useApi()
+  const [live, setLive] = useState<SitePublicPayload | null>(null)
   const [form, setForm] = useState({
     display_name: site.settings.display_name?.ru ?? '',
     accent_color: site.settings.accent_color ?? '#1c7c6b',
@@ -277,13 +308,68 @@ export function DesignPanel({ slug, site }: { slug: string; site: SiteRow }) {
     assistant_enabled: site.settings.assistant?.enabled !== false,
   })
 
+  useEffect(() => {
+    void fetch(`/api/sites/${slug}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((payload: SitePublicPayload | null) => setLive(payload))
+  }, [slug])
+
+  const preview = useMemo<SitePublicPayload | null>(() => {
+    if (!live) return null
+    return {
+      ...live,
+      site: {
+        ...live.site,
+        template: site.template,
+        settings: {
+          ...live.site.settings,
+          display_name: { ru: form.display_name },
+          accent_color: form.accent_color,
+          brand_color: form.brand_color,
+          hero_title: { ru: form.hero_title },
+          hero_subtitle: { ru: form.hero_subtitle },
+          hero_image_url: form.hero_image_url,
+          footer_text: { ru: form.footer_text },
+        },
+      },
+    }
+  }, [live, form, site.template])
+
   return (
     <section className="cab__panel">
       <h2>Оформление и правила витрины</h2>
       <p>Владелец задаёт вид и то, как карточки попадают на страницу.</p>
       {error ? <p className="cab__error">{error}</p> : null}
 
+      <div className="cab__work">
       <div className="cab__form">
+        <label>
+          Шаблон витрины
+          <select
+            value={site.template}
+            onChange={(e) => call(`/api/admin/sites/${slug}`, 'PATCH', { template: e.target.value })}
+          >
+            {SITE_TEMPLATE_OPTIONS.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <p className="cab__muted">{SITE_TEMPLATE_OPTIONS.find((item) => item.id === site.template)?.hint}</p>
+        <button
+          className="cab__btn cab__btn--ghost"
+          disabled={pending}
+          onClick={() =>
+            call(`/api/admin/sites/${slug}/content`, 'POST', {
+              entity: 'template',
+              action: 'apply',
+              template: site.template,
+            })
+          }
+        >
+          Собрать главную по шаблону
+        </button>
         <div className="cab__row">
           <label style={{ flex: 1 }}>
             Название витрины
@@ -377,6 +463,10 @@ export function DesignPanel({ slug, site }: { slug: string; site: SiteRow }) {
         >
           Сохранить оформление
         </button>
+      </div>
+        <div className="cab__preview">
+          {preview ? <SiteCanvas payload={preview} /> : <p className="cab__muted">Загружаем превью…</p>}
+        </div>
       </div>
 
       <h2 style={{ marginTop: 24 }}>Правила размещения</h2>

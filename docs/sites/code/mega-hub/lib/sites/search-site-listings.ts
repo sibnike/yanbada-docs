@@ -2,6 +2,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import {
   applyPlacements,
   listingMatchesSiteScope,
+  parseListingItinerary,
   placementIsLive,
   type SiteCompany,
   type SiteListing,
@@ -10,7 +11,7 @@ import {
 } from '@/types/site'
 
 const LISTING_SELECT =
-  'id, tenant_id, page_slug, title, short_text, marketplace_themes, marketplace_slugs, price_from, price_currency, cover_image_url, images, next_departure_date, seats_left, service_country_code, service_city_codes'
+  'id, tenant_id, page_slug, title, short_text, marketplace_themes, marketplace_slugs, price_from, price_currency, cover_image_url, images, next_departure_date, seats_left, service_country_code, service_city_codes, itinerary'
 
 const COMPANY_SELECT =
   'tenant_id, name, city, country, logo_url, cover_photo_url, short_description, about, gallery'
@@ -31,6 +32,7 @@ type ListingRow = {
   seats_left: number | null
   service_country_code: string | null
   service_city_codes: string[] | null
+  itinerary: unknown
 }
 
 type CompanyRow = {
@@ -148,6 +150,7 @@ export async function searchSiteListings(
       next_departure_date: row.next_departure_date,
       seats_left: typeof row.seats_left === 'number' ? row.seats_left : null,
       featured: featured.has(String(row.id)),
+      itinerary: parseListingItinerary(row.itinerary),
     })
   }
 

@@ -2,9 +2,11 @@ import { NextResponse } from 'next/server'
 import { bad, isUuid, ownerContext, readJson, text } from '@/lib/api'
 import {
   deleteBlock,
+  deleteBlocksForPage,
   deleteManualCard,
   deletePage,
   deletePost,
+  findHomePageId,
   getBlock,
   insertBlock,
   insertManualCard,
@@ -17,8 +19,10 @@ import {
   updateManualCard,
   updatePage,
   updatePost,
+  updateSiteRow,
 } from '@/lib/sites/write'
-import { SITE_BLOCK_TYPES, type SiteBlockType } from '@/types/site'
+import { templateBlocks } from '@/lib/sites/templates'
+import { SITE_BLOCK_TYPES, type SiteBlockType, type SiteTemplate } from '@/types/site'
 
 export const dynamic = 'force-dynamic'
 
@@ -43,6 +47,7 @@ export async function POST(request: Request, { params }: Params) {
     if (entity === 'block') return await handleBlock(siteId, action, body)
     if (entity === 'post') return await handlePost(siteId, action, body)
     if (entity === 'manual_card') return await handleManualCard(siteId, action, body)
+    if (entity === 'template') return await handleTemplate(siteId, action, body)
     return bad('Неизвестный объект')
   } catch (error) {
     return bad(error instanceof Error ? error.message : 'Не удалось сохранить', 500)
@@ -256,7 +261,25 @@ function defaultPayload(type: SiteBlockType): Record<string, unknown> {
       return { title: { ru: 'Заявка на размещение' }, require_terms: true, terms: { ru: '' } }
     case 'cta':
       return { title: { ru: 'Призыв' }, body: { ru: '' }, action: { label: { ru: 'Подробнее' }, href: '#' } }
+    case 'tour_picker':
+      return { title: { ru: 'Подобрать тур' }, layout: 'split', limit: 24, anchor: 'tours' }
+    case 'route_map':
+      return { title: { ru: 'Маршрут' }, mode: 'all', anchor: 'route' }
     default:
       return {}
   }
+}
+
+async function handleTemplate(siteId: string, action: string, body: Record<string, unknown>) {
+  if (action !== 'apply') return bad('Неизвестное действие')
+  const template = String(body.template) as SiteTemplate
+  if (!['visit_center', 'tour_operator', 'guide'].includes(template)) return bad('Неизвестный шаблон')
+  const homeId = await findHomePageId(siteId)
+  if (!homeId) return bad('Нет главной страницы', 404)
+  await updateSiteRow(siteId, { template })
+  await deleteBlocksForPage(homeId)
+  for (const block of templateBlocks(template)) {
+    await insertBlock({ page_id: homeId, type: block.type, payload: block.payload, sort_order: block.sort_order })
+  }
+  return NextResponse.json({ ok: true, template })
 }

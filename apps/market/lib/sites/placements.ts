@@ -1,6 +1,18 @@
-import { one } from '@/lib/db'
+import { hubDb, throwIf } from '@/lib/sb'
 import { issueInvoice, planActivation } from '@/lib/sites/billing'
 import type { SitePlan, SiteRow } from '@/types/site'
+
+async function findPlacement(siteId: string, tenantId: string, listingId: string | null) {
+  let query = hubDb()
+    .from('site_placements')
+    .select('id, paid_until')
+    .eq('site_id', siteId)
+    .eq('tenant_id', tenantId)
+  query = listingId ? query.eq('listing_id', listingId) : query.is('listing_id', null)
+  const { data, error } = await query.maybeSingle()
+  throwIf(error)
+  return data
+}
 
 /**
  * Approval creates the cards. A free or trial plan goes live at once; a paid one
@@ -17,43 +29,40 @@ export async function approveCards(input: {
   const price = input.plan?.price_per_card ?? 0
   const currency = input.plan?.currency ?? input.site.default_currency
   let invoices = 0
+  const now = new Date().toISOString()
 
   for (const listingId of input.cards) {
-    const placement = await one<{ id: string }>(
-      `INSERT INTO hub.site_placements
-         (site_id, tenant_id, listing_id, plan_id, request_id, slot, status,
-          price_per_period, currency, paid_until)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-       ON CONFLICT ON CONSTRAINT site_placements_card_key DO UPDATE
-         SET plan_id = EXCLUDED.plan_id,
-             request_id = EXCLUDED.request_id,
-             slot = EXCLUDED.slot,
-             status = EXCLUDED.status,
-             price_per_period = EXCLUDED.price_per_period,
-             currency = EXCLUDED.currency,
-             paid_until = COALESCE(hub.site_placements.paid_until, EXCLUDED.paid_until),
-             hidden_reason = NULL,
-             updated_at = now()
-       RETURNING id`,
-      [
-        input.site.id,
-        input.tenantId,
-        listingId,
-        input.plan?.id ?? null,
-        input.requestId,
-        input.plan?.slot ?? 'standard',
-        status,
-        price,
-        currency,
-        paidUntil?.toISOString() ?? null,
-      ]
-    )
+    const existing = await findPlacement(input.site.id, input.tenantId, listingId)
+    const row = {
+      site_id: input.site.id,
+      tenant_id: input.tenantId,
+      listing_id: listingId,
+      plan_id: input.plan?.id ?? null,
+      request_id: input.requestId,
+      slot: input.plan?.slot ?? 'standard',
+      status,
+      price_per_period: price,
+      currency,
+      paid_until: existing?.paid_until ?? paidUntil?.toISOString() ?? null,
+      hidden_reason: null,
+      updated_at: now,
+    }
 
-    if (status === 'pending_payment' && placement) {
+    let placementId: string | null = existing ? String(existing.id) : null
+    if (existing) {
+      const { error } = await hubDb().from('site_placements').update(row).eq('id', existing.id)
+      throwIf(error)
+    } else {
+      const { data, error } = await hubDb().from('site_placements').insert(row).select('id').maybeSingle()
+      throwIf(error)
+      placementId = data ? String(data.id) : null
+    }
+
+    if (status === 'pending_payment' && placementId) {
       const invoice = await issueInvoice({
         site: input.site,
         tenantId: input.tenantId,
-        placementId: placement.id,
+        placementId,
         amount: price,
         currency,
         months: input.plan?.period_months ?? 1,
@@ -72,11 +81,13 @@ export async function cardLimitError(
   plan: SitePlan | null,
   adding: number
 ): Promise<string | null> {
-  const row = await one<{ count: number }>(
-    'SELECT count(*)::int AS count FROM hub.site_placements WHERE site_id = $1 AND tenant_id = $2',
-    [site.id, tenantId]
-  )
-  const current = Number(row?.count ?? 0)
+  const { data, error } = await hubDb()
+    .from('site_placements')
+    .select('id')
+    .eq('site_id', site.id)
+    .eq('tenant_id', tenantId)
+  throwIf(error)
+  const current = data?.length ?? 0
   if (site.max_cards_per_tenant != null && current + adding > site.max_cards_per_tenant) {
     return `Лимит витрины: ${site.max_cards_per_tenant} карточек на компанию`
   }

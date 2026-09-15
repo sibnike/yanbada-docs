@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { q } from '@/lib/db'
+import { hubDb, throwIf } from '@/lib/sb'
 import { bad, isUuid, ownerContext, readJson } from '@/lib/api'
 
 export const dynamic = 'force-dynamic'
@@ -16,12 +16,11 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ sl
   const status = String(body.status ?? '')
   if (!STATUSES.includes(status)) return bad('Неизвестный статус')
 
-  // A lead becomes a tenant only after it registers in Vitrina; until then the
-  // owner just moves it along the funnel.
-  await q('UPDATE hub.site_leads SET status = $3 WHERE id = $1 AND site_id = $2', [
-    body.id,
-    context.site.id,
-    status,
-  ])
+  const { error } = await hubDb()
+    .from('site_leads')
+    .update({ status })
+    .eq('id', body.id)
+    .eq('site_id', context.site.id)
+  throwIf(error)
   return NextResponse.json({ ok: true })
 }
