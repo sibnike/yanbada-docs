@@ -4,6 +4,14 @@
 
 ---
 
+## 2026-09-15
+
+**welcome-kyrgyzstan + vitrina** | Три панели: кто правит KB, тенанта и карточки для ИИ
+- Tour Hub = места/аудиогиды; Vitrina = страница тенанта; админка Welcome `/admin/` = что из Vitrina видит этот портал (`shortPitch`/`bestFor`, синк)
+- Канон: Welcome `VITRINA-AI-MATCHING.md` §0, vitrina `docs/WELCOME-INDEX.md`
+- Консьерж уже читает `welcome_places` (`_live-places.js`); `geo` в индексе ещё null
+- **Дальше:** выкатить Welcome Production (логин `/admin/` + live places); `ANTHROPIC_API_KEY` в Vercel; lat/lng в индексе Vitrina
+
 ## 2026-09-11
 
 **vitrina** | Промо Kendala на prod + фиксы Chrome mobile

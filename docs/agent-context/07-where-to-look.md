@@ -29,6 +29,7 @@
 | Pages / blocks builder | `vitrina/docs/ARCHITECTURE.md`, `TZ-Pages-Builder-Phase1.md` | `vitrina/lib/blocks/` |
 | Промо-уголок хаба / страницы | этот файл §vitrina | `lib/promo/`, `components/admin/promo-story-editor.tsx`, `components/public/promo/`, `pages.promo` + `settings.hub_promo` |
 | AI Content Builder | `vitrina/docs/TZ-AI-Content-Builder-Tourism.md` | `components/admin/content-builder-client.tsx`, `app/api/admin/t/[tenantSlug]/ai/cb/`, `lib/page-templates/categories/` |
+| Welcome ↔ Vitrina: кто где правит | `vitrina/docs/WELCOME-INDEX.md`; Welcome `VITRINA-AI-MATCHING.md` §0 | Tour Hub = KB/аудио; Vitrina = тенант; Welcome `/admin/` = pitch/теги этой страны. Индекс `GET /api/tenants/:slug/pages` |
 | Заявки TourHub → inbox | [02-ecosystem-data-flow.md](./02-ecosystem-data-flow.md) | `tourhub/app/api/marketplace-request/`, `mega-hub/app/api/marketplace/request/` |
 | Hub events / карта / QR | `mega-hub/ARCHITECTURE.md` | `mega-hub/app/e/`, `app/organizer/` |
 | Стиль и git | [06-conventions-for-agents.md](./06-conventions-for-agents.md) | — |
@@ -47,6 +48,7 @@
 | Интеграция Touchin | `vitrina/docs/INTEGRATION-TOUCHIN-VITRINA.md` | embed, identify |
 | Тест-репорты | `vitrina/docs/reports/V-*.md` | prod E2E фикстура `qa-sandbox` |
 | Handoff | `vitrina/docs/HANDOFF.md` | — |
+| Индекс страниц для Welcome / ИИ | `vitrina/docs/WELCOME-INDEX.md` | `GET /api/tenants/:tenant/pages`; pitch не в Tour Hub KB |
 | **Backup / restore** | `vitrina/docs/backup.md` | `scripts/backup-db.sh`, `.github/workflows/daily-backup.yml` |
 | **Supabase migration** | `vitrina/docs/supabase-migration.md` | restore artifact + `db:push:prod` |
 
